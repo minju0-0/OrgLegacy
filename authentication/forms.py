@@ -7,9 +7,8 @@ from .models import Profile
 class RegisterForm(UserCreationForm):
     """
     Registration form for OrgLegacy. Collects the base Django User
-    fields (username/password) plus the OrgLegacy-specific profile
-    fields (role, organization, student status) so a single sign-up
-    step creates both the account and its role assignment.
+    fields (username/password) and email, creating both the user account
+    and its associated profile.
     """
     email = forms.EmailField(required=True, help_text="Use your institutional email.")
 
@@ -28,9 +27,6 @@ class RegisterForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=commit)
         if commit:
-            Profile.objects.create(
-                user=user,
-                organization_name='',
-                student_status='',
-            )
+            Profile.objects.create(user=user)
         return user
+

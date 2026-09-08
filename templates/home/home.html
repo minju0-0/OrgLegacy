@@ -20,11 +20,5 @@
 <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-16 text-center">
     <h1 class="text-4xl font-extrabold tracking-widest text-org-navy mb-3">HOME SCREEN</h1>
     <p class="text-slate-500">Welcome, <span class="font-semibold text-slate-700">{{ user.username }}</span>.</p>
-    {% if user.profile %}
-    <p class="text-slate-500 mt-1">{{ user.profile.organization_name }}</p>
-    <span class="role-badge inline-block mt-4 px-4 py-1.5 rounded-full bg-indigo-50 text-org-navy text-xs font-bold">
-        {{ user.profile.get_role_display }}
-    </span>
-    {% endif %}
 </main>
 {% endblock %}
