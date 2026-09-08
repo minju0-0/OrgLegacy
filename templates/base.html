@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="view-transition" content="same-origin">
+    <title>{% block title %}OrgLegacy{% endblock %}</title>
+
+    <!-- Google Fonts: Newsreader (Editorial Serif) & Plus Jakarta Sans (Precision Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        warm: {
+                            espresso: '#1c1917',
+                            'espresso-dark': '#141210',
+                            vellum: '#faf8f5',
+                            'vellum-tint': '#f4f0eb',
+                            linen: '#e5dfd5',
+                            'linen-dark': '#d6cec2',
+                            walnut: '#8a5a36',
+                            'walnut-light': '#a67248',
+                            charcoal: '#57534e',
+                            crimson: '#c53030',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Newsreader', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-warm-vellum text-warm-espresso font-sans h-screen overflow-hidden antialiased">
+    {% block content %}{% endblock %}
+
+    <!-- Shared Eased Split-Screen Slide Transition Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('auth-split-layout');
+            if (!container) return;
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Handle incoming transition animation
+            const incomingTransition = sessionStorage.getItem('orglegacy_auth_slide');
+            if (incomingTransition && !prefersReducedMotion) {
+                container.classList.add(incomingTransition === 'to-register' ? 'slide-in-from-right' : 'slide-in-from-left');
+                sessionStorage.removeItem('orglegacy_auth_slide');
+                setTimeout(() => {
+                    container.classList.remove('slide-in-from-right', 'slide-in-from-left');
+                }, 350);
+            }
+
+            // Intercept navigation links between Login and Register for directional slide
+            document.querySelectorAll('[data-auth-slide]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (prefersReducedMotion) return;
+
+                    const targetDirection = link.getAttribute('data-auth-slide');
+                    e.preventDefault();
+                    const destination = link.href;
+                    sessionStorage.setItem('orglegacy_auth_slide', targetDirection);
+
+                    container.classList.add(targetDirection === 'to-register' ? 'slide-out-to-left' : 'slide-out-to-right');
+
+                    setTimeout(() => {
+                        window.location.href = destination;
+                    }, 260);
+                });
+            });
+
+            // Auto-expand password security requirements on focus
+            const pwdInputs = document.querySelectorAll('input[type="password"]');
+            const pwdDetails = document.getElementById('password-rules-details');
+            if (pwdDetails && pwdInputs.length > 0) {
+                pwdInputs.forEach(input => {
+                    input.addEventListener('focus', () => {
+                        pwdDetails.open = true;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
