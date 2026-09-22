@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Log in | OrgLegacy{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login/login.css' %}">
+{% endblock %}
+{% block content %}
+<div id="auth-split-layout" class="w-full h-screen overflow-hidden flex flex-col md:flex-row bg-warm-vellum">
+
+    <!-- LEFT HALF: Warm Handover Meeting Photography -->
+    <div class="auth-hero-panel relative w-full md:w-1/2 h-36 sm:h-48 md:h-full overflow-hidden bg-warm-espresso flex-shrink-0 border-b md:border-b-0 md:border-r border-warm-linen">
+        <img src="{% static 'images/shared/handover-table.jpg' %}"
+             alt="Student leaders around a wooden meeting table with documents, notes, and coffee"
+             class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
+
+        <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/25 to-stone-950/65"></div>
+
+        <div class="relative z-10 h-full flex flex-col justify-between p-6 sm:p-8 md:p-12 lg:p-14 text-white select-none">
+            <!-- Brand Identity -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path>
+                        <path d="M3 7v13a2 2 0 0 0 2 2h13"></path>
+                        <line x1="9" y1="8" x2="15" y2="8"></line>
+                        <line x1="9" y1="12" x2="15" y2="12"></line>
+                        <line x1="9" y1="16" x2="13" y2="16"></line>
+                    </svg>
+                    <span class="font-serif text-xl font-medium tracking-tight text-white">OrgLegacy</span>
+                </div>
+                <span class="auth-badge hidden sm:inline-flex">Member sign-in</span>
+            </div>
+
+            <!-- Tagline -->
+            <div class="hidden md:block max-w-sm my-auto space-y-3">
+                <h2 class="font-serif text-2xl lg:text-3xl font-normal leading-snug text-white">
+                    Preserving student organization knowledge across leadership handovers.
+                </h2>
+                <p class="text-xs text-white/75 leading-relaxed font-sans font-normal">
+                    Charters, event playbooks, supplier directories, and committee notes preserved for incoming officers.
+                </p>
+            </div>
+
+            <div class="hidden md:block text-xs text-white/50 font-sans">
+                Student Organization Knowledge Handover Platform
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT HALF: Login Form -->
+    <div class="w-full md:w-1/2 h-full flex-1 flex flex-col justify-center overflow-y-auto bg-warm-vellum p-6 sm:p-10 md:p-12 lg:p-16">
+        <div id="login-form-panel" class="max-w-sm w-full mx-auto py-2">
+            <div class="mb-6">
+                <h1 class="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-warm-espresso">Log in</h1>
+                <p class="text-xs text-warm-charcoal mt-1.5 leading-normal">Enter your username and password to access your organization's archive.</p>
+            </div>
+
+            {% if messages %}
+            <div class="mb-4 space-y-2">
+                {% for message in messages %}
+                <div class="p-3 rounded-md text-xs font-medium border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'info' %}bg-blue-50 border-blue-200 text-blue-800{% else %}bg-emerald-50 border-emerald-200 text-emerald-800{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="nonfield-errors">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+
+                <div>
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="text-xs text-warm-crimson mt-1">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                    <div class="text-xs text-warm-crimson mt-1">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-primary w-full h-10 text-sm rounded-md mt-2">
+                    Log in
+                </button>
+            </form>
+
+            <p class="text-center text-xs text-warm-charcoal mt-6">
+                Need an account?
+                <a href="{% url 'register:register' %}" data-auth-slide="to-register" class="font-semibold text-warm-espresso hover:underline">Create an account</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

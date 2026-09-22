@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Profile | OrgLegacy{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile/profile.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'partials/_navbar.html' %}
+
+<div class="flex-1 min-h-0 flex flex-row w-full">
+{% include 'partials/_sidebar.html' with active_page='profile' %}
+
+<main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
+    <div class="w-full px-6 sm:px-10 lg:px-12 py-8 pb-24">
+
+        <header class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-serif font-normal text-warm-espresso">Personal Profile</h1>
+            <p class="text-sm font-serif italic text-warm-charcoal mt-1">Institutional record and public archival attribution for your account.</p>
+        </header>
+
+        <!-- Full-width card with top-centered avatar banner -->
+        <div class="card p-6 sm:p-10 lg:p-12 w-full shadow-sm">
+
+            <!-- Top Avatar Header -->
+            <div class="flex flex-col items-center text-center pb-8 border-b border-warm-linen">
+                <div class="profile-avatar-frame mb-3.5">
+                    <span id="avatar-fallback" class="font-serif text-3xl text-warm-charcoal select-none">
+                        {{ user.first_name|default:user.username|make_list|first|upper }}
+                    </span>
+                    <img id="avatar-preview" 
+                         src="{{ profile_form.avatar_url.value|default:'' }}" 
+                         alt="Portrait preview" 
+                         class="absolute inset-0 w-full h-full object-cover hidden" 
+                         onerror="this.classList.add('hidden'); document.getElementById('avatar-fallback').classList.remove('hidden');" 
+                         onload="this.classList.remove('hidden'); document.getElementById('avatar-fallback').classList.add('hidden');">
+                </div>
+                <h2 class="text-xl sm:text-2xl font-serif font-medium text-warm-espresso">
+                    {{ user.first_name|default:user.username }} {{ user.last_name }}
+                </h2>
+                <p class="text-sm text-warm-charcoal mt-0.5">@{{ user.username }}</p>
+            </div>
+
+            <!-- Form fields filling the full container width -->
+            <form method="post" id="profile-form" class="space-y-10 w-full mt-8">
+                {% csrf_token %}
+
+                <!-- Section: Account details -->
+                <section>
+                    <div class="mb-6">
+                        <h3 class="text-lg font-serif font-medium text-warm-espresso">Account details</h3>
+                        <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Identity credentials registered with the archive directory.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <div class="w-full">
+                                <label class="form-label" for="{{ user_form.first_name.id_for_label }}">{{ user_form.first_name.label }}</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                <p class="text-xs font-serif text-warm-crimson mt-1.5">{{ user_form.first_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="w-full">
+                                <label class="form-label" for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                <p class="text-xs font-serif text-warm-crimson mt-1.5">{{ user_form.last_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="w-full">
+                            <label class="form-label" for="{{ user_form.email.id_for_label }}">{{ user_form.email.label }}</label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                            <p class="text-xs font-serif text-warm-crimson mt-1.5">{{ user_form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-t border-warm-linen">
+
+                <!-- Section: Profile details -->
+                <section>
+                    <div class="mb-6">
+                        <h3 class="text-lg font-serif font-medium text-warm-espresso">Profile details</h3>
+                        <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Biographical notes and portrait rendered alongside cataloged items.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="w-full">
+                            <label class="form-label" for="{{ profile_form.avatar_url.id_for_label }}">{{ profile_form.avatar_url.label }}</label>
+                            {{ profile_form.avatar_url }}
+                            {% if profile_form.avatar_url.help_text %}
+                            <p class="helptext text-xs text-warm-charcoal mt-1.5">{{ profile_form.avatar_url.help_text }}</p>
+                            {% else %}
+                            <p class="helptext text-xs text-warm-charcoal mt-1.5">Direct address to an image file (JPEG, PNG, or WebP).</p>
+                            {% endif %}
+                            {% if profile_form.avatar_url.errors %}
+                            <p class="text-xs font-serif text-warm-crimson mt-1.5">{{ profile_form.avatar_url.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="w-full">
+                            <div class="flex items-baseline justify-between mb-1.5">
+                                <label class="form-label mb-0" for="{{ profile_form.bio.id_for_label }}">{{ profile_form.bio.label }}</label>
+                                <span id="bio-counter" class="text-xs font-serif italic text-warm-charcoal">
+                                    <span id="bio-count" class="font-mono not-italic">0</span> of 300 characters
+                                </span>
+                            </div>
+                            {{ profile_form.bio }}
+                            {% if profile_form.bio.help_text %}
+                            <p class="helptext text-xs text-warm-charcoal mt-1.5">{{ profile_form.bio.help_text }}</p>
+                            {% endif %}
+                            {% if profile_form.bio.errors %}
+                            <p class="text-xs font-serif text-warm-crimson mt-1.5">{{ profile_form.bio.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <div class="border-t border-warm-linen pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div id="inline-save-feedback" class="text-xs font-serif italic text-warm-moss min-h-[1.25rem]"></div>
+                    <button type="submit" id="save-profile-btn" class="btn-primary text-sm px-8 py-2.5 rounded-md self-end sm:self-auto">
+                        Save changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/profile/profile.js' %}"></script>
+{% endblock %}

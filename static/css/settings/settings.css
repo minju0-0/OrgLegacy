@@ -1,0 +1,20 @@
+/* Settings feature — styling specific to the settings screen only */
+
+#password-form input[type="password"],
+#password-form input[type="text"],
+#delete-form input[type="text"] {
+    width: 100% !important;
+}
+
+.pwd-strength-bar {
+    height: 4px;
+    width: 25%;
+    background-color: var(--warm-linen);
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+}
+
+.danger-zone-card {
+    border: 1px solid rgba(133, 34, 33, 0.25);
+    background-color: #fdf6f5;
+}

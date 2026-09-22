@@ -7,10 +7,10 @@
     <meta name="view-transition" content="same-origin">
     <title>{% block title %}OrgLegacy{% endblock %}</title>
 
-    <!-- Google Fonts: Newsreader (Editorial Serif) & Plus Jakarta Sans (Precision Sans) -->
+    <!-- Google Fonts: Tinos (institutional serif) & IBM Plex Mono (literal data only) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,75 +23,40 @@
                             espresso: '#1c1917',
                             'espresso-dark': '#141210',
                             vellum: '#faf8f5',
-                            'vellum-tint': '#f4f0eb',
-                            linen: '#e5dfd5',
-                            'linen-dark': '#d6cec2',
-                            walnut: '#8a5a36',
-                            'walnut-light': '#a67248',
+                            'vellum-tint': '#f5f1ea',
+                            linen: '#e4dcd2',
+                            'linen-dark': '#d3c7b9',
+                            walnut: '#785135',
+                            'walnut-light': '#936746',
                             charcoal: '#57534e',
-                            crimson: '#c53030',
+                            crimson: '#852221',
+                            'crimson-dark': '#6b1b1a',
+                            moss: '#2d4a34',
+                            ink: '#1c1917',
                         }
                     },
                     fontFamily: {
-                        serif: ['Newsreader', 'Georgia', 'serif'],
-                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        serif: ['Tinos', 'Times New Roman', 'Times', 'Georgia', 'serif'],
+                        sans: ['Tinos', 'Times New Roman', 'Times', 'Georgia', 'serif'],
+                        mono: ['IBM Plex Mono', 'Menlo', 'monospace'],
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Shared design tokens, reset, and component styles (used by every feature) -->
+    <link rel="stylesheet" href="{% static 'css/shared/base.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-warm-vellum text-warm-espresso font-sans h-screen overflow-hidden antialiased">
+<body class="bg-warm-vellum text-warm-espresso font-sans h-screen flex flex-col overflow-hidden antialiased">
     {% block content %}{% endblock %}
 
-    <!-- Shared Eased Split-Screen Slide Transition Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('auth-split-layout');
-            if (!container) return;
+    <!-- Global Toast Container -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            // Handle incoming transition animation
-            const incomingTransition = sessionStorage.getItem('orglegacy_auth_slide');
-            if (incomingTransition && !prefersReducedMotion) {
-                container.classList.add(incomingTransition === 'to-register' ? 'slide-in-from-right' : 'slide-in-from-left');
-                sessionStorage.removeItem('orglegacy_auth_slide');
-                setTimeout(() => {
-                    container.classList.remove('slide-in-from-right', 'slide-in-from-left');
-                }, 350);
-            }
-
-            // Intercept navigation links between Login and Register for directional slide
-            document.querySelectorAll('[data-auth-slide]').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    if (prefersReducedMotion) return;
-
-                    const targetDirection = link.getAttribute('data-auth-slide');
-                    e.preventDefault();
-                    const destination = link.href;
-                    sessionStorage.setItem('orglegacy_auth_slide', targetDirection);
-
-                    container.classList.add(targetDirection === 'to-register' ? 'slide-out-to-left' : 'slide-out-to-right');
-
-                    setTimeout(() => {
-                        window.location.href = destination;
-                    }, 260);
-                });
-            });
-
-            // Auto-expand password security requirements on focus
-            const pwdInputs = document.querySelectorAll('input[type="password"]');
-            const pwdDetails = document.getElementById('password-rules-details');
-            if (pwdDetails && pwdInputs.length > 0) {
-                pwdInputs.forEach(input => {
-                    input.addEventListener('focus', () => {
-                        pwdDetails.open = true;
-                    });
-                });
-            }
-        });
-    </script>
+    <!-- Shared behavior: auth slide transition + toast helper -->
+    <script src="{% static 'js/shared/base.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

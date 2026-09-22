@@ -1,0 +1,62 @@
+/* Sizing and alignment for the centered avatar frame */
+.profile-avatar-frame {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 999px;
+    border: 2px solid var(--warm-linen-dark, #d1ccc0);
+    background-color: var(--warm-vellum-tint, #f9f8f6);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+    .profile-avatar-frame { 
+        width: 6.5rem; 
+        height: 6.5rem; 
+    }
+}
+
+/* Ensure inputs and textareas span 100% of their containers */
+#profile-form input[type="text"],
+#profile-form input[type="email"],
+#profile-form input[type="url"],
+#profile-form textarea {
+    width: 100% !important;
+    display: block;
+    box-sizing: border-box;
+    padding: 0.65rem 0.875rem;
+    font-size: 0.95rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--warm-linen-dark, #d1ccc0);
+    background-color: #fff;
+    color: inherit;
+}
+
+#profile-form input[type="text"]:focus,
+#profile-form input[type="email"]:focus,
+#profile-form input[type="url"]:focus,
+#profile-form textarea:focus {
+    outline: none;
+    border-color: var(--warm-espresso, #4a3728);
+    box-shadow: 0 0 0 2px rgba(74, 55, 40, 0.15);
+}
+
+#profile-form textarea {
+    min-height: 8.5rem;
+    resize: vertical;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.375rem;
+}
+
+#bio-counter.limit-exceeded { 
+    color: var(--warm-crimson, #b91c1c); 
+}

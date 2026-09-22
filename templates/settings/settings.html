@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Settings | OrgLegacy{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings/settings.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'partials/_navbar.html' %}
+
+<div class="flex-1 min-h-0 flex flex-row w-full">
+{% include 'partials/_sidebar.html' with active_page='settings' %}
+
+<main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
+    <div class="w-full px-8 sm:px-12 py-12 pb-24">
+
+        <header class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-serif font-normal text-warm-espresso">Account Settings</h1>
+            <p class="text-sm font-serif italic text-warm-charcoal mt-1">Security credentials and institutional account lifecycle.</p>
+        </header>
+
+        <div class="space-y-6 w-full">
+            <!-- Change Password -->
+            <section class="card w-full p-6 sm:p-8">
+                <div class="mb-5">
+                    <h2 class="text-lg font-serif font-medium text-warm-espresso">Change password</h2>
+                    <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Ensure your account uses an authoritative, high-entropy password.</p>
+                </div>
+
+                <form method="post" id="password-form" class="space-y-5 w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_name" value="change_password">
+
+                    {% for field in password_form %}
+                    <div class="w-full">
+                        <div class="flex items-baseline justify-between mb-1">
+                            <label class="form-label mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+
+                        <div class="relative w-full">
+                            {{ field }}
+                            <button type="button" class="pwd-toggle absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-serif text-warm-charcoal hover:text-warm-espresso px-1 py-0.5" aria-label="Toggle password visibility">
+                                Show
+                            </button>
+                        </div>
+
+                        {% if field.name == 'new_password1' %}
+                        <div class="mt-2 space-y-1 w-full">
+                            <div class="flex h-1 gap-1 w-full bg-warm-linen/40 overflow-hidden rounded-full">
+                                <div id="pwd-str-1" class="pwd-strength-bar"></div>
+                                <div id="pwd-str-2" class="pwd-strength-bar"></div>
+                                <div id="pwd-str-3" class="pwd-strength-bar"></div>
+                                <div id="pwd-str-4" class="pwd-strength-bar"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs font-serif italic text-warm-charcoal">
+                                <span id="pwd-str-text">Password strength: pending input</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if field.name == 'new_password2' %}
+                        <div id="pwd-match-indicator" class="mt-1.5 text-xs font-serif italic hidden"></div>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                        <div class="helptext mt-1.5">{{ field.help_text|safe }}</div>
+                        {% endif %}
+
+                        {% if field.errors %}
+                        <p class="text-xs font-serif text-warm-crimson mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    {% if password_form.non_field_errors %}
+                    <p class="text-xs font-serif text-warm-crimson mt-1">{{ password_form.non_field_errors.0 }}</p>
+                    {% endif %}
+
+                    <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div id="pwd-feedback-area" class="text-xs font-serif italic min-h-[1.25rem]"></div>
+                        <button type="submit" id="save-pwd-btn" class="btn-primary text-sm px-7 py-2.5 rounded-md">
+                            Update password
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Danger Zone / Account Deletion -->
+            <section class="card danger-zone-card w-full p-6 sm:p-8">
+                <div class="mb-4">
+                    <h2 class="text-lg font-serif font-medium text-warm-crimson flex items-center gap-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                        Danger zone
+                    </h2>
+                    <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Permanent revocation of archival credentials and identity.</p>
+                </div>
+
+                <div class="space-y-4 w-full">
+                    <p class="text-sm font-serif text-warm-espresso leading-relaxed">
+                        Deleting your account will permanently purge your login credentials, profile attribution, and administrative history from the institutional archive. This action is irreversible.
+                    </p>
+
+                    <form method="post" id="delete-form" class="space-y-4 pt-1 w-full">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_name" value="delete_account">
+
+                        <div class="w-full">
+                            <label class="form-label" for="{{ delete_form.confirm.id_for_label }}">
+                                To confirm, please type <span class="font-mono font-normal text-warm-espresso bg-warm-linen/40 px-1 py-0.5 rounded">DELETE</span> in the box below:
+                            </label>
+                            {{ delete_form.confirm }}
+                            {% if delete_form.confirm.errors %}
+                            <p class="text-xs font-serif text-warm-crimson mt-1">{{ delete_form.confirm.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" id="delete-account-btn" disabled class="btn-danger-outline text-sm px-6 py-2.5 rounded-md">
+                                Delete my account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/settings/settings.js' %}"></script>
+{% endblock %}
