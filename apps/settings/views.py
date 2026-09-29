@@ -28,7 +28,7 @@ def settings_view(request):
                 # without this the user would be silently logged out.
                 update_session_auth_hash(request, user)
                 messages.success(request, "Your password has been changed.")
-                return redirect('settings:settings')
+                return redirect('settings')
 
         elif form_name == 'delete_account':
             delete_form = AccountDeleteForm(request.POST)
@@ -37,7 +37,7 @@ def settings_view(request):
                 logout(request)
                 user.delete()  # cascades to accounts.Profile via on_delete=CASCADE
                 messages.info(request, "Your account has been permanently deleted.")
-                return redirect('login:login')
+                return redirect('ogin')
 
     return render(request, 'settings/settings.html', {
         'password_form': password_form,

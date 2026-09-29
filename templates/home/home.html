@@ -4,7 +4,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home/home.css' %}">
 {% endblock %}
-
 {% block content %}
 {% include 'partials/_navbar.html' %}
 
@@ -12,42 +11,78 @@
 {% include 'partials/_sidebar.html' with active_page='home' %}
 
 <main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
-    <div class="max-w-6xl w-full mx-auto px-8 sm:px-12 py-12 pb-24 space-y-10">
+    <div class="max-w-6xl w-full mx-auto px-8 sm:px-12 py-12 pb-24">
 
-        <!-- Welcome Banner -->
-        <div class="rounded-2xl px-6 sm:px-10 py-8 sm:py-10 bg-white border border-stone-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-                <p class="text-[11px] uppercase tracking-widest text-warm-charcoal/70 font-semibold mb-2">Institutional Archive</p>
-                <h1 class="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-warm-espresso">
-                    Welcome back, {{ user.first_name|default:user.username }}.
-                </h1>
-                <p class="text-sm text-warm-charcoal mt-2 max-w-lg leading-relaxed">
-                    This is your workspace for term records, committee handovers, and supplier archives.
-                </p>
+        <!-- Welcome banner -->
+        <div class="welcome-banner rounded-2xl px-6 sm:px-10 py-8 sm:py-10 text-white mb-10">
+            <p class="text-[11px] uppercase tracking-widest text-white/60 mb-2">Institutional Archive</p>
+            <h1 class="font-serif text-2xl sm:text-3xl font-medium tracking-tight">
+                Welcome back, {{ user.first_name|default:user.username }}.
+            </h1>
+            <p class="text-sm text-white/70 mt-2 max-w-lg">
+                This is your organization's home base for handover knowledge — charters, playbooks,
+                directories, and notes kept safe from one leadership team to the next.
+            </p>
+        </div>
+
+        <!-- Quick links -->
+        <div class="mb-10">
+            <h2 class="font-serif text-lg font-medium text-warm-espresso mb-1">Your account</h2>
+            <p class="text-xs font-serif italic text-warm-charcoal mb-4">Keep your profile and security settings up to date.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="{% url 'profile' %}" class="card feature-tile flex items-center gap-4 p-5">
+                    <span class="w-10 h-10 rounded-lg bg-warm-linen flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-warm-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5"/></svg>
+                    </span>
+                    <span>
+                        <span class="block font-serif font-medium text-warm-espresso">Edit your profile</span>
+                        <span class="block text-xs text-warm-charcoal mt-0.5">Update your name, email, bio, and photo.</span>
+                    </span>
+                </a>
+                <a href="{% url 'settings' %}" class="card feature-tile flex items-center gap-4 p-5">
+                    <span class="w-10 h-10 rounded-lg bg-warm-linen flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-warm-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H4a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5.6 8.4a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H10a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V8.6c.14.62.62 1.13 1.51 1.4H22a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </span>
+                    <span>
+                        <span class="block font-serif font-medium text-warm-espresso">Account settings</span>
+                        <span class="block text-xs text-warm-charcoal mt-0.5">Change your password or manage your account.</span>
+                    </span>
+                </a>
             </div>
         </div>
 
-        <!-- Section: Organization Workspace Status -->
+        <!-- Upcoming feature slices -->
         <div>
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="font-serif text-lg font-medium text-warm-espresso">Your Affiliated Organizations</h2>
-                    <p class="text-xs font-serif italic text-warm-charcoal">Active memberships, leadership seats, and committee appointments.</p>
+            <h2 class="font-serif text-lg font-medium text-warm-espresso mb-1">Coming to the archive</h2>
+            <p class="text-xs font-serif italic text-warm-charcoal mb-4">Each of these will arrive as its own vertical slice — its own app, templates, and static assets.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card feature-tile p-5 opacity-90">
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="font-serif font-medium text-warm-espresso">Event Logger</span>
+                        <span class="coming-soon-badge">Planned</span>
+                    </div>
+                    <p class="text-xs text-warm-charcoal leading-relaxed">Record events, attendance, and outcomes for future officers to reference.</p>
                 </div>
-            </div>
-
-            <!-- Closed-Door Push-Based Empty State -->
-            <div class="rounded-xl border border-dashed border-stone-300 bg-white/60 p-10 text-center max-w-xl mx-auto my-4">
-                <div class="w-12 h-12 rounded-full bg-warm-linen mx-auto flex items-center justify-center text-warm-espresso mb-3 shadow-xs">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <div class="card feature-tile p-5 opacity-90">
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="font-serif font-medium text-warm-espresso">Supplier Directory</span>
+                        <span class="coming-soon-badge">Planned</span>
+                    </div>
+                    <p class="text-xs text-warm-charcoal leading-relaxed">Keep vendor contacts, pricing notes, and reliability history in one place.</p>
                 </div>
-                <h3 class="font-serif text-base font-medium text-warm-espresso">No active organization memberships</h3>
-                <p class="text-xs text-warm-charcoal mt-2 leading-relaxed">
-                    OrgLegacy uses closed-access delegation. You cannot search or request to join organizations. 
-                    An Executive or Committee Head must add your registered account directly using your email:
-                </p>
-                <div class="mt-4 inline-block px-3 py-1.5 rounded-md bg-stone-100 border border-stone-200 text-xs font-mono text-warm-espresso select-all">
-                    {{ user.email }}
+                <div class="card feature-tile p-5 opacity-90">
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="font-serif font-medium text-warm-espresso">Handover Notes</span>
+                        <span class="coming-soon-badge">Planned</span>
+                    </div>
+                    <p class="text-xs text-warm-charcoal leading-relaxed">Structured notes from outgoing officers for the incoming team.</p>
+                </div>
+                <div class="card feature-tile p-5 opacity-90">
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="font-serif font-medium text-warm-espresso">Adviser Sign-off</span>
+                        <span class="coming-soon-badge">Planned</span>
+                    </div>
+                    <p class="text-xs text-warm-charcoal leading-relaxed">A lightweight approval trail for documents that need adviser review.</p>
                 </div>
             </div>
         </div>

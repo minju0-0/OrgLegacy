@@ -1,10 +1,4 @@
-/* Settings feature — styling specific to the settings screen only */
-
-#password-form input[type="password"],
-#password-form input[type="text"],
-#delete-form input[type="text"] {
-    width: 100% !important;
-}
+/* Settings feature — styling specific to the settings screen only. */
 
 .pwd-strength-bar {
     height: 4px;

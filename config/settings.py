@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ["DATABASE_URL"],
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=True
     )
 }
 
@@ -120,6 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'accounts.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
@@ -146,9 +147,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # --- OrgLegacy auth flow ---
-LOGIN_URL = 'login:login'
-LOGIN_REDIRECT_URL = 'home:home'
-LOGOUT_REDIRECT_URL = 'login:login'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
 
 
 # Email

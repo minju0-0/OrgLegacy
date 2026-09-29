@@ -10,7 +10,7 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(pattern_name='login:login', permanent=False)),
+    path('', RedirectView.as_view(pattern_name='login', permanent=False)),
     path('login/', include('apps.login.urls')),
     path('register/', include('apps.register.urls')),
     path('home/', include('apps.home.urls')),

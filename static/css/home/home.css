@@ -1,38 +1,28 @@
+/* Home feature — styling specific to the dashboard/home screen only. */
+
+.feature-tile {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feature-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(28, 25, 23, 0.08);
+}
+
+.feature-tile .coming-soon-badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--warm-walnut);
+    background-color: #f4ece3;
+    border: 1px solid #e6d7c5;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+}
+
 .welcome-banner {
     background: linear-gradient(135deg, var(--warm-espresso) 0%, #2a2420 100%);
-}
-
-/* Role Badges */
-.role-badge {
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 0.2rem 0.5rem;
-    border-radius: 9999px;
-    white-space: nowrap;
-}
-
-.role-badge-executive {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fde68a;
-}
-
-.role-badge-committee_head {
-    background-color: #e0e7ff;
-    color: #3730a3;
-    border: 1px solid #c7d2fe;
-}
-
-.role-badge-adviser {
-    background-color: #fce7f3;
-    color: #9d174d;
-    border: 1px solid #fbcfe8;
-}
-
-.role-badge-member {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #e5e7eb;
 }

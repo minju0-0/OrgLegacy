@@ -9,4 +9,12 @@
             <span class="text-[10px] uppercase tracking-widest text-warm-vellum/55">Institutional Archive</span>
         </div>
     </div>
+
+    <div class="flex items-center gap-3">
+        <div class="text-right leading-tight hidden sm:block">
+            <span class="text-sm text-warm-vellum block">{{ request.user.get_full_name|default:request.user.username }}</span>
+            <span class="text-[11px] italic text-warm-vellum/50">{{ request.user.username }}</span>
+        </div>
+        <span class="avatar-chip avatar-chip--topbar" title="{{ request.user.username }}">{{ request.user.username|first|upper }}</span>
+    </div>
 </nav>
