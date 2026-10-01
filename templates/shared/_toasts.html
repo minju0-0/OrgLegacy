@@ -1,0 +1,3 @@
+<div class="toasts" role="status" aria-live="polite" id="toasts">
+  {% for message in messages %}<div class="toast toast--{{ message.tags }}"><span class="toast__dot" aria-hidden="true"></span><span class="toast__msg">{{ message }}</span><button type="button" class="iconbtn" data-toast-close aria-label="Dismiss"><svg class="i"><use href="#i-x"/></svg></button></div>{% endfor %}
+</div>

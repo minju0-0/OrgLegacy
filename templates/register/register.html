@@ -1,100 +1,52 @@
-{% extends "base.html" %}
+{% extends "shared/base_auth.html" %}
 {% load static %}
 {% block title %}Create your account | OrgLegacy{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/register/register.css' %}">
+{% block auth_class %} auth--flip{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/shared/auth.css' %}">{% endblock %}
+
+{% block panel %}
+{% include "partials/_auth_panel.html" with badge="New member" quote="Every document preserved is a gift to the next team." sub="Event notes, supplier contacts and handover checklists, so incoming officers never start from scratch." %}
 {% endblock %}
-{% block content %}
-<div id="auth-split-layout" class="w-full h-screen overflow-hidden flex flex-col md:flex-row bg-warm-vellum">
 
-    <!-- LEFT HALF: Registration Form (mirrored) -->
-    <div class="w-full md:w-1/2 h-full flex-1 order-2 md:order-1 flex flex-col justify-center overflow-y-auto bg-warm-vellum p-6 sm:p-10 md:p-12 lg:p-16">
-        <div id="register-form-panel" class="max-w-sm w-full mx-auto py-2">
-            <div class="mb-5">
-                <h1 class="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-warm-espresso">Create your account</h1>
-                <p class="text-xs text-warm-charcoal mt-1.5 leading-normal">Set up your login. You'll be able to request to join your organization once you're signed in.</p>
-            </div>
+{% block card %}
+<div class="auth-card" id="register-form-panel">
+  <header class="auth-card__head">
+    <h1>Create your account</h1>
+    <p class="lede">Set up your login. To join an organization you will need an accession number from one of its officers.</p>
+  </header>
 
-            {% if form.non_field_errors %}
-            <div class="nonfield-errors">
-                {{ form.non_field_errors }}
-            </div>
-            {% endif %}
+  <div class="auth-card__body">
+  {% include "partials/_auth_notices.html" %}
 
-            <form method="post" class="space-y-3.5">
-                {% csrf_token %}
-                {% for field in form %}
-                <div>
-                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.name == 'password1' and field.help_text %}
-                    <details id="password-rules-details" class="group border border-warm-linen rounded-md bg-warm-vellum-tint px-3 py-1.5 text-xs text-warm-charcoal transition-all duration-150 mt-1.5" {% if field.errors %}open{% endif %}>
-                        <summary class="cursor-pointer font-medium text-warm-espresso flex items-center justify-between select-none text-[11px]">
-                            <span>Password requirements</span>
-                            <span class="text-[10px] text-warm-charcoal group-open:rotate-180 transition-transform duration-150">&#9662;</span>
-                        </summary>
-                        <div class="mt-1 pt-1.5 border-t border-warm-linen/80 text-[11px] leading-relaxed text-warm-charcoal">
-                            {{ field.help_text|safe }}
-                        </div>
-                    </details>
-                    {% elif field.help_text and field.name != 'password1' and field.name != 'password2' %}
-                    <div class="helptext text-[11px] text-warm-charcoal mt-1">{{ field.help_text }}</div>
-                    {% endif %}
-                    {% if field.errors %}
-                    <div class="text-xs text-warm-crimson mt-1">{{ field.errors }}</div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-
-                <button type="submit" class="btn-primary w-full h-10 text-sm rounded-md mt-2">
-                    Create account
-                </button>
-            </form>
-
-            <p class="text-center text-xs text-warm-charcoal mt-6">
-                Already have an account?
-                <a href="{% url 'login' %}" data-auth-slide="to-login" class="font-semibold text-warm-espresso hover:underline">Log in</a>
-            </p>
-        </div>
+  <form method="post" class="fields">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field{% if field.name == 'first_name' or field.name == 'last_name' %} field--half{% endif %}{% if field.errors %} has-error{% endif %}">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {% if field.name == 'password1' or field.name == 'password2' %}
+      <div class="pw">
+        {{ field }}
+        <button type="button" class="iconbtn" data-pw-toggle="{{ field.id_for_label }}" aria-label="Show password"><svg class="i"><use href="#i-eye"/></svg></button>
+      </div>
+      {% else %}
+      {{ field }}
+      {% endif %}
+      {% if field.name == 'password1' and field.help_text %}
+      <details class="rules" id="password-rules-details"{% if field.errors %} open{% endif %}>
+        <summary>Password requirements</summary>
+        {{ field.help_text|safe }}
+      </details>
+      {% elif field.help_text and field.name != 'password1' and field.name != 'password2' %}
+      <p class="hint">{{ field.help_text }}</p>
+      {% endif %}
+      {{ field.errors }}
     </div>
-
-    <!-- RIGHT HALF: Warm Handover Meeting Photography (mirrored) -->
-    <div class="auth-hero-panel relative w-full md:w-1/2 h-36 sm:h-48 md:h-full order-1 md:order-2 overflow-hidden bg-warm-espresso flex-shrink-0 border-b md:border-b-0 md:border-l border-warm-linen">
-        <img src="{% static 'images/shared/handover-table.jpg' %}"
-             alt="Student leaders around a wooden meeting table with documents, notes, and coffee"
-             class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
-
-        <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/25 to-stone-950/65"></div>
-
-        <div class="relative z-10 h-full flex flex-col justify-between p-6 sm:p-8 md:p-12 lg:p-14 text-white select-none">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path>
-                        <path d="M3 7v13a2 2 0 0 0 2 2h13"></path>
-                        <line x1="9" y1="8" x2="15" y2="8"></line>
-                        <line x1="9" y1="12" x2="15" y2="12"></line>
-                        <line x1="9" y1="16" x2="13" y2="16"></line>
-                    </svg>
-                    <span class="font-serif text-xl font-medium tracking-tight text-white">OrgLegacy</span>
-                </div>
-                <span class="auth-badge hidden sm:inline-flex">New member</span>
-            </div>
-
-            <div class="hidden md:block max-w-sm my-auto space-y-3">
-                <h2 class="font-serif text-2xl lg:text-3xl font-normal leading-snug text-white">
-                    Every document preserved is a gift to the next team.
-                </h2>
-                <p class="text-xs text-white/75 leading-relaxed font-sans font-normal">
-                    Store event notes, supplier contacts, and handover checklists so incoming student officers never start from scratch.
-                </p>
-            </div>
-
-            <div class="hidden md:block text-xs text-white/50 font-sans">
-                Student Organization Knowledge Handover Platform
-            </div>
-        </div>
+    {% endfor %}
+    <div class="auth-card__actions">
+      <button type="submit" class="btn btn--primary">Create account</button>
+      <a href="{% url 'login' %}" class="btn btn--ghost">Sign in</a>
     </div>
-
+  </form>
+  </div>
 </div>
 {% endblock %}

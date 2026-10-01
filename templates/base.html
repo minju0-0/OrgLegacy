@@ -1,62 +1,41 @@
+{% extends "shared/base_public.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="view-transition" content="same-origin">
-    <title>{% block title %}OrgLegacy{% endblock %}</title>
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/shared/shell.css' %}">{% block page_css %}{% endblock %}{% endblock %}
 
-    <!-- Google Fonts: Tinos (institutional serif) & IBM Plex Mono (literal data only) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        warm: {
-                            espresso: '#1c1917',
-                            'espresso-dark': '#141210',
-                            vellum: '#faf8f5',
-                            'vellum-tint': '#f5f1ea',
-                            linen: '#e4dcd2',
-                            'linen-dark': '#d3c7b9',
-                            walnut: '#785135',
-                            'walnut-light': '#936746',
-                            charcoal: '#57534e',
-                            crimson: '#852221',
-                            'crimson-dark': '#6b1b1a',
-                            moss: '#2d4a34',
-                            ink: '#1c1917',
-                        }
-                    },
-                    fontFamily: {
-                        serif: ['Tinos', 'Times New Roman', 'Times', 'Georgia', 'serif'],
-                        sans: ['Tinos', 'Times New Roman', 'Times', 'Georgia', 'serif'],
-                        mono: ['IBM Plex Mono', 'Menlo', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Shared design tokens, reset, and component styles (used by every feature) -->
-    <link rel="stylesheet" href="{% static 'css/shared/base.css' %}">
-    {% block extra_css %}{% endblock %}
-</head>
-<body class="bg-warm-vellum text-warm-espresso font-sans h-screen flex flex-col overflow-hidden antialiased">
-    {% block content %}{% endblock %}
-
-    <!-- Global Toast Container -->
-    <div id="toast-container" aria-live="polite" aria-atomic="true" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
-
-    <!-- Shared behavior: auth slide transition + toast helper -->
-    <script src="{% static 'js/shared/base.js' %}"></script>
-    {% block extra_js %}{% endblock %}
-</body>
-</html>
+{% block content %}
+{% firstof active_page request.resolver_match.url_name as current %}
+<div class="app">
+  <div class="scrim" data-drawer-close></div>
+  <aside class="side" id="sidebar" aria-label="Main">
+    <a class="wordmark side__brand" href="{% url 'home' %}">orglegacy</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}><svg class="i"><use href="#i-home"/></svg>Home</a>
+      {% block nav_slots %}{% endblock %}
+      <p class="nav__label">Account</p>
+      <a href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}><svg class="i"><use href="#i-user"/></svg>Profile</a>
+      <a href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}><svg class="i"><use href="#i-sliders"/></svg>Settings</a>
+    </nav>
+    <div class="usercard">
+      <span class="avatar" aria-hidden="true">{{ user.username|first|upper }}</span>
+      <span class="usercard__who"><b>{{ user.get_full_name|default:user.username }}</b><small class="mono">@{{ user.username }}</small></span>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+        <button type="submit" class="iconbtn" aria-label="Log out" title="Log out"><svg class="i"><use href="#i-logout"/></svg></button>
+      </form>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <p class="topbar__t">{% block page_title %}{% endblock %}</p>
+      <div class="topbar__actions">{% block topbar_actions %}{% endblock %}</div>
+    </header>
+    <main class="page" id="main">{% block page %}{% endblock %}</main>
+  </div>
+  <nav class="bottombar" aria-label="Quick">
+    <a href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}><svg class="i"><use href="#i-home"/></svg>Home</a>
+    <a href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}><svg class="i"><use href="#i-user"/></svg>Profile</a>
+    <a href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}><svg class="i"><use href="#i-sliders"/></svg>Settings</a>
+    <button type="button" data-drawer-open aria-controls="sidebar"><svg class="i"><use href="#i-menu"/></svg>Menu</button>
+  </nav>
+</div>
+{% endblock %}
+{% block extra_js %}{% block page_js %}{% endblock %}{% endblock %}

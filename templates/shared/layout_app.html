@@ -1,0 +1,40 @@
+{% extends "shared/base_app.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/app/layouts/app.css' %}">{% block page_css %}{% endblock %}{% endblock %}
+{% block body_class %}app-body{% endblock %}
+{% block body %}
+{% firstof active_page request.resolver_match.url_name as current %}
+<div class="app">
+  <aside class="app__sidebar">{% include "shared/_sidebar.html" %}</aside>
+
+  <div class="app__main">
+    <header class="topbar">
+      <button type="button" class="icon-btn icon-btn--solid topbar__menu" data-dialog-open="app-menu" aria-label="Open menu">{% include "shared/_icon.html" with name="list" %}</button>
+      <div class="topbar__crumbs">{% block crumbs %}{% endblock %}</div>
+      <div class="topbar__spacer"></div>
+      <div class="topbar__actions">{% block topbar_actions %}{% endblock %}</div>
+    </header>
+
+    <main id="main" class="app__content" tabindex="-1">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <nav class="bottombar" aria-label="Quick">
+    <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="books" %}<span>Home</span></a>
+    <a class="nav-item" href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="identification-card" %}<span>Profile</span></a>
+    <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="gear" %}<span>Settings</span></a>
+    <button type="button" class="nav-item" data-dialog-open="app-menu">{% include "shared/_icon.html" with name="list" %}<span>Menu</span></button>
+  </nav>
+</div>
+
+<dialog class="overlay drawer drawer--left app-menu-drawer" id="app-menu" aria-labelledby="app-menu-title">
+  <div class="drawer__panel">
+    <div class="drawer__head">
+      <h2 id="app-menu-title" class="card__title">Menu</h2>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Close menu">{% include "shared/_icon.html" with name="x" %}</button>
+    </div>
+    <div class="drawer__body">{% include "shared/_sidebar.html" %}</div>
+  </div>
+</dialog>
+{% endblock %}

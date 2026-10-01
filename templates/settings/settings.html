@@ -1,131 +1,124 @@
-{% extends "base.html" %}
+{% extends "shared/layout_app.html" %}
 {% load static %}
 {% block title %}Settings | OrgLegacy{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/settings/settings.css' %}">
-{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/settings/settings.css' %}">{% endblock %}
+{% block crumbs %}<span>Account</span><span aria-hidden="true">/</span><strong>Settings</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/settings/settings.js' %}" defer></script>{% endblock %}
+
 {% block content %}
-{% include 'partials/_navbar.html' %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Account Settings</h1>
+    <p class="page-head__sub">Security credentials and institutional account lifecycle.</p>
+  </div>
+</header>
 
-<div class="flex-1 min-h-0 flex flex-row">
-{% include 'partials/_sidebar.html' with active_page='settings' %}
+<div data-tabs>
+  <div class="tabs" role="tablist" aria-label="Settings sections">
+    <button type="button" class="tab" role="tab" id="tab-account" aria-controls="panel-account" aria-selected="true" data-tab="account">Account</button>
+    <button type="button" class="tab" role="tab" id="tab-password" aria-controls="panel-password" aria-selected="false" tabindex="-1" data-tab="password">Password</button>
+    <button type="button" class="tab" role="tab" id="tab-notifications" aria-controls="panel-notifications" aria-selected="false" tabindex="-1" data-tab="notifications">Notifications</button>
+  </div>
 
-<main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
-    <div class="max-w-2xl w-full mx-auto px-8 sm:px-12 py-12 pb-24">
-
-        <header class="mb-8">
-            <h1 class="text-2xl sm:text-3xl font-serif font-normal text-warm-espresso">Account Settings</h1>
-            <p class="text-sm font-serif italic text-warm-charcoal mt-1">Security credentials and institutional account lifecycle.</p>
-        </header>
-
-        <div class="space-y-6">
-            <!-- Change Password -->
-            <section class="card p-6 sm:p-8">
-                <div class="mb-5">
-                    <h2 class="text-lg font-serif font-medium text-warm-espresso">Change password</h2>
-                    <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Ensure your account uses an authoritative, high-entropy password.</p>
-                </div>
-
-                <form method="post" id="password-form" class="space-y-5">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_name" value="change_password">
-
-                    {% for field in password_form %}
-                    <div>
-                        <div class="flex items-baseline justify-between mb-1">
-                            <label class="form-label mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        </div>
-
-                        <div class="relative">
-                            {{ field }}
-                            <button type="button" class="pwd-toggle absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-serif text-warm-charcoal hover:text-warm-espresso px-1 py-0.5" aria-label="Toggle password visibility">
-                                Show
-                            </button>
-                        </div>
-
-                        {% if field.name == 'new_password1' %}
-                        <div class="mt-2 space-y-1">
-                            <div class="flex h-1 gap-1 w-full bg-warm-linen/40 overflow-hidden rounded-full">
-                                <div id="pwd-str-1" class="pwd-strength-bar"></div>
-                                <div id="pwd-str-2" class="pwd-strength-bar"></div>
-                                <div id="pwd-str-3" class="pwd-strength-bar"></div>
-                                <div id="pwd-str-4" class="pwd-strength-bar"></div>
-                            </div>
-                            <div class="flex items-center justify-between text-xs font-serif italic text-warm-charcoal">
-                                <span id="pwd-str-text">Password strength: pending input</span>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if field.name == 'new_password2' %}
-                        <div id="pwd-match-indicator" class="mt-1.5 text-xs font-serif italic hidden"></div>
-                        {% endif %}
-
-                        {% if field.help_text %}
-                        <div class="helptext mt-1.5">{{ field.help_text|safe }}</div>
-                        {% endif %}
-
-                        {% if field.errors %}
-                        <p class="text-xs font-serif text-warm-crimson mt-1">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-
-                    {% if password_form.non_field_errors %}
-                    <p class="text-xs font-serif text-warm-crimson mt-1">{{ password_form.non_field_errors.0 }}</p>
-                    {% endif %}
-
-                    <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div id="pwd-feedback-area" class="text-xs font-serif italic min-h-[1.25rem]"></div>
-                        <button type="submit" id="save-pwd-btn" class="btn-primary text-sm px-7 py-2.5 rounded-md">
-                            Update password
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <!-- Danger Zone / Account Deletion -->
-            <section class="card danger-zone-card p-6 sm:p-8">
-                <div class="mb-4">
-                    <h2 class="text-lg font-serif font-medium text-warm-crimson flex items-center gap-2">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-                        Danger zone
-                    </h2>
-                    <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Permanent revocation of archival credentials and identity.</p>
-                </div>
-
-                <div class="space-y-4">
-                    <p class="text-sm font-serif text-warm-espresso leading-relaxed">
-                        Deleting your account will permanently purge your login credentials, profile attribution, and administrative history from the institutional archive. This action is irreversible.
-                    </p>
-
-                    <form method="post" id="delete-form" class="space-y-4 pt-1">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_name" value="delete_account">
-
-                        <div>
-                            <label class="form-label" for="{{ delete_form.confirm.id_for_label }}">
-                                To confirm, please type <span class="font-mono font-normal text-warm-espresso bg-warm-linen/40 px-1 py-0.5 rounded">DELETE</span> in the box below:
-                            </label>
-                            {{ delete_form.confirm }}
-                            {% if delete_form.confirm.errors %}
-                            <p class="text-xs font-serif text-warm-crimson mt-1">{{ delete_form.confirm.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-
-                        <div class="pt-2">
-                            <button type="submit" id="delete-account-btn" disabled class="btn-danger-outline text-sm px-6 py-2.5 rounded-md">
-                                Delete my account
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
+  <div class="settings-panels">
+    <section class="tabpanel" role="tabpanel" id="panel-account" aria-labelledby="tab-account" tabindex="0">
+      <div class="settings-stack">
+        <div class="catalogue">
+          <span class="catalogue__punch" aria-hidden="true"></span>
+          <div class="catalogue__head">
+            <h2 class="catalogue__title">Account</h2>
+            <p class="catalogue__sub">The details on file for you.</p>
+          </div>
+          <div class="catalogue__body">
+            <dl class="dl">
+              <div><dt>Name</dt><dd>{% if user.first_name or user.last_name %}{{ user.get_full_name }}{% else %}Not set{% endif %}</dd></div>
+              <div><dt>Username</dt><dd class="t-mono">{{ user.username }}</dd></div>
+              <div><dt>Email</dt><dd>{{ user.email|default:"Not set" }}</dd></div>
+              <div><dt>Joined</dt><dd>{{ user.date_joined|date:"j F Y" }}</dd></div>
+            </dl>
+            <p style="margin-top: var(--space-5)"><a class="link-arrow" href="{% url 'profile' %}">Edit your details {% include "shared/_icon.html" with name="arrow-right" class="icon--sm" %}</a></p>
+          </div>
         </div>
-    </div>
-</main>
+
+        <!-- Danger zone / account deletion -->
+        <section class="danger-zone" aria-labelledby="danger-title">
+          <div class="danger-zone__intro">
+            <div class="danger-zone__head">{% include "shared/_icon.html" with name="warning" class="icon--lg" %}<h2 id="danger-title" class="danger-zone__title">Danger zone</h2></div>
+            <p>Deleting your account will permanently purge your login credentials, profile attribution, and administrative history from the institutional archive. This action is irreversible.</p>
+          </div>
+          <form method="post" action="{% url 'settings' %}#account" id="delete-form" novalidate class="form-stack danger-zone__form">
+            {% csrf_token %}
+            <input type="hidden" name="form_name" value="delete_account">
+            {% if delete_form.non_field_errors %}
+            <div class="alert alert--danger" role="alert">{% include "shared/_icon.html" with name="warning-circle" %}
+              <ul>{% for error in delete_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            </div>
+            {% endif %}
+            <div class="field{% if delete_form.confirm.errors %} field--invalid{% endif %}">
+              <label class="field__label" for="{{ delete_form.confirm.id_for_label }}">To confirm, type DELETE</label>
+              <div class="confirm-field">
+                <div class="confirm-slots" aria-hidden="true" id="confirm-slots">{% for c in "DELETE" %}<span class="confirm-slot"></span>{% endfor %}</div>
+                {{ delete_form.confirm }}
+              </div>
+              {% for error in delete_form.confirm.errors %}<p class="field__error" data-field-error id="{{ delete_form.confirm.id_for_label }}-error">{% include "shared/_icon.html" with name="warning-circle" class="icon--sm" %}<span>{{ error }}</span></p>{% endfor %}
+            </div>
+            <div><button type="submit" class="btn btn--danger" id="delete-account-btn" disabled>Delete my account</button></div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <section class="tabpanel" role="tabpanel" id="panel-password" aria-labelledby="tab-password" tabindex="0" hidden>
+      <div class="catalogue settings-narrow">
+        <span class="catalogue__punch" aria-hidden="true"></span>
+        <div class="catalogue__head">
+          <h2 class="catalogue__title">Change password</h2>
+          <p class="catalogue__sub">Ensure your account uses an authoritative, high-entropy password.</p>
+        </div>
+        <div class="catalogue__body">
+          <form method="post" action="{% url 'settings' %}#password" id="password-form" novalidate class="form-stack">
+            {% csrf_token %}
+            <input type="hidden" name="form_name" value="change_password">
+            {% if password_form.non_field_errors %}
+            <div class="alert alert--danger" role="alert">{% include "shared/_icon.html" with name="warning-circle" %}
+              <ul>{% for error in password_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            </div>
+            {% endif %}
+            {% for field in password_form %}
+              {% if field.name == 'new_password1' or field.name == 'new_password2' %}
+                {% include "shared/_field.html" with field=field password=True help=False %}
+              {% else %}
+                {% include "shared/_field.html" with field=field password=True %}
+              {% endif %}
+              {% if field.name == 'new_password1' %}
+              <div class="strength" aria-live="polite">
+                <div class="strength__bars" aria-hidden="true"><span class="pwd-strength-bar" id="pwd-str-1"></span><span class="pwd-strength-bar" id="pwd-str-2"></span><span class="pwd-strength-bar" id="pwd-str-3"></span><span class="pwd-strength-bar" id="pwd-str-4"></span></div>
+                <span class="strength__text" id="pwd-str-text">Password strength: pending input</span>
+              </div>
+              {% if field.help_text %}
+              <details class="disclosure" id="password-rules-details">
+                <summary>Password requirements {% include "shared/_icon.html" with name="caret-down" class="icon--sm" %}</summary>
+                <div>{{ field.help_text|safe }}</div>
+              </details>
+              {% endif %}
+              {% endif %}
+              {% if field.name == 'new_password2' %}<p class="match" id="pwd-match-indicator" aria-live="polite"></p>{% endif %}
+            {% endfor %}
+            <div class="form-actions">
+              <span id="pwd-feedback-area" class="form-feedback" role="status" aria-live="polite"></span>
+              <button type="submit" class="btn btn--primary" id="save-pwd-btn">Update password</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="tabpanel" role="tabpanel" id="panel-notifications" aria-labelledby="tab-notifications" tabindex="0" hidden>
+      <div class="empty settings-narrow">
+        <h2 class="empty__title">Nothing to configure yet</h2>
+        <p class="empty__text">When collections start sending reminders, such as a volume waiting for sign-off, you will choose what reaches you here.</p>
+      </div>
+    </section>
+  </div>
 </div>
-{% endblock %}
-{% block extra_js %}
-<script src="{% static 'js/settings/settings.js' %}"></script>
 {% endblock %}

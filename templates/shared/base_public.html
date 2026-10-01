@@ -1,0 +1,26 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}OrgLegacy{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}A closed-door institutional memory for student organizations.{% endblock %}">
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="preload" href="{% static 'fonts/literata-latin-600-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{% static 'fonts/geist-sans-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="{% static 'css/shared/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shared/tokens.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shared/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shared/ledger.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shared/imagery.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <a class="skip" href="#main">Skip to content</a>
+    {% include "partials/_icons.html" %}
+    {% block content %}{% endblock %}
+    {% include "shared/_toasts.html" %}
+    <script src="{% static 'js/shared/app.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

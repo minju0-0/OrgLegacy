@@ -75,13 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const doc = new DOMParser().parseFromString(html, 'text/html');
 
                 const newForm = doc.getElementById('profile-form');
-                const hasErrors = newForm && newForm.querySelector('.text-warm-crimson');
+                if (!newForm) { window.location.href = res.url; return; }
+                const hasErrors = newForm.querySelector('.field--invalid, .alert--danger');
 
                 if (hasErrors) {
                     form.innerHTML = newForm.innerHTML;
                     bindProfileEvents();
-                    feedback.textContent = 'Please correct the indicated fields above.';
-                    feedback.className = 'text-xs font-serif italic text-warm-crimson min-h-[1.25rem]';
+                    const fresh = document.getElementById('inline-save-feedback');
+                    if (fresh) {
+                        fresh.textContent = 'Please correct the indicated fields above.';
+                        fresh.className = 'form-feedback is-error';
+                    }
+                    const firstBad = form.querySelector('.field--invalid input');
+                    if (firstBad) firstBad.focus();
                 } else {
                     form.innerHTML = newForm.innerHTML;
                     bindProfileEvents();
@@ -89,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const newFeedback = document.getElementById('inline-save-feedback');
                     if (newFeedback) {
                         newFeedback.textContent = 'Changes recorded to institutional profile.';
-                        newFeedback.className = 'text-xs font-serif italic text-warm-moss min-h-[1.25rem]';
+                        newFeedback.className = 'form-feedback is-ok';
                     }
 
                     if (typeof showToast === 'function') {
@@ -98,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {
                 feedback.textContent = 'Unable to save changes. Please try again.';
-                feedback.className = 'text-xs font-serif italic text-warm-crimson min-h-[1.25rem]';
+                feedback.className = 'form-feedback is-error';
             } finally {
                 const newBtn = document.getElementById('save-profile-btn');
                 if (newBtn) {

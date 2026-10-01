@@ -1,21 +1,12 @@
-/* Profile feature — styling specific to the profile screen only. */
-
-.profile-avatar-frame {
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 999px;
-    border: 2px solid var(--warm-linen-dark);
-    background-color: var(--warm-vellum-tint);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    flex-shrink: 0;
+/* Profile: header card (DentalPro), details catalogue card, memberships ledger. */
+.profile-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-6); padding: var(--space-6); background: var(--surface-card); }
+.profile-head__id { display: grid; gap: var(--space-2); min-width: 0; }
+.profile-head__name { font: var(--weight-semi) var(--text-3xl)/1.05 var(--font-serif); letter-spacing: var(--tracking-display); overflow-wrap: anywhere; }
+.profile-head__line { display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted); }
+.profile-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+@media (min-width: 1100px) { .profile-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+@media (max-width: 640px) {
+  .profile-head { grid-template-columns: auto minmax(0, 1fr); }
+  .profile-head__action { grid-column: 1 / -1; }
+  .avatar--lg { width: 3.5rem; height: 3.5rem; }
 }
-
-@media (min-width: 640px) {
-    .profile-avatar-frame { width: 5.5rem; height: 5.5rem; }
-}
-
-#bio-counter.limit-exceeded { color: var(--warm-crimson); }

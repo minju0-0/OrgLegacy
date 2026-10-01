@@ -1,0 +1,47 @@
+/* App shell + auth layout. Floating sidebar, dotted-grid ground, bottom bar on mobile. */
+.app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); gap: var(--sp-5); min-height: 100vh; padding: var(--sp-4); }
+.side { position: sticky; top: var(--sp-4); z-index: var(--z-drawer); display: flex; flex-direction: column; height: calc(100vh - var(--sp-6)); padding: var(--sp-4); background: var(--paper); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-1); }
+.side__brand { display: block; padding: var(--sp-3) var(--sp-3) var(--sp-5); font-size: 2rem; }
+.nav { display: grid; gap: var(--sp-1); }
+.nav__label { padding: var(--sp-5) var(--sp-3) var(--sp-2); font: 600 var(--fs-2xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); }
+.nav a { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--touch); padding: 0 var(--sp-4); border-radius: var(--r-pill); color: var(--text-strong); font-weight: 500; text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out); }
+.nav a:hover { background: var(--kraft-100); }
+.nav a:active { transform: scale(.98); }
+.nav a[aria-current="page"] { background: var(--crimson-500); color: var(--paper); }
+.usercard { display: flex; align-items: center; gap: var(--sp-3); margin-top: auto; padding: var(--sp-3); background: var(--canvas); border-radius: var(--r-lg); }
+.usercard__who { flex: 1; display: grid; min-width: 0; line-height: 1.3; }
+.usercard__who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--text-strong); }
+.usercard__who small { color: var(--text-muted); font-size: var(--fs-2xs); }
+.usercard form { margin: 0; }
+.main { min-width: 0; border-radius: var(--r-xl); background-image: var(--dot-grid); background-size: var(--dot-grid-size); }
+.topbar { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--topbar-h); padding: 0 var(--sp-4); }
+.topbar__t { flex: 1; font: 600 var(--fs-2xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); }
+.topbar__actions { display: flex; align-items: center; gap: var(--sp-3); }
+.page { max-width: var(--content-max); padding: var(--sp-4) var(--sp-4) var(--sp-8); }
+.scrim, .bottombar { display: none; }
+
+@media (max-width: 900px) {
+  .app { display: block; padding: var(--sp-3) var(--sp-3) 84px; }
+  .side { position: fixed; inset: var(--sp-3) auto var(--sp-3) var(--sp-3); width: min(300px, 86vw); height: auto; transform: translateX(-115%); transition: transform var(--dur-base) var(--ease-out); }
+  .side.is-open { transform: none; box-shadow: var(--shadow-3); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1); background: rgb(42 40 37 / .5); opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
+  .scrim.is-open { opacity: 1; pointer-events: auto; }
+  .bottombar { position: fixed; z-index: var(--z-nav); left: var(--sp-3); right: var(--sp-3); bottom: var(--sp-3); display: grid; grid-template-columns: repeat(4, 1fr); padding: 4px; background: var(--band-ink); border-radius: var(--r-pill); box-shadow: var(--shadow-3); }
+  .bottombar a, .bottombar button { display: grid; place-items: center; gap: 2px; min-height: 52px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--paper); font: 600 var(--fs-2xs)/1 var(--font-body); text-decoration: none; cursor: pointer; }
+  .bottombar [aria-current="page"] { background: var(--crimson-500); }
+}
+
+/* Auth layout: catalogue card beside a colour-blocked panel; panel becomes a header band on mobile */
+.auth { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+.auth__panel { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: var(--sp-6); margin: var(--sp-3); padding: var(--sp-7); border-radius: var(--r-xl); background: var(--charcoal-800); color: var(--paper); }
+.auth__panel .wordmark { color: var(--paper); font-size: 2.5rem; }
+.auth__main { display: grid; place-items: center; padding: var(--sp-6) var(--sp-5); }
+.auth--flip .auth__panel { order: 2; }
+@media (max-width: 900px) {
+  .auth { grid-template-columns: 1fr; min-height: 0; }
+  .auth--flip .auth__panel { order: 0; }
+  .auth__panel { flex-direction: row; align-items: center; margin: var(--sp-3) var(--sp-3) 0; padding: var(--sp-4) var(--sp-5); }
+  .auth__panel .wordmark { font-size: 2rem; }
+  .auth__panel .auth__copy { display: none; }
+  .auth__main { padding: var(--sp-4) var(--sp-3) var(--sp-6); }
+}

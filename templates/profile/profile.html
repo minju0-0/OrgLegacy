@@ -1,90 +1,84 @@
-{% extends "base.html" %}
+{% extends "shared/layout_app.html" %}
 {% load static %}
 {% block title %}Profile | OrgLegacy{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile/profile.css' %}">
-{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/profile/profile.css' %}">{% endblock %}
+{% block crumbs %}<span>Account</span><span aria-hidden="true">/</span><strong>Profile</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/profile/profile.js' %}" defer></script>{% endblock %}
+
 {% block content %}
-{% include 'partials/_navbar.html' %}
-
-<div class="flex-1 min-h-0 flex flex-row">
-{% include 'partials/_sidebar.html' with active_page='profile' %}
-
-<main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
-    <div class="max-w-4xl w-full mx-auto px-8 sm:px-12 py-12 pb-24">
-
-        <header class="mb-8">
-            <h1 class="text-2xl sm:text-3xl font-serif font-normal text-warm-espresso">Personal Profile</h1>
-            <p class="text-sm font-serif italic text-warm-charcoal mt-1">Institutional record and public archival attribution for your account.</p>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">
-
-            <!-- Identity summary card -->
-            <div class="card p-6 h-fit flex md:flex-col items-center md:items-start gap-4 md:gap-0 text-center md:text-left">
-                <div class="profile-avatar-frame md:mb-4">
-                    <span id="avatar-fallback" class="font-serif text-2xl text-warm-charcoal select-none">
-                        {{ user.first_name|default:user.username|make_list|first|upper }}
-                    </span>
-                </div>
-                <div>
-                    <p class="font-serif font-medium text-warm-espresso">{{ user.first_name|default:user.username }} {{ user.last_name }}</p>
-                    <p class="text-xs text-warm-charcoal mt-0.5">@{{ user.username }}</p>
-                </div>
-            </div>
-
-            <!-- Editable details -->
-            <div class="card p-6 sm:p-8">
-                <form method="post" id="profile-form" class="space-y-8">
-                    {% csrf_token %}
-
-                    <section>
-                        <div class="mb-5">
-                            <h2 class="text-lg font-serif font-medium text-warm-espresso">Account details</h2>
-                            <p class="text-xs font-serif italic text-warm-charcoal mt-0.5">Identity credentials registered with the archive directory.</p>
-                        </div>
-
-                        <div class="space-y-5">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="form-label" for="{{ user_form.first_name.id_for_label }}">{{ user_form.first_name.label }}</label>
-                                    {{ user_form.first_name }}
-                                    {% if user_form.first_name.errors %}
-                                    <p class="text-xs font-serif text-warm-crimson mt-1">{{ user_form.first_name.errors.0 }}</p>
-                                    {% endif %}
-                                </div>
-                                <div>
-                                    <label class="form-label" for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
-                                    {{ user_form.last_name }}
-                                    {% if user_form.last_name.errors %}
-                                    <p class="text-xs font-serif text-warm-crimson mt-1">{{ user_form.last_name.errors.0 }}</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="form-label" for="{{ user_form.email.id_for_label }}">{{ user_form.email.label }}</label>
-                                {{ user_form.email }}
-                                {% if user_form.email.errors %}
-                                <p class="text-xs font-serif text-warm-crimson mt-1">{{ user_form.email.errors.0 }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="border-t border-warm-linen pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div id="inline-save-feedback" class="text-xs font-serif italic text-warm-moss min-h-[1.25rem]"></div>
-                        <button type="submit" id="save-profile-btn" class="btn-primary text-sm px-8 py-2.5 rounded-md">
-                            Save changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+{% comment %}
+  Memberships table is design-only until the view supplies `organizations`
+  (same shape as the Home page: name, role, volume, status, optional committee / title).
+{% endcomment %}
+<section class="card profile-head" aria-label="Your profile">
+  <span class="avatar avatar--lg avatar--oxblood" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
+  <div class="profile-head__id">
+    <h1 class="profile-head__name">{% if user.first_name or user.last_name %}{{ user.first_name|default:user.username }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</h1>
+    <p class="profile-head__line">
+      <span class="t-mono">@{{ user.username }}</span>
+      {% if user.email %}<span aria-hidden="true">·</span><span>{{ user.email }}</span>{% endif %}
+    </p>
+    <div class="chip-row">
+      <span class="chip chip--neutral">Member since {{ user.date_joined|date:"F Y" }}</span>
+      {% with total=organizations|length %}<span class="chip chip--outline">{{ total }} membership{{ total|pluralize }}</span>{% endwith %}
     </div>
-</main>
+  </div>
+  <a class="btn btn--outline profile-head__action" href="{% url 'settings' %}">{% include "shared/_icon.html" with name="gear" class="icon--sm" %}Account settings</a>
+</section>
+
+<div class="profile-grid">
+  <section class="catalogue" aria-labelledby="details-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head">
+      <h2 id="details-title" class="catalogue__title">Account details</h2>
+      <p class="catalogue__sub">Identity credentials registered with the archive directory.</p>
+    </div>
+    <div class="catalogue__body">
+      <form method="post" id="profile-form" novalidate class="form-stack">
+        {% csrf_token %}
+        {% if user_form.non_field_errors %}
+        <div class="alert alert--danger" role="alert">{% include "shared/_icon.html" with name="warning-circle" %}
+          <ul>{% for error in user_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+        <div class="field-row">
+          {% include "shared/_field.html" with field=user_form.first_name %}
+          {% include "shared/_field.html" with field=user_form.last_name %}
+        </div>
+        {% include "shared/_field.html" with field=user_form.email %}
+        <div class="form-actions">
+          <span id="inline-save-feedback" class="form-feedback" role="status" aria-live="polite"></span>
+          <button type="submit" class="btn btn--primary" id="save-profile-btn">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section aria-labelledby="memberships-title">
+    <div class="section-title"><h2 id="memberships-title">Memberships</h2><span>Your record across volumes</span></div>
+    {% if organizations %}
+    <div class="ledger-wrap">
+      <table class="ledger ledger--stack">
+        <thead><tr><th scope="col">Organization</th><th scope="col">Role</th><th scope="col">Volume</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+          {% for org in organizations %}
+          <tr>
+            <td class="ledger__lead" data-label="Organization"><span class="ledger__primary">{{ org.name }}</span>{% if org.committee or org.title %}<span class="ledger__secondary">{{ org.committee|default:"" }}{% if org.committee and org.title %} · {% endif %}{{ org.title|default:"" }}</span>{% endif %}</td>
+            <td data-label="Role"><span class="chip {% if org.role == 'Executive' %}chip--exec{% elif org.role == 'Committee Head' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span></td>
+            <td data-label="Volume" class="ref">{{ org.volume }}</td>
+            <td data-label="Status">{% if org.status == 'ACTIVE' %}{% include "shared/_stamp.html" with status="ACTIVE" %}{% elif org.status == 'PENDING_SIGNOFF' %}{% include "shared/_stamp.html" with status="PENDING_SIGNOFF" %}{% else %}{% include "shared/_stamp.html" with status="CLOSED" %}{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <h3 class="empty__title">No memberships yet</h3>
+      <p class="empty__text">When you join an organization with an accession number, each volume you serve in is recorded here.</p>
+      <a class="btn btn--outline" href="{% url 'home' %}">Go to Home</a>
+    </div>
+    {% endif %}
+  </section>
 </div>
-{% endblock %}
-{% block extra_js %}
-<script src="{% static 'js/profile/profile.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,145 @@
+/* Surfaces: cards, catalogue card, folder, note card, KPI, spines, stepper,
+   segmented bar, rating dots, avatars, empty state. Cards are for objects. */
+.card { background: var(--surface-card); border: 1px solid var(--border-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding: var(--space-6); min-width: 0; }
+.card--well { background: var(--surface-well); box-shadow: none; }
+.card--flat { box-shadow: none; }
+.card--dashed { background: transparent; border: 1.5px dashed var(--cocoa-500); box-shadow: none; }
+.card__title { font: var(--weight-semi) var(--text-lg)/1.25 var(--font-serif); color: var(--text-strong); letter-spacing: var(--tracking-tight); }
+.card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+
+.dotted { background-image: var(--dot-grid); background-size: var(--dot-grid-size); }
+
+/* Pill eyebrow (ChronoTask). Rationed: three on the landing, none in app. */
+.eyebrow { display: inline-flex; align-items: center; gap: var(--space-2); height: 1.75rem; padding: 0 var(--space-3); border-radius: var(--radius-pill); background: var(--surface-card); box-shadow: inset 0 0 0 1px var(--border-hairline); font: var(--weight-semi) var(--text-xs)/1 var(--font-ui); color: var(--text-body); }
+.eyebrow--inverse { background: rgb(252 249 239 / 0.12); box-shadow: inset 0 0 0 1px var(--border-on-inverse); color: var(--text-on-inverse); }
+
+/* Catalogue card: ruled paper, brick margin line, punched hole. */
+.catalogue { position: relative; background: var(--surface-card); border: 1px solid var(--border-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); overflow: hidden; }
+.catalogue::before { content: ""; position: absolute; inset: 0 auto 0 var(--margin-offset); width: 2px; background: var(--margin-line); opacity: 0.85; }
+.catalogue__punch { position: absolute; left: 1rem; top: 1.375rem; width: 1rem; height: 1rem; border-radius: var(--radius-round); background: var(--surface-page); box-shadow: inset 0 1px 2px rgb(74 47 39 / 0.35); }
+.catalogue__head { padding: var(--space-6) var(--space-6) var(--space-4) calc(var(--margin-offset) + 1.375rem); border-bottom: 2px solid var(--cocoa-800); }
+.catalogue__body { padding: var(--space-6) var(--space-6) var(--space-8) calc(var(--margin-offset) + 1.375rem); }
+.catalogue--ruled .catalogue__body { background-image: var(--ruled-paper); background-size: 100% var(--rule-step); background-position: 0 0; }
+.catalogue__title { font: var(--weight-semi) var(--text-2xl)/1.15 var(--font-serif); letter-spacing: var(--tracking-tight); color: var(--text-strong); }
+.catalogue__sub { margin-top: var(--space-1); font-size: var(--text-sm); color: var(--text-muted); }
+@media (max-width: 480px) {
+  .catalogue { --margin-offset: 1.75rem; }
+  .catalogue__head { padding-right: var(--space-4); } .catalogue__body { padding-right: var(--space-4); }
+  .catalogue__punch { left: 0.5rem; }
+}
+
+/* Folder: kraft tab above a card, for record detail */
+.folder { position: relative; padding-top: 2rem; }
+.folder__tab { position: absolute; top: 0; left: var(--space-6); height: 2.25rem; display: inline-flex; align-items: center; padding: 0 var(--space-5); background: var(--kraft-300); color: var(--text-on-kraft); border-radius: var(--radius-md) var(--radius-md) 0 0; font: var(--weight-semi) var(--text-xs)/1 var(--font-mono); letter-spacing: var(--tracking-accession); }
+.folder__body { background: var(--surface-card); border: 1px solid var(--border-hairline); border-top: 3px solid var(--kraft-300); border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg); padding: var(--space-6); }
+
+/* Note card (handover note): ruled, a dog-ear, author line */
+.note { position: relative; background: var(--surface-card); border: 1px solid var(--border-hairline); border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-4); background-image: var(--ruled-paper); background-position: 0 2.75rem; background-size: 100% var(--rule-step); box-shadow: var(--shadow-1); }
+.note::after { content: ""; position: absolute; top: -1px; right: -1px; width: 1.5rem; height: 1.5rem; background: linear-gradient(225deg, var(--surface-page) 50%, var(--kraft-300) 50%); border-bottom-left-radius: var(--radius-sm); }
+.note__title { font: var(--weight-semi) var(--text-md)/1.25 var(--font-serif); margin-bottom: var(--space-3); padding-right: 1.5rem; }
+.note__body { font-size: var(--text-sm); line-height: var(--rule-step); color: var(--text-body); }
+.note__foot { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); font-size: var(--text-xs); color: var(--text-muted); background: var(--surface-card); padding-top: var(--space-1); }
+
+/* KPI stat card (MedFlow): pastel tints from the palette only */
+.kpi { display: grid; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); min-width: 0; }
+.kpi--paper { background: var(--surface-card); box-shadow: inset 0 0 0 1px var(--border-hairline); }
+.kpi--petrol { background: var(--petrol-100); } .kpi--kraft { background: var(--kraft-100); } .kpi--blush { background: var(--blush-100); }
+.kpi { color: var(--text-body); }
+.kpi__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); font-size: var(--text-sm); font-weight: var(--weight-medium); }
+.kpi__value { font: var(--weight-semi) var(--text-4xl)/1 var(--font-serif); letter-spacing: -0.02em; color: var(--text-strong); font-variant-numeric: lining-nums tabular-nums; }
+.kpi__unit { font: var(--weight-regular) var(--text-sm)/1 var(--font-ui); color: var(--text-muted); margin-left: var(--space-2); letter-spacing: 0; }
+.kpi__delta { font: var(--weight-medium) var(--text-xs)/1 var(--font-mono); color: var(--success-fg); }
+
+/* Avatars and stacks (EduMate): initials only, no fake photos */
+.avatar { display: inline-grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-round); background: var(--petrol-100); color: var(--petrol-700); font: var(--weight-semi) var(--text-xs)/1 var(--font-ui); letter-spacing: 0.02em; box-shadow: 0 0 0 2px var(--surface-card); text-transform: uppercase; }
+.avatar--lg { width: 4.5rem; height: 4.5rem; font-size: var(--text-xl); font-family: var(--font-serif); box-shadow: none; }
+.avatar--sm { width: 1.75rem; height: 1.75rem; font-size: var(--text-2xs); }
+.avatar--kraft { background: var(--kraft-200); color: var(--cocoa-800); }
+.avatar--blush { background: var(--blush-200); color: var(--cocoa-800); }
+.avatar--ink { background: var(--cocoa-800); color: var(--cocoa-50); }
+.avatar--oxblood { background: var(--brick-800); color: var(--cocoa-50); }
+.avatar-stack { display: inline-flex; align-items: center; }
+.avatar-stack .avatar { margin-left: -0.5rem; } .avatar-stack .avatar:first-child { margin-left: 0; }
+.avatar-stack--inverse .avatar { box-shadow: 0 0 0 2px var(--cocoa-900); }
+.avatar-stack__more { background: var(--cocoa-800); color: var(--cocoa-50); }
+
+/* Volume spines and shelf. Spine text is the term label; the newest stands
+   --spine-lift taller. Decorative, so the shelf is aria-hidden by default. */
+.shelf { display: flex; align-items: flex-end; gap: 5px; padding: 0 var(--space-4); border-bottom: 8px solid var(--cocoa-800); }
+.spine { --h: 12.5rem; position: relative; width: 3.5rem; height: var(--h); flex: none; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: var(--radius-xs) var(--radius-xs) 0 0; box-shadow: var(--shadow-spine); background: var(--spine-1-bg); color: var(--spine-1-fg); }
+.spine::before, .spine::after { content: ""; position: absolute; inset-inline: 0; height: 5px; background: var(--spine-band); }
+.spine::before { top: 1rem; } .spine::after { bottom: 1rem; }
+.spine__label { writing-mode: vertical-rl; transform: rotate(180deg); font: var(--weight-semi) 0.9375rem/1 var(--font-serif); letter-spacing: 0.03em; white-space: nowrap; }
+.spine__no { position: absolute; top: 2rem; font: var(--weight-regular) 0.625rem/1 var(--font-mono); opacity: 0.85; }
+.spine--2 { background: var(--spine-2-bg); color: var(--spine-2-fg); }
+.spine--3 { background: var(--spine-3-bg); color: var(--spine-3-fg); }
+.spine--4 { background: var(--spine-4-bg); color: var(--spine-4-fg); }
+.on-inverse .spine { --spine-band: var(--cocoa-800); }
+.on-inverse .spine--1 { background: var(--kraft-300); color: var(--cocoa-800); }
+.on-inverse .spine--2 { background: var(--petrol-200); color: var(--cocoa-800); }
+.on-inverse .spine--3 { background: var(--cocoa-50); color: var(--cocoa-800); }
+.on-inverse .shelf { border-bottom-color: var(--cocoa-50); }
+.spine--new { height: calc(var(--h) + var(--spine-lift)); margin-left: 6px; }
+.spine--mini { --h: 4.25rem; width: 1.375rem; }
+.spine--mini::before { top: 0.5rem; height: 3px; } .spine--mini::after { bottom: 0.5rem; height: 3px; }
+.spine--mini .spine__label { font-size: 0.5625rem; }
+.spine--mini .spine__no { display: none; }
+.shelf--mini { padding: 0; gap: 3px; border-bottom-width: 4px; }
+
+/* Term status stepper: ACTIVE -> PENDING SIGN-OFF -> CLOSED (sealed) */
+.stepper { display: grid; grid-template-columns: repeat(3, 1fr); list-style: none; margin: 0; padding: 0; }
+.stepper__item { position: relative; display: grid; gap: var(--space-2); justify-items: start; padding-top: var(--space-6); font-size: var(--text-sm); color: var(--text-muted); }
+.stepper__item::before { content: ""; position: absolute; top: 0.5rem; left: 0; right: 0; height: 2px; background: var(--cocoa-300); }
+.stepper__item::after { content: ""; position: absolute; top: 0; left: 0; width: 1.125rem; height: 1.125rem; border-radius: var(--radius-round); background: var(--surface-card); border: 2px solid var(--cocoa-400); }
+.stepper__item.is-done::before, .stepper__item.is-current::before { background: var(--petrol-500); }
+.stepper__item.is-done::after { background: var(--petrol-500); border-color: var(--petrol-500); }
+.stepper__item.is-current::after { border-color: var(--petrol-500); box-shadow: 0 0 0 4px var(--petrol-100); }
+.stepper__item.is-current { color: var(--text-strong); font-weight: var(--weight-medium); }
+.stepper__item:last-child::before { right: 100%; }
+
+/* Segmented usage bar (Make): dashed empty segments, solid used */
+.segbar { display: grid; gap: var(--space-2); }
+.segbar__track { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 5px; height: 2rem; }
+.segbar__seg { border-radius: var(--radius-md); border: 1px dashed var(--cocoa-400); }
+.segbar__seg.is-on { border: 0; background: var(--petrol-300); }
+.segbar--brick .segbar__seg.is-on { background: var(--brick-200); }
+.segbar--kraft .segbar__seg.is-on { background: var(--kraft-300); }
+.segbar__meta { display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted); font-family: var(--font-mono); }
+
+/* Rating dots (supplier quality). Label is on the wrapper for AT. */
+.rating { display: inline-flex; gap: 4px; align-items: center; }
+.rating__dot { width: 0.625rem; height: 0.625rem; border-radius: var(--radius-round); border: 1.5px solid var(--cocoa-500); }
+.rating__dot.is-on { background: var(--kraft-500); border-color: var(--kraft-500); }
+
+/* Empty state: illustration + one sentence + one action */
+.empty { display: grid; justify-items: center; gap: var(--space-3); text-align: center; padding: var(--space-10) var(--space-6); border: 1.5px dashed var(--cocoa-400); border-radius: var(--radius-lg); background: var(--surface-card); }
+.empty__art { width: min(14rem, 60%); height: auto; color: var(--cocoa-800); margin-bottom: var(--space-2); }
+.empty__title { font: var(--weight-semi) var(--text-xl)/1.2 var(--font-serif); }
+.empty__text { max-width: 44ch; color: var(--text-muted); font-size: var(--text-sm); }
+
+/* Page header used by every app page */
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-8); }
+.page-head__title { font: var(--weight-semi) var(--text-4xl)/1.05 var(--font-serif); letter-spacing: var(--tracking-display); text-wrap: balance; }
+.page-head__sub { margin-top: var(--space-2); color: var(--text-muted); max-width: 56ch; }
+
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+.section-title h2 { font-size: var(--text-xl); letter-spacing: var(--tracking-tight); line-height: 1.2; }
+.section-title span { font-size: var(--text-sm); color: var(--text-muted); }
+
+/* Definition list (account details) */
+.dl { display: grid; gap: 0; margin: 0; }
+.dl > div { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: var(--ledger-dotted); }
+.dl > div:last-child { border-bottom: 0; }
+.dl dt { font: var(--weight-semi) var(--text-xs)/1.5 var(--font-ui); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); padding-top: 0.15rem; }
+.dl dd { margin: 0; font-size: var(--text-sm); word-break: break-word; }
+@media (max-width: 480px) { .dl > div { grid-template-columns: 1fr; gap: var(--space-1); } }
+
+/* Wordmark: Literata 600 with the first "o" drawn as a brick ring (CSS, so it
+   survives font fallback). Size it with font-size on the wrapper. */
+.wordmark { display: inline-flex; align-items: baseline; font: var(--weight-semi) 1.5rem/1 var(--font-serif); letter-spacing: -0.045em; color: var(--text-strong); text-decoration: none; white-space: nowrap; }
+.wordmark:hover { color: var(--text-strong); }
+.wordmark__o { display: inline-block; width: 0.5em; height: 0.5em; margin-right: 0.035em; border: 0.085em solid var(--brick-500); border-radius: var(--radius-round); transform: translateY(0.005em); }
+.wordmark--inverse, .wordmark--inverse:hover { color: var(--text-on-inverse); }
+.wordmark--inverse .wordmark__o { border-color: var(--kraft-300); }
+.wordmark--hero { font-size: var(--text-hero); letter-spacing: -0.05em; line-height: 0.95; }
+.brand-link { display: inline-flex; text-decoration: none; border-radius: var(--radius-sm); }

@@ -1,93 +1,109 @@
-{% extends "base.html" %}
+{% extends "shared/layout_app.html" %}
 {% load static %}
 {% block title %}Home | OrgLegacy{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/home/home.css' %}">
-{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
+{% block crumbs %}<strong>Home</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/home/home.js' %}" defer></script>{% endblock %}
+
 {% block content %}
-{% include 'partials/_navbar.html' %}
+{% comment %}
+  Context today: only `user`. The accession module, collection cards and charter card are
+  design-only until views supply data. Expected shape for `organizations` (each item):
+  name, role ("Member" | "Committee Head" | "Executive"), volume (e.g. "2026–27"),
+  status ("ACTIVE" | "PENDING_SIGNOFF" | "CLOSED"), member_count, members (optional), url (optional).
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Welcome back, {{ user.first_name|default:user.username }}.</h1>
+    <p class="page-head__sub">Your collections, and the volumes kept inside them.</p>
+  </div>
+</header>
 
-<div class="flex-1 min-h-0 flex flex-row">
-{% include 'partials/_sidebar.html' with active_page='home' %}
-
-<main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
-    <div class="max-w-6xl w-full mx-auto px-8 sm:px-12 py-12 pb-24">
-
-        <!-- Welcome banner -->
-        <div class="welcome-banner rounded-2xl px-6 sm:px-10 py-8 sm:py-10 text-white mb-10">
-            <p class="text-[11px] uppercase tracking-widest text-white/60 mb-2">Institutional Archive</p>
-            <h1 class="font-serif text-2xl sm:text-3xl font-medium tracking-tight">
-                Welcome back, {{ user.first_name|default:user.username }}.
-            </h1>
-            <p class="text-sm text-white/70 mt-2 max-w-lg">
-                This is your organization's home base for handover knowledge — charters, playbooks,
-                directories, and notes kept safe from one leadership team to the next.
-            </p>
-        </div>
-
-        <!-- Quick links -->
-        <div class="mb-10">
-            <h2 class="font-serif text-lg font-medium text-warm-espresso mb-1">Your account</h2>
-            <p class="text-xs font-serif italic text-warm-charcoal mb-4">Keep your profile and security settings up to date.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="{% url 'profile' %}" class="card feature-tile flex items-center gap-4 p-5">
-                    <span class="w-10 h-10 rounded-lg bg-warm-linen flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-warm-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5"/></svg>
-                    </span>
-                    <span>
-                        <span class="block font-serif font-medium text-warm-espresso">Edit your profile</span>
-                        <span class="block text-xs text-warm-charcoal mt-0.5">Update your name, email, bio, and photo.</span>
-                    </span>
-                </a>
-                <a href="{% url 'settings' %}" class="card feature-tile flex items-center gap-4 p-5">
-                    <span class="w-10 h-10 rounded-lg bg-warm-linen flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-warm-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H4a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5.6 8.4a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H10a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V8.6c.14.62.62 1.13 1.51 1.4H22a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </span>
-                    <span>
-                        <span class="block font-serif font-medium text-warm-espresso">Account settings</span>
-                        <span class="block text-xs text-warm-charcoal mt-0.5">Change your password or manage your account.</span>
-                    </span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Upcoming feature slices -->
-        <div>
-            <h2 class="font-serif text-lg font-medium text-warm-espresso mb-1">Coming to the archive</h2>
-            <p class="text-xs font-serif italic text-warm-charcoal mb-4">Each of these will arrive as its own vertical slice — its own app, templates, and static assets.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Event Logger</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">Record events, attendance, and outcomes for future officers to reference.</p>
-                </div>
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Supplier Directory</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">Keep vendor contacts, pricing notes, and reliability history in one place.</p>
-                </div>
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Handover Notes</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">Structured notes from outgoing officers for the incoming team.</p>
-                </div>
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Adviser Sign-off</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">A lightweight approval trail for documents that need adviser review.</p>
-                </div>
-            </div>
-        </div>
-
+<section class="folder accession-folder" aria-labelledby="accession-title" data-accession>
+  <span class="folder__tab" aria-hidden="true">ACCESSION NO.</span>
+  <div class="folder__body accession-card">
+    <div class="accession-card__intro">
+      <div class="accession-card__titlerow">
+        <h2 id="accession-title" class="card__title">Enter accession number</h2>
+        <span class="stamp stamp--pending">Not connected yet</span>
+      </div>
+      <p id="accession-help" class="t-muted">An officer hands you an eight-character accession number. Enter it here to join their collection. Letters and numbers only.</p>
     </div>
-</main>
-</div>
+    <form id="accession-form" class="accession-card__form" novalidate>
+      <div class="accession" id="accession-cells" role="group" aria-labelledby="accession-title" aria-describedby="accession-help">
+        <div class="accession__group">{% for n in "1234" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
+        <div class="accession__group">{% for n in "5678" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
+      </div>
+      <button type="submit" class="btn btn--primary btn--arrow" id="accession-submit" disabled>Redeem {% include "shared/_icon.html" with name="arrow-right" class="icon--sm" %}</button>
+    </form>
+    <p class="form-feedback" id="accession-feedback" role="status" aria-live="polite">Paste works too.</p>
+  </div>
+</section>
+
+<section aria-labelledby="collections-title">
+  <div class="section-title">
+    <h2 id="collections-title">Your organizations</h2>
+    {% if organizations %}<span>{{ organizations|length }} record{{ organizations|length|pluralize }}</span>{% endif %}
+  </div>
+
+  {% if organizations %}
+  <ul class="collection-grid" role="list">
+    {% for org in organizations %}
+    <li class="collection card" style="--i: {{ forloop.counter0 }}">
+      <div class="collection__body">
+        <div class="collection__title"><h3>{{ org.name }}</h3></div>
+        <p class="collection__meta t-mono">Vol. {{ org.volume }}</p>
+        <div class="chip-row">
+          <span class="chip {% if org.role == 'Executive' %}chip--exec{% elif org.role == 'Committee Head' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span>
+          {% if org.status == 'ACTIVE' %}{% include "shared/_stamp.html" with status="ACTIVE" %}{% elif org.status == 'PENDING_SIGNOFF' %}{% include "shared/_stamp.html" with status="PENDING_SIGNOFF" %}{% else %}{% include "shared/_stamp.html" with status="CLOSED" %}{% endif %}
+        </div>
+        <div class="collection__foot">
+          <div class="avatar-stack" aria-hidden="true">
+            {% for m in org.members|slice:":3" %}<span class="avatar avatar--sm">{{ m.username|slice:":1" }}</span>{% endfor %}{% if org.member_count > 3 %}<span class="avatar avatar--sm avatar-stack__more">+{{ org.member_count|add:"-3" }}</span>{% endif %}
+          </div>
+          <span class="t-muted collection__count">{{ org.member_count }} member{{ org.member_count|pluralize }}</span>
+          {% if org.url %}<a class="btn btn--ghost btn--sm collection__open" href="{{ org.url }}">Open {% include "shared/_icon.html" with name="arrow-right" class="icon--sm" %}</a>{% endif %}
+        </div>
+      </div>
+      <div class="collection__spine" aria-hidden="true">
+        <div class="spine spine--mini {% if org.status == 'ACTIVE' %}spine--3{% elif org.status == 'PENDING_SIGNOFF' %}spine--4{% else %}spine--1{% endif %}"><span class="spine__label">{{ org.volume }}</span></div>
+      </div>
+    </li>
+    {% endfor %}
+    <li class="collection card card--dashed charter" style="--i: {{ organizations|length }}">
+      {% include "home/_charter.html" %}
+    </li>
+  </ul>
+  {% else %}
+  <div class="empty">
+    <svg class="empty__art" viewBox="0 0 220 120" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 104h204"/>
+      <rect x="30" y="40" width="22" height="64" rx="2"/><path d="M30 54h22M30 90h22"/>
+      <rect x="56" y="28" width="22" height="76" rx="2"/><path d="M56 42h22M56 90h22"/>
+      <g transform="rotate(14 112 104)"><rect x="98" y="34" width="22" height="70" rx="2"/><path d="M98 48h22M98 90h22"/></g>
+      <rect x="150" y="44" width="22" height="60" rx="2" stroke-dasharray="4 6"/>
+      <rect x="178" y="44" width="22" height="60" rx="2" stroke-dasharray="4 6"/>
+    </svg>
+    <h3 class="empty__title">The shelf is empty.</h3>
+    <p class="empty__text">Enter an accession number from an officer, or charter a collection of your own. Your volumes will stand here.</p>
+    <button type="button" class="btn btn--outline" data-focus-target="#accession-cells .acc-cell">Enter an accession number</button>
+  </div>
+  <div class="charter-solo card card--dashed">{% include "home/_charter.html" %}</div>
+  {% endif %}
+</section>
+
+<dialog class="overlay modal" id="join-modal" aria-labelledby="join-modal-t">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="join-modal-t">Join this collection?</h2>
+    <div class="modal__body">
+      <p>You are about to join <strong data-join="org">[Organization]</strong> as <strong data-join="role">[Role]</strong> in <strong data-join="committee">[Committee]</strong>. Confirm?</p>
+      <p class="modal__facts t-mono">Accession <span data-join="code"></span></p>
+      <p class="t-muted" style="margin-top: var(--space-3); font-size: var(--text-sm)">Preview only: joining is not connected yet.</p>
+    </div>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="button" class="btn btn--primary" data-dialog-close>Confirm</button>
+    </div>
+  </div>
+</dialog>
 {% endblock %}

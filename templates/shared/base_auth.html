@@ -1,0 +1,10 @@
+{% extends "shared/base_public.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/shared/shell.css' %}">{% block page_css %}{% endblock %}{% endblock %}
+{% block content %}
+<div class="auth{% block auth_class %}{% endblock %}" id="auth-split-layout">
+  <aside class="auth__panel" aria-label="OrgLegacy">{% block panel %}{% endblock %}</aside>
+  <main class="auth__main" id="main">{% block card %}{% endblock %}</main>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/shared/auth.js' %}"></script>{% block page_js %}{% endblock %}{% endblock %}

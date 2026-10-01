@@ -1,0 +1,42 @@
+/* Login + register: catalogue card beside the charcoal panel. Layout shell lives in components/shell.css. */
+.auth__top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.auth__badge { padding: .35rem .85rem; border: 1px solid rgb(252 249 239 / .55); border-radius: var(--r-pill); font: 600 var(--fs-2xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.auth__copy { display: grid; gap: var(--sp-7); }
+.auth__shelf { width: max-content; padding: 0 var(--sp-3); border-bottom-color: rgb(252 249 239 / .55); }
+.auth__shelf .spine { --spine-w: 40px; font-size: var(--fs-2xs); box-shadow: inset 0 10px 0 -8px rgb(53 51 47 / .35); }
+.auth__shelf .spine--crimson { color: var(--paper); box-shadow: inset 0 10px 0 -8px rgb(252 249 239 / .5); }
+.auth__quote { max-width: 16ch; font: italic 500 clamp(2rem, 1.2rem + 2.4vw, 3.5rem)/1.05 var(--font-display); letter-spacing: -.01em; color: var(--blush-200); text-wrap: balance; }
+.auth__sub { max-width: 40ch; margin-top: var(--sp-4); font-size: var(--fs-sm); color: var(--paper); }
+
+/* Catalogue card, as in the specimen: ruled paper, crimson margin line, punched hole, charcoal rule under the head */
+.auth-card { --rule-step: 2rem; position: relative; width: 100%; max-width: 500px; overflow: hidden; background: linear-gradient(transparent calc(var(--rule-step) - 1px), var(--rule) calc(var(--rule-step) - 1px) var(--rule-step)) 0 5.25rem / 100% var(--rule-step) repeat-y, var(--paper); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-2); animation: ol-enter var(--dur-base) var(--ease-out) both; }
+.auth-card::before { content: ""; position: absolute; top: 0; bottom: 0; left: var(--ledger-margin-x); width: 2px; background: var(--margin-line); }
+.auth-card::after { content: ""; position: absolute; left: 14px; top: 22px; width: 16px; height: 16px; border-radius: 50%; background: var(--canvas); box-shadow: inset 0 1px 2px rgb(53 51 47 / .35); }
+.auth-card__head { margin: 0; padding: 20px 24px 14px calc(var(--ledger-margin-x) + 22px); background: var(--paper); border-bottom: 2px solid var(--charcoal-800); }
+.auth-card__body { padding: 18px 24px 26px calc(var(--ledger-margin-x) + 22px); }
+.auth-card h1 { margin: 0; font: 600 1.375rem/1.2 var(--font-display); letter-spacing: -.02em; }
+.auth-card .lede { margin-top: 2px; font: 400 var(--fs-sm)/1.4 var(--font-body); font-style: normal; color: var(--text-muted); }
+.auth-card .field > label { font: 600 var(--fs-xs)/1.2 var(--font-body); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); }
+.auth-card .input, .auth-card .form-input { height: 44px; min-height: 44px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--field); font: 400 var(--fs-sm) var(--font-body); color: var(--text); }
+.auth-card .pw .form-input, .auth-card .pw .input { padding-right: 52px; }
+.auth-card .fields { gap: 16px; }
+.auth-card__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.auth-card__actions .btn { min-height: 44px; padding: 0 22px; }
+.auth-card__actions .btn--ghost { border: 0; box-shadow: inset 0 0 0 1.5px var(--charcoal-800); }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
+.fields > * { grid-column: span 2; }
+.fields > .field--half { grid-column: span 1; }
+.rules { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--canvas); font-size: var(--fs-xs); }
+.rules summary { display: flex; align-items: center; min-height: 28px; cursor: pointer; font-weight: 600; color: var(--text-strong); }
+.rules ul { margin: var(--sp-2) 0; padding-left: 1.1em; list-style: disc; }
+.auth-card__alt { margin-top: var(--sp-5); font-size: var(--fs-sm); }
+.auth-card__alt a { font-weight: 600; color: var(--charcoal-800); }
+.notice { display: flex; align-items: flex-start; gap: var(--sp-3); margin-bottom: var(--sp-4); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-sm); background: var(--crimson-50); color: var(--crimson-700); font-size: var(--fs-sm); font-weight: 500; }
+.notice .i { margin-top: 2px; }
+
+@media (max-width: 900px) { .auth__shelf { display: none; } .auth__badge { display: none; } }
+@media (max-width: 640px) {
+  .auth-card { --ledger-margin-x: 1.25rem; }
+  .auth-card__head, .auth-card__body { padding-right: 16px; }
+  .fields > .field--half { grid-column: span 2; }
+}.auth__panel .wordmark__o { --ring: var(--blush-200); }
