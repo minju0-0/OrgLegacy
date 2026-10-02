@@ -26,7 +26,7 @@
         </button>
       </div>
 
-      <a class="topbar__user" href="{% url 'profile' %}" aria-label="Your profile">
+      <a class="topbar__user" href="{% url 'profile' %}" aria-label="Your profile"{% if current == 'profile' %} aria-current="page"{% endif %}>
         <span class="avatar avatar--ink" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
         <span class="topbar__user-text">
           <span class="topbar__user-name">{% if user.first_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</span>
@@ -42,7 +42,6 @@
 
   <nav class="bottombar" aria-label="Quick">
     <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="books" %}<span>Home</span></a>
-    <a class="nav-item" href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="identification-card" %}<span>Profile</span></a>
     <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="gear" %}<span>Settings</span></a>
     <button type="button" class="nav-item" data-dialog-open="app-menu">{% include "shared/_icon.html" with name="list" %}<span>Menu</span></button>
   </nav>

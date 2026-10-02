@@ -4,8 +4,13 @@
 html:not(.js) .tabs { display: none; }
 html:not(.js) .tabpanel[hidden] { display: block; }
 html:not(.js) .tabpanel + .tabpanel { margin-top: var(--space-8); }
-.settings-stack { display: grid; gap: var(--space-8); max-width: 44rem; }
-.settings-narrow { max-width: 34rem; }
+.settings-stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--space-8); align-items: start; }
+.pwd-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+@media (min-width: 1000px) { .pwd-layout { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
+.pwd-layout .form-stack { max-width: 34rem; }
+.pwd-layout aside ul { padding-left: 1.1em; list-style: disc; display: grid; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted); }
+.pwd-layout aside li { padding-left: var(--space-1); }
+.requirements-note { margin-top: var(--space-5); padding-top: var(--space-4); border-top: var(--ledger-dotted); font-size: var(--text-sm); color: var(--text-muted); }
 .tabpanel .empty.settings-narrow { text-align: left; justify-items: start; }
 
 .danger-zone { display: grid; gap: var(--space-5); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--danger-bg); border: 1.5px solid var(--crimson-400); }

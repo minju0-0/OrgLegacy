@@ -12,13 +12,6 @@
     </a>
   </div>
 
-  <div class="nav-group">
-    <p class="nav-group__label">Account</p>
-    <a class="nav-item" href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}>
-      <span class="nav-item__chip">{% include "shared/_icon.html" with name="identification-card" %}</span><span>Profile</span>
-    </a>
-  </div>
-
   <div class="sidebar__spacer"></div>
 
   <div class="nav-group nav-group--foot">

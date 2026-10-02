@@ -69,7 +69,8 @@
     </section>
 
     <section class="tabpanel" role="tabpanel" id="panel-password" aria-labelledby="tab-password" tabindex="0" hidden>
-      <div class="catalogue settings-narrow">
+     <div class="pwd-layout">
+      <div class="catalogue">
         <span class="catalogue__punch" aria-hidden="true"></span>
         <div class="catalogue__head">
           <h2 class="catalogue__title">Change password</h2>
@@ -95,12 +96,6 @@
                 <div class="strength__bars" aria-hidden="true"><span class="pwd-strength-bar" id="pwd-str-1"></span><span class="pwd-strength-bar" id="pwd-str-2"></span><span class="pwd-strength-bar" id="pwd-str-3"></span><span class="pwd-strength-bar" id="pwd-str-4"></span></div>
                 <span class="strength__text" id="pwd-str-text">Password strength: pending input</span>
               </div>
-              {% if field.help_text %}
-              <details class="disclosure" id="password-rules-details">
-                <summary>Password requirements {% include "shared/_icon.html" with name="caret-down" class="icon--sm" %}</summary>
-                <div>{{ field.help_text|safe }}</div>
-              </details>
-              {% endif %}
               {% endif %}
               {% if field.name == 'new_password2' %}<p class="match" id="pwd-match-indicator" aria-live="polite"></p>{% endif %}
             {% endfor %}
@@ -111,10 +106,25 @@
           </form>
         </div>
       </div>
+
+      {% if password_form.new_password1.help_text %}
+      <aside class="catalogue" aria-labelledby="req-title">
+        <span class="catalogue__punch" aria-hidden="true"></span>
+        <div class="catalogue__head">
+          <h2 id="req-title" class="catalogue__title">Password requirements</h2>
+          <p class="catalogue__sub">What a new password has to meet.</p>
+        </div>
+        <div class="catalogue__body">
+          {{ password_form.new_password1.help_text|safe }}
+          <p class="requirements-note">After you change it you stay signed in on this device.</p>
+        </div>
+      </aside>
+      {% endif %}
+     </div>
     </section>
 
     <section class="tabpanel" role="tabpanel" id="panel-notifications" aria-labelledby="tab-notifications" tabindex="0" hidden>
-      <div class="empty settings-narrow">
+      <div class="empty">
         <h2 class="empty__title">Nothing to configure yet</h2>
         <p class="empty__text">When your organizations start sending reminders, such as an A.Y. waiting for sign-off, you will choose what reaches you here.</p>
       </div>

@@ -1,13 +1,21 @@
-/* Home: accession entry, collection cards, charter card. */
-.accession-folder .folder__body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
-.accession-card__intro { display: grid; gap: var(--space-2); max-width: 46ch; }
-.accession-card__form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); }
-.accession-card .form-feedback { min-height: 0; }
-.accession-card .form-feedback:not(:empty) { padding-top: var(--space-1); }
-@media (min-width: 900px) {
-  .accession-folder .folder__body { grid-template-columns: minmax(0, 0.9fr) auto; align-items: center; column-gap: var(--space-10); }
-  .accession-card .form-feedback { grid-column: 1 / -1; }
-}
+/* Home: organization cards, header actions, and the accession and charter modals. */
+.page-head__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+@media (max-width: 640px) { .page-head__actions { width: 100%; } .page-head__actions .btn { flex: 1 1 100%; justify-content: center; } }
+.empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); margin-top: var(--space-2); }
+
+/* Modals: a catalogue-style tab above the title, same vocabulary as the old folder card */
+dialog.modal--form { width: min(34rem, calc(100vw - 2rem)); }
+.modal--form .modal__panel { position: relative; padding-top: var(--space-10); background-image: var(--paper-grain); background-size: 180px 180px; }
+.modal__tab { position: absolute; top: 0; left: var(--space-8); padding: 0.4rem var(--space-4); border-radius: 0 0 var(--radius-sm) var(--radius-sm); background: var(--kraft-300); color: var(--ink); font: var(--weight-semi) var(--text-2xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.modal__titlerow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+.modal__titlerow .modal__title { margin: 0; }
+.modal__form { margin-top: var(--space-6); }
+.modal__form .accession { justify-content: center; }
+.modal__form .form-feedback { min-height: 1.25rem; margin-top: var(--space-4); text-align: center; }
+.field-row--name { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.form-stack .form-feedback { text-align: left; }
+@media (max-width: 480px) { .field-row--name { grid-template-columns: 1fr; } .modal__tab { left: var(--space-5); } }
+
 .acc-cell.is-shake { animation: acc-shake 220ms var(--ease-out); }
 @keyframes acc-shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 @media (prefers-reduced-motion: reduce) { .acc-cell.is-shake { animation: none; border-color: var(--danger-solid); } }
@@ -24,14 +32,7 @@
 .collection__title h3 { font: var(--weight-semi) var(--text-xl)/1.15 var(--font-serif); letter-spacing: var(--tracking-tight); overflow-wrap: anywhere; }
 .collection__meta { font-size: var(--text-sm); color: var(--text-muted); margin-top: calc(var(--space-2) * -1); }
 .collection__foot { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); padding-top: var(--space-3); border-top: var(--ledger-dotted); font-size: var(--text-xs); }
-.charter { display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-5); }
-.charter__body { display: grid; gap: var(--space-2); }
-.charter__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
-.charter-solo { margin-top: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); max-width: 26rem; }
-.charter-solo .charter__foot { justify-content: flex-start; }
 
-/* Additions for the main zip's data shape */
-.accession-card__titlerow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .collection__open { margin-left: auto; }
 .collection__foot .collection__count { font-size: var(--text-xs); }
 .modal__body .modal__facts { margin-top: var(--space-4); }

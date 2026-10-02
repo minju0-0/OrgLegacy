@@ -17,9 +17,9 @@ body.auth-body { background: var(--canvas); }
 .auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--auth-gap); min-height: calc(100dvh - var(--auth-nav-h)); padding: var(--auth-gap); }
 
 /* ---- The sheet ---- */
-.auth__main { display: grid; align-content: center; justify-items: center; padding: var(--space-12) var(--space-6); border-radius: var(--radius-xl); }
+.auth__main { display: grid; align-content: center; justify-items: center; padding: var(--space-10) var(--space-6); border-radius: var(--radius-xl); }
 .auth-sheet {
-  position: relative; width: 100%; max-width: 28rem; padding: var(--space-10) var(--space-8) var(--space-8) calc(var(--space-8) + 1.75rem);
+  position: relative; width: 100%; max-width: 40rem; padding: var(--space-10) var(--space-10) var(--space-8) calc(var(--space-10) + 1.75rem);
   border: 1px solid var(--border-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-2);
   background-color: var(--paper); background-image: var(--paper-grain); background-size: 180px 180px;
   animation: sheet-in var(--dur-reveal) var(--ease-out) both;

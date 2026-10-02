@@ -15,28 +15,11 @@
     <h1 class="page-head__title">Welcome back, {{ user.first_name|default:user.username }}.</h1>
     <p class="page-head__sub">Your organizations, and the A.Y.s kept inside them.</p>
   </div>
-</header>
-
-<section class="folder accession-folder" aria-labelledby="accession-title" data-accession>
-  <span class="folder__tab" aria-hidden="true">ACCESSION NO.</span>
-  <div class="folder__body accession-card">
-    <div class="accession-card__intro">
-      <div class="accession-card__titlerow">
-        <h2 id="accession-title" class="card__title">Enter accession number</h2>
-        <span class="stamp stamp--pending">Not connected yet</span>
-      </div>
-      <p id="accession-help" class="t-muted">An officer hands you an eight-character accession number. Enter it here to join their organization. Letters and numbers only.</p>
-    </div>
-    <form id="accession-form" class="accession-card__form" novalidate>
-      <div class="accession" id="accession-cells" role="group" aria-labelledby="accession-title" aria-describedby="accession-help">
-        <div class="accession__group">{% for n in "1234" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
-        <div class="accession__group">{% for n in "5678" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
-      </div>
-      <button type="submit" class="btn btn--primary btn--arrow" id="accession-submit" disabled>Redeem {% include "shared/_icon.html" with name="arrow-right" class="icon--sm" %}</button>
-    </form>
-    <p class="form-feedback" id="accession-feedback" role="status" aria-live="polite">Paste works too.</p>
+  <div class="page-head__actions">
+    <button type="button" class="btn btn--outline" data-dialog-open="charter-modal">{% include "shared/_icon.html" with name="plus" class="icon--sm" %}Charter a new organization</button>
+    <button type="button" class="btn btn--primary" data-dialog-open="accession-modal">{% include "shared/_icon.html" with name="key" class="icon--sm" %}Enter accession number</button>
   </div>
-</section>
+</header>
 
 <section aria-labelledby="collections-title">
   <div class="section-title">
@@ -68,9 +51,6 @@
       </div>
     </li>
     {% endfor %}
-    <li class="collection card card--dashed charter" style="--i: {{ organizations|length }}">
-      {% include "home/_charter.html" %}
-    </li>
   </ul>
   {% else %}
   <div class="empty">
@@ -84,11 +64,68 @@
     </svg>
     <h3 class="empty__title">Nothing on the shelf yet.</h3>
     <p class="empty__text">Enter an accession number from an officer, or charter an organization of your own. Each A.Y. you serve in will stand here.</p>
-    <button type="button" class="btn btn--outline" data-focus-target="#accession-cells .acc-cell">Enter an accession number</button>
+    <div class="empty__actions">
+      <button type="button" class="btn btn--primary" data-dialog-open="accession-modal">{% include "shared/_icon.html" with name="key" class="icon--sm" %}Enter accession number</button>
+      <button type="button" class="btn btn--outline" data-dialog-open="charter-modal">{% include "shared/_icon.html" with name="plus" class="icon--sm" %}Charter a new organization</button>
+    </div>
   </div>
-  <div class="charter-solo card card--dashed">{% include "home/_charter.html" %}</div>
   {% endif %}
 </section>
+
+<dialog class="overlay modal modal--form" id="accession-modal" aria-labelledby="accession-title" aria-describedby="accession-help">
+  <div class="modal__panel" data-accession>
+    <span class="modal__tab" aria-hidden="true">Accession no.</span>
+    <div class="modal__titlerow">
+      <h2 class="modal__title" id="accession-title">Enter accession number</h2>
+      <span class="stamp stamp--pending">Not connected yet</span>
+    </div>
+    <p id="accession-help" class="t-muted">An officer hands you an eight-character accession number. Enter it here to join their organization. Letters and numbers only.</p>
+    <form id="accession-form" class="modal__form" novalidate>
+      <div class="accession" id="accession-cells" role="group" aria-labelledby="accession-title">
+        <div class="accession__group">{% for n in "1234" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
+        <div class="accession__group">{% for n in "5678" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
+      </div>
+      <p class="form-feedback" id="accession-feedback" role="status" aria-live="polite">Paste works too.</p>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="accession-form" class="btn btn--primary btn--arrow" id="accession-submit" disabled>Redeem {% include "shared/_icon.html" with name="arrow-right" class="icon--sm" %}</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="overlay modal modal--form" id="charter-modal" aria-labelledby="charter-title" aria-describedby="charter-help">
+  <div class="modal__panel" data-charter>
+    <span class="modal__tab" aria-hidden="true">Charter</span>
+    <div class="modal__titlerow">
+      <h2 class="modal__title" id="charter-title">Charter a new organization</h2>
+      <span class="stamp stamp--pending">Not connected yet</span>
+    </div>
+    <p id="charter-help" class="t-muted">Set up your organization and open its first A.Y. You become its Executive.</p>
+    <form id="charter-form" class="modal__form form-stack" novalidate>
+      <div class="field-row field-row--name">
+        <div class="field">
+          <label class="field__label" for="charter-name">Organization name</label>
+          <div class="field__control"><input class="form-input" id="charter-name" name="name" type="text" maxlength="120" autocomplete="off" placeholder="Junior Philippine Computer Society" required aria-describedby="charter-feedback"></div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="charter-acronym">Acronym</label>
+          <div class="field__control"><input class="form-input" id="charter-acronym" name="acronym" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="JPCS"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label" for="charter-ay">First A.Y.</label>
+        <div class="field__control"><input class="form-input" id="charter-ay" name="academic_year" type="text" maxlength="9" inputmode="numeric" autocomplete="off" placeholder="2026-2027" required></div>
+        <div class="field__help">The academic year you are opening the record for.</div>
+      </div>
+      <p class="form-feedback" id="charter-feedback" role="status" aria-live="polite"></p>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="charter-form" class="btn btn--primary">Charter organization</button>
+    </div>
+  </div>
+</dialog>
 
 <dialog class="overlay modal" id="join-modal" aria-labelledby="join-modal-t">
   <div class="modal__panel">
@@ -100,7 +137,7 @@
     </div>
     <div class="modal__foot">
       <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
-      <button type="button" class="btn btn--primary" data-dialog-close>Confirm</button>
+      <button type="button" class="btn btn--primary" data-dialog-close data-join-confirm>Confirm</button>
     </div>
   </div>
 </dialog>
