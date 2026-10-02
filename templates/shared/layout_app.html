@@ -1,6 +1,6 @@
-{% extends "shared/base_app.html" %}
+{% extends "shared/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/app/layouts/app.css' %}">{% block page_css %}{% endblock %}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/shared/shell.css' %}">{% block page_css %}{% endblock %}{% endblock %}
 {% block body_class %}app-body{% endblock %}
 {% block body %}
 {% firstof active_page request.resolver_match.url_name as current %}
@@ -12,7 +12,27 @@
       <button type="button" class="icon-btn icon-btn--solid topbar__menu" data-dialog-open="app-menu" aria-label="Open menu">{% include "shared/_icon.html" with name="list" %}</button>
       <div class="topbar__crumbs">{% block crumbs %}{% endblock %}</div>
       <div class="topbar__spacer"></div>
-      <div class="topbar__actions">{% block topbar_actions %}{% endblock %}</div>
+
+      {# Placeholder: not wired to a view yet. Point action= at a search URL when one exists. #}
+      <form class="topbar__search" role="search" action="" onsubmit="return false">
+        <span class="topbar__search-icon">{% include "shared/_icon.html" with name="magnifying-glass" %}</span>
+        <input type="search" name="q" placeholder="Search" aria-label="Search" autocomplete="off">
+      </form>
+
+      <div class="topbar__actions">
+        {% block topbar_actions %}{% endblock %}
+        <button type="button" class="icon-btn icon-btn--solid topbar__bell" aria-label="Notifications">
+          {% include "shared/_icon.html" with name="bell" %}
+        </button>
+      </div>
+
+      <a class="topbar__user" href="{% url 'profile' %}" aria-label="Your profile">
+        <span class="avatar avatar--ink" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
+        <span class="topbar__user-text">
+          <span class="topbar__user-name">{% if user.first_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</span>
+          <span class="topbar__user-meta">@{{ user.username }}</span>
+        </span>
+      </a>
     </header>
 
     <main id="main" class="app__content" tabindex="-1">

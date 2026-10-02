@@ -1,26 +1,34 @@
 {% comment %}Sidebar content, used in the fixed sidebar and the mobile menu drawer. Active item comes from request.resolver_match (or an explicit active_page).{% endcomment %}
 {% firstof active_page request.resolver_match.url_name as current %}
 <nav class="sidebar" aria-label="Main">
-  <div class="sidebar__brand"><a href="{% url 'home' %}" class="brand-link" aria-label="orglegacy, home">{% include "shared/_wordmark.html" %}</a></div>
-  <div class="nav-group">
-    <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="books" %}<span>Home</span></a>
+  <div class="sidebar__brand">
+    <a href="{% url 'home' %}" class="brand-link" aria-label="orglegacy, home">{% include "shared/_wordmark.html" with class="wordmark--inverse" %}</a>
   </div>
+
+  <div class="nav-group">
+    <p class="nav-group__label">Archive</p>
+    <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/_icon.html" with name="books" %}</span><span>Home</span>
+    </a>
+  </div>
+
   <div class="nav-group">
     <p class="nav-group__label">Account</p>
-    <a class="nav-item" href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="identification-card" %}<span>Profile</span></a>
-    <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="gear" %}<span>Settings</span></a>
+    <a class="nav-item" href="{% url 'profile' %}"{% if current == 'profile' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/_icon.html" with name="identification-card" %}</span><span>Profile</span>
+    </a>
   </div>
+
   <div class="sidebar__spacer"></div>
-  <div class="user-card">
-    <div class="user-card__id">
-      <span class="avatar avatar--ink" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
-      <div class="user-card__text">
-        <span class="user-card__name">{% if user.first_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</span>
-        <span class="user-card__meta">@{{ user.username }}</span>
-      </div>
-    </div>
+
+  <div class="nav-group nav-group--foot">
+    <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/_icon.html" with name="gear" %}</span><span>Settings</span>
+    </a>
     <form method="post" action="{% url 'logout' %}">{% csrf_token %}
-      <button type="submit" class="btn btn--outline btn--sm btn--block">{% include "shared/_icon.html" with name="sign-out" class="icon--sm" %}Log out</button>
+      <button type="submit" class="nav-item">
+        <span class="nav-item__chip">{% include "shared/_icon.html" with name="sign-out" %}</span><span>Log out</span>
+      </button>
     </form>
   </div>
 </nav>

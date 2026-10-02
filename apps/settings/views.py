@@ -37,7 +37,7 @@ def settings_view(request):
                 logout(request)
                 user.delete()  # cascades to accounts.Profile via on_delete=CASCADE
                 messages.info(request, "Your account has been permanently deleted.")
-                return redirect('ogin')
+                return redirect('login')
 
     return render(request, 'settings/settings.html', {
         'password_form': password_form,

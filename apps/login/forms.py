@@ -7,7 +7,7 @@ class CustomLoginForm(AuthenticationForm):
         label="Username",
         widget=forms.TextInput(
             attrs={
-                "class": "form-input w-full",
+                "class": "form-input",
                 "placeholder": "Enter your username",
                 "autocomplete": "username",
                 "autofocus": True,
@@ -18,7 +18,7 @@ class CustomLoginForm(AuthenticationForm):
         label="Password",
         widget=forms.PasswordInput(
             attrs={
-                "class": "form-input w-full",
+                "class": "form-input",
                 "placeholder": "••••••••",
                 "autocomplete": "current-password",
             }

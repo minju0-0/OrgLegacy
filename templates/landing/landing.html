@@ -1,134 +1,191 @@
-{% extends "base_public.html" %}
+{% extends "shared/base.html" %}
 {% load static %}
 {% block title %}OrgLegacy | Every term, on record{% endblock %}
+{% block meta_description %}A closed-door ledger where a student organization keeps its events, budgets, suppliers and handover notes, so each new set of officers inherits what the last set knew.{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing/landing.css' %}">{% endblock %}
+{% block body_class %}landing{% endblock %}
 
-{% block content %}
+{% block body %}
   <header class="lp-nav">
     <div class="lp-nav__bar">
-      <a href="{% url 'landing' %}" class="wordmark" aria-label="orglegacy"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</a>
+      <a href="{% url 'landing' %}" class="wordmark" aria-label="orglegacy home"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</a>
       <nav class="lp-nav__links" aria-label="Sections"><a href="#features">Features</a><a href="#how">How it works</a><a href="#roles">Roles</a></nav>
       <div class="lp-nav__cta">
         {% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary btn--sm">Open your archive</a>
-        {% else %}<a href="{% url 'login' %}" class="btn btn--ghost btn--sm">Sign in</a><a href="{% url 'register' %}" class="btn btn--primary btn--sm">Get started</a>{% endif %}
+        {% else %}<a href="{% url 'login' %}" class="btn btn--outline btn--sm">Sign in</a><a href="{% url 'register' %}" class="btn btn--primary btn--sm">Get started</a>{% endif %}
       </div>
     </div>
   </header>
+
 <main id="main">
   <section class="hero">
-    <div class="hero__frame">
-      <figure class="photo photo-graded photo-scrim hero__bg"><img src="{% static 'images/shared/hero.avif' %}" width="1920" height="1080" fetchpriority="high" alt="" onerror="this.remove()"></figure>
-
+    <div class="hero__frame on-inverse">
+      <figure class="hero__bg"><img src="{% static 'images/shared/hero.avif' %}" width="900" height="600" fetchpriority="high" alt="" onerror="this.remove()"></figure>
 
       <div class="hero__body">
         <div class="hero__copy">
-          <p class="hero__mark wordmark" data-reveal aria-label="orglegacy"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</p>
-          <h1 class="hero__h1" data-reveal>Every term, <span>on record.</span></h1>
-          <p class="hero__sub" data-reveal>A closed-door ledger where a student organization keeps its events, budgets, suppliers and handover notes, so each new set of officers inherits what the last set knew.</p>
+          <p class="eyebrow eyebrow--pill eyebrow--inverse" data-reveal>Closed-door institutional memory</p>
+          <h1 class="hero__h1" data-reveal>Every term, <em>on record.</em></h1>
+          <p class="hero__sub" data-reveal>A ledger where a student organization keeps its events, budgets, suppliers and handover notes, so each new set of officers inherits what the last set knew.</p>
           <div class="hero__cta" data-reveal>
             {% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary">Open your archive</a>
             {% else %}<a href="{% url 'register' %}" class="btn btn--primary">Get started</a><a href="{% url 'login' %}" class="btn btn--paper">Sign in</a>{% endif %}
           </div>
         </div>
-        <div class="shelf hero__shelf" role="img" aria-label="Four volumes on a shelf, the newest standing out" data-reveal>
-          <div class="spine spine--kraft" style="--h:210px">A.Y. 2023–24</div>
-          <div class="spine spine--blush" style="--h:236px">A.Y. 2024–25</div>
-          <div class="spine spine--paper" style="--h:222px">A.Y. 2025–26</div>
-          <div class="spine spine--crimson spine--new" style="--h:250px">A.Y. 2026–27</div>
+        <div class="shelf hero__shelf" role="img" aria-label="Four academic years shelved side by side, the newest standing out" data-reveal>
+          <div class="spine spine--1" style="--h:9.5rem"><span class="spine__label">A.Y. 2023–24</span></div>
+          <div class="spine spine--2" style="--h:11rem"><span class="spine__label">A.Y. 2024–25</span></div>
+          <div class="spine spine--3" style="--h:10.25rem"><span class="spine__label">A.Y. 2025–26</span></div>
+          <div class="spine spine--hot spine--new" style="--h:11.5rem"><span class="spine__label">A.Y. 2026–27</span></div>
         </div>
       </div>
     </div>
 
     <div class="dock" data-reveal>
-      <div class="dock__card"><span class="eyebrow">Accession number</span><span class="accession">OL-4F7K-92QD</span><span class="hint">Example</span></div>
-      <div class="dock__card"><span class="eyebrow">Volumes archived</span><span class="dock__n">12</span><span class="hint">Sample figure</span></div>
-      <div class="dock__card dock__card--row"><span class="avatars" aria-hidden="true"><span class="avatar">A</span><span class="avatar">M</span><span class="avatar">J</span><span class="avatar avatar--more">+5</span></span><span class="hint">Members, heads and executives share one record</span></div>
+      <div class="dock__cell">
+        <span class="eyebrow">Accession number</span>
+        <div class="accession" role="img" aria-label="Example accession number 4F7K 92QD">
+          <div class="accession__group">{% for c in "4F7K" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+          <div class="accession__group">{% for c in "92QD" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+        </div>
+      </div>
+      <div class="dock__cell">
+        <span class="eyebrow">Archived records</span>
+        <span class="dock__n">12</span>
+        <span class="hint">Sample figure</span>
+      </div>
+      <div class="dock__cell">
+        <span class="avatar-stack" aria-hidden="true"><span class="avatar avatar--blush">A</span><span class="avatar avatar--kraft">M</span><span class="avatar">J</span><span class="avatar avatar-stack__more">+5</span></span>
+        <span class="hint">Members, heads and executives share one record.</span>
+      </div>
     </div>
   </section>
 
-  <section class="feat" id="features">
+  <section class="lp-sec feat" id="features">
     <div class="lp-wrap">
+      <div class="sec-head" data-reveal>
+        <p class="eyebrow">What the record holds</p>
+        <h2>Everything the last officers knew, in one place.</h2>
+      </div>
       <div class="feat__grid">
-        <article data-reveal><span class="tile-ico"><svg class="i"><use href="#i-cal"/></svg></span><h3>Events and budgets</h3><p>What was run, what it cost and what went wrong, entered against the volume it belongs to.</p></article>
-        <article data-reveal><span class="tile-ico"><svg class="i"><use href="#i-box"/></svg></span><h3>Supplier memory</h3><p>Contacts and honest ratings from whoever used them last, so nobody re-learns the same lesson.</p></article>
-        <article data-reveal><span class="tile-ico"><svg class="i"><use href="#i-note"/></svg></span><h3>Handover notes</h3><p>Outgoing officers write to the people who follow them, filed by committee and kept for good.</p></article>
+        <article class="feat__item" data-reveal><span class="feat__ico">{% include "shared/_icon.html" with name="calendar" %}</span><h3>Events and budgets</h3><p>What was run, what it cost and what went wrong, entered against the A.Y. it belongs to.</p></article>
+        <article class="feat__item" data-reveal><span class="feat__ico">{% include "shared/_icon.html" with name="package" %}</span><h3>Supplier memory</h3><p>Contacts and honest ratings from whoever used them last, so nobody re-learns the same lesson.</p></article>
+        <article class="feat__item" data-reveal><span class="feat__ico">{% include "shared/_icon.html" with name="note" %}</span><h3>Handover notes</h3><p>Outgoing officers write to the people who follow them, filed by committee and kept for good.</p></article>
       </div>
     </div>
   </section>
 
-  <section class="how" id="how">
+  <section class="lp-sec how on-inverse" id="how">
     <div class="lp-wrap">
-      <div class="how__head">
-        <div><p class="how__n">01 <i>/03</i></p><h2 data-reveal>A volume, from open to sealed</h2></div>
-        <p class="how__big" data-reveal aria-label="Five steps">5<span>steps from charter to sign-off</span></p>
+      <div class="sec-head" data-reveal>
+        <p class="eyebrow eyebrow--inverse">How it works</p>
+        <h2>An academic year, from open to sealed.</h2>
+        <p>Every A.Y. moves through three states, and only an executive can move it forward.</p>
       </div>
-      <ol class="flow" data-reveal aria-label="Term states">
-        <li style="--i:0"><span class="stamp stamp--active">Active</span><small>Officers log the volume as it happens.</small></li>
+      <ol class="flow" data-reveal aria-label="A.Y. states">
+        <li style="--i:0"><span class="stamp">Active</span><small>Officers log the A.Y. as it happens.</small></li>
         <li style="--i:1"><span class="stamp stamp--pending">Pending sign-off</span><small>Executives review before anything closes.</small></li>
         <li style="--i:2"><span class="stamp stamp--sealed">Closed</span><small>Sealed onto the shelf. Read, never rewritten.</small></li>
       </ol>
       <ol class="steps">
-        <li data-reveal><span class="n">01 <i>/05</i></span><h3>Charter</h3><p>An executive charters the collection and opens its first volume.</p></li>
-        <li data-reveal><span class="n">02 <i>/05</i></span><h3>Join by code</h3><p>Members redeem an accession number handed over by an officer.</p></li>
-        <li data-reveal><span class="n">03 <i>/05</i></span><h3>Log</h3><p>Events, budgets, suppliers and lessons go on the record.</p></li>
-        <li data-reveal><span class="n">04 <i>/05</i></span><h3>Hand over</h3><p>Outgoing officers write notes for the people who follow.</p></li>
-        <li data-reveal><span class="n">05 <i>/05</i></span><h3>Sign off</h3><p>Executives approve, and the volume is sealed.</p></li>
+        <li data-reveal><h3>Charter</h3><p>An executive charters the organization and opens its first A.Y.</p></li>
+        <li data-reveal><h3>Join by code</h3><p>Members redeem an accession number handed over by an officer.</p></li>
+        <li data-reveal><h3>Log</h3><p>Events, budgets, suppliers and lessons go on the record.</p></li>
+        <li data-reveal><h3>Hand over</h3><p>Outgoing officers write notes for the people who follow.</p></li>
+        <li data-reveal><h3>Sign off</h3><p>Executives approve, and the A.Y. is sealed.</p></li>
       </ol>
     </div>
   </section>
 
-  <section class="bento-sec grain">
+  <section class="lp-sec show">
     <div class="lp-wrap">
-      <div class="lp-head" data-reveal><span class="pill">In the ledger</span><h2 class="lp-h2">Everything filed. <span class="muted">Nothing overwritten.</span></h2></div>
-      <div class="bento">
-        <article class="cell cell--kraft cell--stat" data-reveal>
-          <span class="eyebrow">Sample · this volume</span><p class="stat-n">24</p><p>events logged by 8 officers</p>
-          <span class="avatars" aria-hidden="true"><span class="avatar">A</span><span class="avatar">M</span><span class="avatar">J</span><span class="avatar avatar--more">+5</span></span>
+      <div class="sec-head" data-reveal>
+        <p class="eyebrow">On the record</p>
+        <h2>Everything filed. <span class="t-muted">Nothing overwritten.</span></h2>
+      </div>
+      <div class="show__grid">
+        <article class="cell cell--ledger" data-reveal>
+          <div class="ledger-wrap">
+            <table class="ledger ledger--stack">
+              <caption>Events, sample entries</caption>
+              <thead><tr><th scope="col">Event</th><th scope="col">A.Y.</th><th scope="col" class="num">Budget</th></tr></thead>
+              <tbody>
+                <tr><td class="ledger__lead" data-label="Event">Freshmen welcome</td><td data-label="A.Y." class="ref">25–26</td><td data-label="Budget" class="num">₱8,500.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Leadership summit</td><td data-label="A.Y." class="ref">26–27</td><td data-label="Budget" class="num">₱24,000.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Foundation day booth</td><td data-label="A.Y." class="ref">25–26</td><td data-label="Budget" class="num">₱6,200.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Officer induction</td><td data-label="A.Y." class="ref">26–27</td><td data-label="Budget" class="num">₱3,750.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Intramurals support</td><td data-label="A.Y." class="ref">25–26</td><td data-label="Budget" class="num">₱12,400.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint">Every entry belongs to an A.Y., so anything can be traced to the officers who made it.</p>
         </article>
-        <article class="cell cell--paper cell--ledger" data-reveal>
-          <div class="ledger ledger--dotted"><table><thead><tr><th>Event</th><th>A.Y.</th><th class="num">Budget</th></tr></thead><tbody>
-            <tr><td data-label="Event">Freshmen welcome</td><td data-label="A.Y." class="mono">25–26</td><td data-label="Budget" class="num">₱8,500.00</td></tr>
-            <tr><td data-label="Event">Leadership summit</td><td data-label="A.Y." class="mono">26–27</td><td data-label="Budget" class="num">₱24,000.00</td></tr>
-            <tr><td data-label="Event">Foundation day booth</td><td data-label="A.Y." class="mono">25–26</td><td data-label="Budget" class="num">₱6,200.00</td></tr></tbody></table></div>
-          <span class="eyebrow">Sample entries</span>
+        <article class="cell cell--stat" data-reveal>
+          <span class="eyebrow">Sample · this A.Y.</span>
+          <p class="stat-n">24</p>
+          <p>events logged by 8 officers</p>
+          <span class="avatar-stack" aria-hidden="true"><span class="avatar avatar--blush">A</span><span class="avatar avatar--ink">M</span><span class="avatar">J</span><span class="avatar avatar-stack__more">+5</span></span>
         </article>
-        <article class="cell cell--charcoal cell--dots" data-reveal><h3>Every entry belongs to a volume.</h3><p>Terms are the spine of the record, so anything can be traced to the officers who made it.</p></article>
-        <article class="cell cell--blush cell--art" data-reveal>
-          <svg viewBox="0 0 160 120" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="30" y="14" width="100" height="98" rx="4"/><path d="M30 47h100M30 80h100"/><rect x="64" y="26" width="32" height="10" rx="2"/><rect x="64" y="59" width="32" height="10" rx="2"/><rect x="64" y="92" width="32" height="10" rx="2"/><path d="M10 112h140"/></svg>
-          <div><h3>Closed volumes stay closed.</h3><p>Sealed terms can be read by anyone with access, and edited by no one.</p></div>
+        <article class="cell cell--sealed" data-reveal>
+          <span class="stamp stamp--sealed stamp--tilt">Closed</span>
+          <h3>A sealed A.Y. stays sealed.</h3>
+          <p>Sealed terms can be read by anyone with access, and edited by no one.</p>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="door">
-    <figure class="photo photo-duotone door__bg"><img src="{% static 'images/landing/closed-door.webp' %}" width="2100" height="900" loading="lazy" alt="" onerror="this.remove()"></figure>
+  <section class="lp-sec door on-inverse">
     <div class="lp-wrap door__in">
-      <div class="door__panel" data-reveal><span class="pill">Closed door</span><h2>No public directory. Join by code only.</h2><p>There is no listing to browse and no request-to-join button. If an officer hasn't handed you an accession number, the archive doesn't know you exist.</p></div>
-      <div class="acc-card" data-reveal><span class="stamp stamp--closed stamp--tilt">By accession only</span><span class="accession">OL-4F7K-92QD</span><span class="hint">Example accession number</span></div>
+      <div class="door__copy" data-reveal>
+        <p class="eyebrow eyebrow--inverse">Closed door</p>
+        <h2>No public directory. Join by code only.</h2>
+        <p>There is no listing to browse and no request-to-join button. If an officer hasn't handed you an accession number, the archive doesn't know you exist.</p>
+      </div>
+      <div class="acc-card" data-reveal>
+        <span class="stamp stamp--tilt">By accession only</span>
+        <div class="accession" role="img" aria-label="Example accession number 4F7K 92QD">
+          <div class="accession__group">{% for c in "4F7K" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+          <div class="accession__group">{% for c in "92QD" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+        </div>
+        <span class="hint">Example accession number</span>
+      </div>
     </div>
   </section>
 
-  <section class="roles grain" id="roles">
+  <section class="lp-sec roles" id="roles">
     <div class="lp-wrap">
-      <div class="lp-head" data-reveal><span class="pill">Roles</span><h2 class="lp-h2">Three seats. <span class="muted">One shared memory.</span></h2></div>
+      <div class="sec-head" data-reveal>
+        <p class="eyebrow">Roles</p>
+        <h2>Three seats. <span class="t-muted">One shared memory.</span></h2>
+      </div>
       <ul class="roles__row">
-        <li class="rtile rtile--member" data-reveal><span class="tile-ico"><svg class="i"><use href="#i-user"/></svg></span><h3>Member</h3><p>Redeems an accession number and adds to the records of their committee.</p></li>
-        <li class="rtile rtile--head" data-reveal><span class="tile-ico"><svg class="i"><use href="#i-users"/></svg></span><h3>Committee Head</h3><p>Leads a committee and writes its handover notes.</p></li>
-        <li class="rtile rtile--exec" data-reveal><span class="tile-ico"><svg class="i"><use href="#i-crown"/></svg></span><h3>Executive</h3><p>Charters the collection and signs off each volume.</p></li>
+        <li class="role role--member" data-reveal><span class="role__ico">{% include "shared/_icon.html" with name="user" %}</span><h3>Member</h3><p>Redeems an accession number and adds to the records of their committee.</p></li>
+        <li class="role role--head" data-reveal><span class="role__ico">{% include "shared/_icon.html" with name="users" %}</span><h3>Committee Head</h3><p>Leads a committee and writes its handover notes.</p></li>
+        <li class="role role--exec" data-reveal><span class="role__ico">{% include "shared/_icon.html" with name="crown" %}</span><h3>Executive</h3><p>Charters the organization and signs off each A.Y.</p></li>
       </ul>
     </div>
   </section>
 </main>
 
-<footer class="close">
+<footer class="close on-inverse">
   <div class="lp-wrap close__in">
-    <div><h2>Start the record.</h2><p>Chartering takes a minute. Everything after that is filed.</p>
-      <div class="hero__cta">{% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary">Open your archive</a>{% else %}<a href="{% url 'register' %}" class="btn btn--primary">Get started</a><a href="{% url 'login' %}" class="btn btn--paper">Sign in</a>{% endif %}</div></div>
-    <div class="acc-card acc-card--dark"><span class="eyebrow">Have an accession number?</span><span class="accession">OL-····-····</span><span class="hint">Redeem it after signing in.</span></div>
+    <div class="close__copy">
+      <h2>Start the record.</h2>
+      <p>Chartering takes a minute. Everything after that is filed.</p>
+      <div class="hero__cta">{% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary">Open your archive</a>{% else %}<a href="{% url 'register' %}" class="btn btn--primary">Get started</a><a href="{% url 'login' %}" class="btn btn--paper">Sign in</a>{% endif %}</div>
+    </div>
+    <div class="acc-card acc-card--dark">
+      <span class="eyebrow eyebrow--inverse">Have an accession number?</span>
+      <div class="accession" role="img" aria-label="Accession number slots, empty">
+        <div class="accession__group">{% for c in "····" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+        <div class="accession__group">{% for c in "····" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+      </div>
+      <span class="hint">Redeem it after signing in.</span>
+    </div>
   </div>
-  <div class="lp-wrap close__foot"><span class="wordmark" aria-label="orglegacy"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</span><span class="hint">© 2026 OrgLegacy · Closed-door institutional memory for student organizations.</span></div>
+  <div class="lp-wrap close__foot"><span class="wordmark" role="img" aria-label="orglegacy"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</span><span>© 2026 OrgLegacy · Closed-door institutional memory for student organizations.</span></div>
 </footer>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/landing/landing.js' %}"></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/landing/landing.js' %}" defer></script>{% endblock %}

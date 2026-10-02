@@ -5,28 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}OrgLegacy{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}A closed-door institutional memory for student organizations.{% endblock %}">
+  <meta name="theme-color" content="#ECE8DC">
   <script>document.documentElement.className = 'js';</script>
   <link rel="preload" href="{% static 'fonts/literata-latin-600-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/geist-sans-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
-  {# Palette: the main zip's tokens. The bridge maps the new screen design's token names onto it. #}
   <link rel="stylesheet" href="{% static 'css/shared/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'css/shared/tokens.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/bridge.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/components/buttons.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/components/forms.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/components/surfaces.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/components/data.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/components/navigation.css' %}">
-  <link rel="stylesheet" href="{% static 'css/app/components/overlays.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/components.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip-link" href="#main">Skip to content</a>
-  {% include "shared/_app_icons.html" %}
+  {% include "shared/_icons.html" %}
   {% block body %}{% endblock %}
   {% include "shared/_messages.html" %}
-  <script src="{% static 'js/app/shell.js' %}" defer></script>
+  <script src="{% static 'js/shared/core.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

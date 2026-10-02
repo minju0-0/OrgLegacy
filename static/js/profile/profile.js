@@ -1,117 +1,42 @@
-/*
- * Profile feature behavior: avatar URL preview, bio character counter,
- * and an asynchronous (AJAX) form submission that swaps in the
- * server-rendered result without a full page reload.
- *
- * Field ids (id_avatar_url, id_bio) are Django's default
- * "id_<field name>" ids for ProfileDetailsForm — see
- * apps/profile/forms.py.
- */
+/* Profile: saves the details form over fetch and swaps in the server-rendered result,
+   so the page does not reload. Falls back to a normal POST if JS is off. */
+(function () {
+  var form = document.getElementById('profile-form');
+  if (!form) return;
 
-function bindProfileEvents() {
-    // Avatar preview logic
-    const avatarInput = document.getElementById('id_avatar_url');
-    const avatarImg = document.getElementById('avatar-preview');
-    const avatarFallback = document.getElementById('avatar-fallback');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var btn = document.getElementById('save-profile-btn');
+    var feedback = document.getElementById('inline-save-feedback');
+    var label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Saving…'; feedback.textContent = ''; feedback.className = 'form-feedback';
 
-    if (avatarInput && avatarImg && avatarFallback) {
-        const updateAvatar = () => {
-            const url = avatarInput.value.trim();
-            if (url) {
-                avatarImg.src = url;
-            } else {
-                avatarImg.classList.add('hidden');
-                avatarFallback.classList.remove('hidden');
-            }
-        };
-        avatarInput.addEventListener('input', updateAvatar);
-        if (avatarInput.value.trim()) updateAvatar();
+    try {
+      var res = await fetch(window.location.href, { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      var doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      var fresh = doc.getElementById('profile-form');
+      if (!fresh) { window.location.href = res.url; return; }
+
+      form.innerHTML = fresh.innerHTML;
+      var note = document.getElementById('inline-save-feedback');
+      if (fresh.querySelector('.field--invalid, .alert--danger')) {
+        note.textContent = 'Please correct the fields marked above.'; note.className = 'form-feedback is-error';
+        var bad = form.querySelector('.field--invalid input'); if (bad) bad.focus();
+      } else {
+        note.textContent = 'Saved.'; note.className = 'form-feedback is-ok';
+        if (window.olToast) window.olToast('Your profile has been updated.', 'success');
+        // keep the name and email in the page header in step with what was saved
+        var d = doc.querySelector('.profile-head');
+        var h = document.querySelector('.profile-head');
+        if (d && h) h.innerHTML = d.innerHTML;
+        var tb = doc.querySelector('.topbar__user'), cur = document.querySelector('.topbar__user');
+        if (tb && cur) cur.innerHTML = tb.innerHTML;
+      }
+    } catch (err) {
+      feedback.textContent = 'Unable to save changes. Please try again.'; feedback.className = 'form-feedback is-error';
+    } finally {
+      var b = document.getElementById('save-profile-btn');
+      if (b) { b.disabled = false; b.textContent = label; }
     }
-
-    // Bio character counter logic
-    const bioInput = document.getElementById('id_bio');
-    const bioCountEl = document.getElementById('bio-count');
-    const bioCounterContainer = document.getElementById('bio-counter');
-    const MAX_LENGTH = 300;
-
-    if (bioInput && bioCountEl) {
-        const updateCounter = () => {
-            const len = bioInput.value.length;
-            bioCountEl.textContent = len;
-            if (len > MAX_LENGTH) {
-                bioCounterContainer.classList.add('limit-exceeded');
-            } else {
-                bioCounterContainer.classList.remove('limit-exceeded');
-            }
-        };
-        bioInput.addEventListener('input', updateCounter);
-        updateCounter();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    bindProfileEvents();
-
-    const form = document.getElementById('profile-form');
-
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('save-profile-btn');
-            const feedback = document.getElementById('inline-save-feedback');
-            const originalText = btn.textContent;
-
-            btn.disabled = true;
-            btn.textContent = 'Recording changes...';
-            feedback.textContent = '';
-
-            try {
-                const formData = new FormData(form);
-                const res = await fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData,
-                });
-                const html = await res.text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-
-                const newForm = doc.getElementById('profile-form');
-                if (!newForm) { window.location.href = res.url; return; }
-                const hasErrors = newForm.querySelector('.field--invalid, .alert--danger');
-
-                if (hasErrors) {
-                    form.innerHTML = newForm.innerHTML;
-                    bindProfileEvents();
-                    const fresh = document.getElementById('inline-save-feedback');
-                    if (fresh) {
-                        fresh.textContent = 'Please correct the indicated fields above.';
-                        fresh.className = 'form-feedback is-error';
-                    }
-                    const firstBad = form.querySelector('.field--invalid input');
-                    if (firstBad) firstBad.focus();
-                } else {
-                    form.innerHTML = newForm.innerHTML;
-                    bindProfileEvents();
-
-                    const newFeedback = document.getElementById('inline-save-feedback');
-                    if (newFeedback) {
-                        newFeedback.textContent = 'Changes recorded to institutional profile.';
-                        newFeedback.className = 'form-feedback is-ok';
-                    }
-
-                    if (typeof showToast === 'function') {
-                        showToast('Profile changes recorded successfully.');
-                    }
-                }
-            } catch (err) {
-                feedback.textContent = 'Unable to save changes. Please try again.';
-                feedback.className = 'form-feedback is-error';
-            } finally {
-                const newBtn = document.getElementById('save-profile-btn');
-                if (newBtn) {
-                    newBtn.disabled = false;
-                    newBtn.textContent = originalText;
-                }
-            }
-        });
-    }
-});
+  });
+})();

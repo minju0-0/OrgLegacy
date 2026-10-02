@@ -7,15 +7,13 @@
 
 {% block content %}
 {% comment %}
-  Context today: only `user`. The accession module, collection cards and charter card are
-  design-only until views supply data. Expected shape for `organizations` (each item):
-  name, role ("Member" | "Committee Head" | "Executive"), volume (e.g. "2026–27"),
-  status ("ACTIVE" | "PENDING_SIGNOFF" | "CLOSED"), member_count, members (optional), url (optional).
+  Context: `organizations`, one dict per organization the user belongs to (see apps/shared/selectors.py):
+  name, role, role_code, ay, status, member_count, members, url (optional).
 {% endcomment %}
 <header class="page-head">
   <div>
     <h1 class="page-head__title">Welcome back, {{ user.first_name|default:user.username }}.</h1>
-    <p class="page-head__sub">Your collections, and the volumes kept inside them.</p>
+    <p class="page-head__sub">Your organizations, and the A.Y.s kept inside them.</p>
   </div>
 </header>
 
@@ -27,7 +25,7 @@
         <h2 id="accession-title" class="card__title">Enter accession number</h2>
         <span class="stamp stamp--pending">Not connected yet</span>
       </div>
-      <p id="accession-help" class="t-muted">An officer hands you an eight-character accession number. Enter it here to join their collection. Letters and numbers only.</p>
+      <p id="accession-help" class="t-muted">An officer hands you an eight-character accession number. Enter it here to join their organization. Letters and numbers only.</p>
     </div>
     <form id="accession-form" class="accession-card__form" novalidate>
       <div class="accession" id="accession-cells" role="group" aria-labelledby="accession-title" aria-describedby="accession-help">
@@ -43,7 +41,7 @@
 <section aria-labelledby="collections-title">
   <div class="section-title">
     <h2 id="collections-title">Your organizations</h2>
-    {% if organizations %}<span>{{ organizations|length }} record{{ organizations|length|pluralize }}</span>{% endif %}
+    {% if organizations %}<span>{{ organizations|length }} organization{{ organizations|length|pluralize }}</span>{% endif %}
   </div>
 
   {% if organizations %}
@@ -52,10 +50,10 @@
     <li class="collection card" style="--i: {{ forloop.counter0 }}">
       <div class="collection__body">
         <div class="collection__title"><h3>{{ org.name }}</h3></div>
-        <p class="collection__meta t-mono">Vol. {{ org.volume }}</p>
+        <p class="collection__meta t-mono">{{ org.ay }}</p>
         <div class="chip-row">
-          <span class="chip {% if org.role == 'Executive' %}chip--exec{% elif org.role == 'Committee Head' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span>
-          {% if org.status == 'ACTIVE' %}{% include "shared/_stamp.html" with status="ACTIVE" %}{% elif org.status == 'PENDING_SIGNOFF' %}{% include "shared/_stamp.html" with status="PENDING_SIGNOFF" %}{% else %}{% include "shared/_stamp.html" with status="CLOSED" %}{% endif %}
+          <span class="chip {% if org.role_code == 'EXECUTIVE' %}chip--exec{% elif org.role_code == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span>
+          {% include "shared/_stamp.html" with status=org.status %}
         </div>
         <div class="collection__foot">
           <div class="avatar-stack" aria-hidden="true">
@@ -66,7 +64,7 @@
         </div>
       </div>
       <div class="collection__spine" aria-hidden="true">
-        <div class="spine spine--mini {% if org.status == 'ACTIVE' %}spine--3{% elif org.status == 'PENDING_SIGNOFF' %}spine--4{% else %}spine--1{% endif %}"><span class="spine__label">{{ org.volume }}</span></div>
+        <div class="spine spine--mini {% if org.status == 'ACTIVE' %}spine--3{% elif org.status == 'PENDING_SIGNOFF' %}spine--4{% else %}spine--1{% endif %}"><span class="spine__label">{{ org.ay }}</span></div>
       </div>
     </li>
     {% endfor %}
@@ -84,8 +82,8 @@
       <rect x="150" y="44" width="22" height="60" rx="2" stroke-dasharray="4 6"/>
       <rect x="178" y="44" width="22" height="60" rx="2" stroke-dasharray="4 6"/>
     </svg>
-    <h3 class="empty__title">The shelf is empty.</h3>
-    <p class="empty__text">Enter an accession number from an officer, or charter a collection of your own. Your volumes will stand here.</p>
+    <h3 class="empty__title">Nothing on the shelf yet.</h3>
+    <p class="empty__text">Enter an accession number from an officer, or charter an organization of your own. Each A.Y. you serve in will stand here.</p>
     <button type="button" class="btn btn--outline" data-focus-target="#accession-cells .acc-cell">Enter an accession number</button>
   </div>
   <div class="charter-solo card card--dashed">{% include "home/_charter.html" %}</div>
@@ -94,7 +92,7 @@
 
 <dialog class="overlay modal" id="join-modal" aria-labelledby="join-modal-t">
   <div class="modal__panel">
-    <h2 class="modal__title" id="join-modal-t">Join this collection?</h2>
+    <h2 class="modal__title" id="join-modal-t">Join this organization?</h2>
     <div class="modal__body">
       <p>You are about to join <strong data-join="org">[Organization]</strong> as <strong data-join="role">[Role]</strong> in <strong data-join="committee">[Committee]</strong>. Confirm?</p>
       <p class="modal__facts t-mono">Accession <span data-join="code"></span></p>

@@ -1,52 +1,48 @@
 {% extends "shared/base_auth.html" %}
 {% load static %}
 {% block title %}Create your account | OrgLegacy{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/register/register.css' %}">{% endblock %}
 {% block auth_class %} auth--flip{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="{% static 'css/shared/auth.css' %}">{% endblock %}
 
 {% block panel %}
-{% include "partials/_auth_panel.html" with badge="New member" quote="Every document preserved is a gift to the next team." sub="Event notes, supplier contacts and handover checklists, so incoming officers never start from scratch." %}
+{% include "shared/_auth_panel.html" with badge="New member" quote="Every document preserved is a gift to the next team." sub="Event notes, supplier contacts and handover checklists, so incoming officers never start from scratch." %}
 {% endblock %}
 
 {% block card %}
-<div class="auth-card" id="register-form-panel">
-  <header class="auth-card__head">
+<div class="auth-sheet" id="register-form-panel">
+  <span class="auth-sheet__punch" aria-hidden="true"></span>
+  <header class="auth-sheet__head">
+    <p class="eyebrow">New member</p>
     <h1>Create your account</h1>
     <p class="lede">Set up your login. To join an organization you will need an accession number from one of its officers.</p>
   </header>
 
-  <div class="auth-card__body">
-  {% include "partials/_auth_notices.html" %}
+  {% include "shared/_auth_notices.html" %}
 
   <form method="post" class="fields">
     {% csrf_token %}
     {% for field in form %}
-    <div class="field{% if field.name == 'first_name' or field.name == 'last_name' %} field--half{% endif %}{% if field.errors %} has-error{% endif %}">
-      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-      {% if field.name == 'password1' or field.name == 'password2' %}
-      <div class="pw">
-        {{ field }}
-        <button type="button" class="iconbtn" data-pw-toggle="{{ field.id_for_label }}" aria-label="Show password"><svg class="i"><use href="#i-eye"/></svg></button>
-      </div>
+      {% if field.name == 'first_name' or field.name == 'last_name' %}
+        <div class="field--half">{% include "shared/_field.html" with field=field help=False %}</div>
+      {% elif field.name == 'password1' %}
+        <div>
+          {% include "shared/_field.html" with field=field password=True help=False %}
+          {% if field.help_text %}
+          <details class="rules" id="password-rules-details"{% if field.errors %} open{% endif %}>
+            <summary>Password requirements</summary>
+            {{ field.help_text|safe }}
+          </details>
+          {% endif %}
+        </div>
+      {% elif field.name == 'password2' %}
+        {% include "shared/_field.html" with field=field password=True help=False %}
       {% else %}
-      {{ field }}
+        {% include "shared/_field.html" with field=field %}
       {% endif %}
-      {% if field.name == 'password1' and field.help_text %}
-      <details class="rules" id="password-rules-details"{% if field.errors %} open{% endif %}>
-        <summary>Password requirements</summary>
-        {{ field.help_text|safe }}
-      </details>
-      {% elif field.help_text and field.name != 'password1' and field.name != 'password2' %}
-      <p class="hint">{{ field.help_text }}</p>
-      {% endif %}
-      {{ field.errors }}
-    </div>
     {% endfor %}
-    <div class="auth-card__actions">
-      <button type="submit" class="btn btn--primary">Create account</button>
-      <a href="{% url 'login' %}" class="btn btn--ghost">Sign in</a>
-    </div>
+    <button type="submit" class="btn btn--primary auth-sheet__submit">Create account</button>
   </form>
-  </div>
+
+  <p class="auth-sheet__alt">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
 </div>
 {% endblock %}

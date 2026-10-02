@@ -1,42 +1,32 @@
 {% extends "shared/base_auth.html" %}
 {% load static %}
 {% block title %}Sign in | OrgLegacy{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="{% static 'css/shared/auth.css' %}">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/login/login.css' %}">{% endblock %}
+{% block auth_class %} auth--login{% endblock %}
 
 {% block panel %}
-{% include "partials/_auth_panel.html" with badge="Member sign-in" quote="The best handover is the one nobody has to ask for." sub="Charters, event playbooks, supplier notes and committee history, kept for whoever comes next." %}
+{% include "shared/_auth_panel.html" with badge="Closed-door archive" quote="The best handover is the one nobody has to ask for." sub="Charters, event playbooks, supplier notes and committee history, kept for whoever comes next." %}
 {% endblock %}
 
 {% block card %}
-<div class="auth-card" id="login-form-panel">
-  <header class="auth-card__head">
-    <h1>Sign in</h1>
-    <p class="lede">Open your collection.</p>
+<div class="auth-sheet" id="login-form-panel">
+  <span class="auth-sheet__punch" aria-hidden="true"></span>
+  <header class="auth-sheet__head">
+    <p class="eyebrow">Member sign-in</p>
+    <h1>Welcome back.</h1>
+    <p class="lede">Sign in to open your archive.</p>
   </header>
 
-  <div class="auth-card__body">
-    {% include "partials/_auth_notices.html" %}
+  {% include "shared/_auth_notices.html" %}
 
-    <form method="post" class="fields">
-      {% csrf_token %}
-      <div class="field{% if form.username.errors %} has-error{% endif %}">
-        <label for="{{ form.username.id_for_label }}">Username</label>
-        {{ form.username }}
-        {{ form.username.errors }}
-      </div>
-      <div class="field{% if form.password.errors %} has-error{% endif %}">
-        <label for="{{ form.password.id_for_label }}">Password</label>
-        <div class="pw">
-          {{ form.password }}
-          <button type="button" class="iconbtn" data-pw-toggle="{{ form.password.id_for_label }}" aria-label="Show password"><svg class="i"><use href="#i-eye"/></svg></button>
-        </div>
-        {{ form.password.errors }}
-      </div>
-      <div class="auth-card__actions">
-        <button type="submit" class="btn btn--primary">Sign in</button>
-        <a href="{% url 'register' %}" class="btn btn--ghost">Create account</a>
-      </div>
-    </form>
-  </div>
+  <form method="post" class="fields">
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {% include "shared/_field.html" with field=form.username help=False %}
+    {% include "shared/_field.html" with field=form.password password=True help=False %}
+    <button type="submit" class="btn btn--primary auth-sheet__submit">Sign in</button>
+  </form>
+
+  <p class="auth-sheet__alt">Don't have an account? <a href="{% url 'register' %}">Create one</a></p>
 </div>
 {% endblock %}

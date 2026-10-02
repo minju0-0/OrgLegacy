@@ -6,10 +6,6 @@
 {% block extra_js %}<script src="{% static 'js/profile/profile.js' %}" defer></script>{% endblock %}
 
 {% block content %}
-{% comment %}
-  Memberships table is design-only until the view supplies `organizations`
-  (same shape as the Home page: name, role, volume, status, optional committee / title).
-{% endcomment %}
 <section class="card profile-head" aria-label="Your profile">
   <span class="avatar avatar--lg avatar--oxblood" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
   <div class="profile-head__id">
@@ -31,7 +27,7 @@
     <span class="catalogue__punch" aria-hidden="true"></span>
     <div class="catalogue__head">
       <h2 id="details-title" class="catalogue__title">Account details</h2>
-      <p class="catalogue__sub">Identity credentials registered with the archive directory.</p>
+      <p class="catalogue__sub">The name and email on your account.</p>
     </div>
     <div class="catalogue__body">
       <form method="post" id="profile-form" novalidate class="form-stack">
@@ -55,18 +51,18 @@
   </section>
 
   <section aria-labelledby="memberships-title">
-    <div class="section-title"><h2 id="memberships-title">Memberships</h2><span>Your record across volumes</span></div>
+    <div class="section-title"><h2 id="memberships-title">Memberships</h2><span>Your record across A.Y.s</span></div>
     {% if organizations %}
     <div class="ledger-wrap">
       <table class="ledger ledger--stack">
-        <thead><tr><th scope="col">Organization</th><th scope="col">Role</th><th scope="col">Volume</th><th scope="col">Status</th></tr></thead>
+        <thead><tr><th scope="col">Organization</th><th scope="col">Role</th><th scope="col">A.Y.</th><th scope="col">Status</th></tr></thead>
         <tbody>
           {% for org in organizations %}
           <tr>
             <td class="ledger__lead" data-label="Organization"><span class="ledger__primary">{{ org.name }}</span>{% if org.committee or org.title %}<span class="ledger__secondary">{{ org.committee|default:"" }}{% if org.committee and org.title %} · {% endif %}{{ org.title|default:"" }}</span>{% endif %}</td>
-            <td data-label="Role"><span class="chip {% if org.role == 'Executive' %}chip--exec{% elif org.role == 'Committee Head' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span></td>
-            <td data-label="Volume" class="ref">{{ org.volume }}</td>
-            <td data-label="Status">{% if org.status == 'ACTIVE' %}{% include "shared/_stamp.html" with status="ACTIVE" %}{% elif org.status == 'PENDING_SIGNOFF' %}{% include "shared/_stamp.html" with status="PENDING_SIGNOFF" %}{% else %}{% include "shared/_stamp.html" with status="CLOSED" %}{% endif %}</td>
+            <td data-label="Role"><span class="chip {% if org.role_code == 'EXECUTIVE' %}chip--exec{% elif org.role_code == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span></td>
+            <td data-label="A.Y." class="ref">{{ org.ay }}</td>
+            <td data-label="Status">{% include "shared/_stamp.html" with status=org.status %}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -75,7 +71,7 @@
     {% else %}
     <div class="empty">
       <h3 class="empty__title">No memberships yet</h3>
-      <p class="empty__text">When you join an organization with an accession number, each volume you serve in is recorded here.</p>
+      <p class="empty__text">When you join an organization with an accession number, each A.Y. you serve in is recorded here.</p>
       <a class="btn btn--outline" href="{% url 'home' %}">Go to Home</a>
     </div>
     {% endif %}

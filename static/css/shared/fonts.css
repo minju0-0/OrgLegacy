@@ -1,4 +1,5 @@
-/* Self-hosted (SIL OFL). Files live in static/fonts/. Load before tokens.css. */
+/* Self-hosted (SIL OFL). Files live in static/fonts/. Load before tokens.css.
+   Paths are relative to this file: static/css/shared/ -> static/fonts/ */
 @font-face{font-family:"Literata";src:url("../../fonts/literata-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Literata";src:url("../../fonts/literata-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Literata";src:url("../../fonts/literata-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
@@ -12,5 +13,5 @@
 @font-face{font-family:"Geist Mono";src:url("../../fonts/geist-mono-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Geist Mono";src:url("../../fonts/geist-mono-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Geist Mono";src:url("../../fonts/geist-mono-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
-/* Peso sign (U+20B1) only, in case Geist lacks it. Delete this block and the "OL Peso" entries in tokens.css if Geist renders it. */
+/* Peso sign (U+20B1) only. Geist and Literata do not include it. */
 @font-face{font-family:"OL Peso";src:url("../../fonts/peso.woff2") format("woff2");font-weight:200 900;font-style:normal;font-display:swap;unicode-range:U+20B1}

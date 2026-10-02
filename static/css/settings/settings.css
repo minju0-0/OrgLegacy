@@ -8,11 +8,11 @@ html:not(.js) .tabpanel + .tabpanel { margin-top: var(--space-8); }
 .settings-narrow { max-width: 34rem; }
 .tabpanel .empty.settings-narrow { text-align: left; justify-items: start; }
 
-.danger-zone { display: grid; gap: var(--space-5); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--danger-bg); border: 1.5px solid var(--brick-400); }
+.danger-zone { display: grid; gap: var(--space-5); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--danger-bg); border: 1.5px solid var(--crimson-400); }
 .danger-zone__title { font: var(--weight-semi) var(--text-xl)/1.2 var(--font-serif); color: var(--danger-fg); margin-bottom: var(--space-2); }
 .danger-zone__intro p { font-size: var(--text-sm); max-width: 52ch; }
-.danger-zone .form-input, .danger-zone input[type="text"] { background: var(--cocoa-50); font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: none; }
-.danger-zone .confirm-slot { color: var(--cocoa-500); border-bottom-color: var(--cocoa-500); }
+.danger-zone .form-input, .danger-zone input[type="text"] { background: var(--paper); font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: none; }
+.danger-zone .confirm-slot { color: var(--text-body); border-bottom-color: var(--field-border); }
 .danger-zone .confirm-slot.is-filled { color: var(--danger-fg); border-bottom-color: var(--danger-solid); }
 .danger-zone__head { display: flex; align-items: center; gap: var(--space-2); color: var(--danger-fg); margin-bottom: var(--space-2); }
 .danger-zone__head .danger-zone__title { margin: 0; }

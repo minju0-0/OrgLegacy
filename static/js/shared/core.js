@@ -1,6 +1,6 @@
-/* App-screen behaviour (Home, Settings, Profile): dialogs and the mobile menu
-   drawer, toasts, password visibility, tabs, focus helpers. Vanilla, no deps.
-   Dialog and toast motion is CSS, driven by [data-state] and .is-leaving. */
+/* Site behaviour, loaded on every page: dialogs and the mobile menu drawer, toasts,
+   password visibility, tabs, focus helpers.
+   Vanilla, no dependencies. Dialog and toast motion is CSS, driven by [data-state] and .is-leaving. */
 (function () {
   'use strict';
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -56,9 +56,9 @@
     t.className = 'toast toast--' + type;
     t.setAttribute('role', type === 'error' ? 'alert' : 'status');
     t.setAttribute('data-toast', '');
-    t.innerHTML = '<svg class="icon" aria-hidden="true" focusable="false"><use href="#ap-' + TOAST_ICON[type] + '"></use></svg>' +
+    t.innerHTML = '<svg class="icon" aria-hidden="true" focusable="false"><use href="#ol-' + TOAST_ICON[type] + '"></use></svg>' +
       '<p class="toast__msg"></p>' +
-      '<button type="button" class="toast__close" data-toast-close aria-label="Dismiss notification"><svg class="icon icon--sm" aria-hidden="true" focusable="false"><use href="#ap-x"></use></svg></button>';
+      '<button type="button" class="toast__close" data-toast-close aria-label="Dismiss notification"><svg class="icon icon--sm" aria-hidden="true" focusable="false"><use href="#ol-x"></use></svg></button>';
     $('.toast__msg', t).textContent = msg;
     box.appendChild(t); wire(t);
   };

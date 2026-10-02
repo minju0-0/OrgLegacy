@@ -1,7 +1,0 @@
-{% comment %}Django messages render as toasts (shared/_toasts.html). Only form-level errors show here.{% endcomment %}
-{% if form.non_field_errors %}
-<div class="notice" role="alert">
-  <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
-  <div>{{ form.non_field_errors }}</div>
-</div>
-{% endif %}

@@ -19,7 +19,7 @@ class RegisterForm(UserCreationForm):
 
         for field in self.fields.values():
             existing = field.widget.attrs.get("class", "")
-            field.widget.attrs["class"] = f"{existing} form-input w-full".strip()
+            field.widget.attrs["class"] = f"{existing} form-input".strip()
 
         placeholders = {
             "first_name": "First Name",

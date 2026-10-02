@@ -1,209 +1,200 @@
 /* ==========================================================================
    OrgLegacy design tokens: "The Ledger"
-   A system of record. Bound volumes, ruled paper, catalogue cards, stamps.
-   Palette: charcoal + kraft + warm stone (INMOTION board); burgundy + crimson + cream (WideApp board).
-   No green, no blue. Statuses are told apart by fill, outline and a dot, never by hue alone.
-   Load static/css/fonts.css first. Light theme only; semantic tokens below
-   are the only names components should use.
-   RULE: crimson text is forbidden on the burgundy and charcoal bands (2.38:1). Use blush or kraft.
+   One token file for the whole site (landing, auth, app).
+   Bound records, ruled paper, catalogue cards, stamps.
+
+   Palette: charcoal + kraft + warm stone, burgundy + crimson + cream.
+   No green, no blue. Statuses are told apart by fill, outline and a dot,
+   never by hue alone.
+   RULE: crimson text is forbidden on the burgundy and charcoal bands
+   (2.38:1). Use blush or kraft there.
+   Components use the SEMANTIC tokens (second block). The ramps are for
+   defining them.
    ========================================================================== */
 
 :root {
+  color-scheme: light;
+
   /* ---- Primitives: surfaces ---- */
-  --paper: #FCF9EF;            /* cards, raised surfaces */
-  --canvas: #ECE8DC;           /* page ground */
-  --ink: #35332F;              /* text on paper (11.17:1) */
-  --band-ink: #2A2825;         /* dark bands, footer */
-  --oxblood: #44020F;          /* "how it works" band (paper on it 11.61:1) */
-  --mustard: var(--kraft-500);          /* highlights; ink on it 5.41:1 */
+  --paper:    #FCF9EF;   /* cards, raised surfaces */
+  --canvas:   #ECE8DC;   /* page ground */
+  --field:    #FFFDF7;   /* input fill, a touch lighter than paper */
+  --ink:      #35332F;   /* text on paper (11.2:1) */
+  --band-ink: #2A2825;   /* dark bands, sidebar, footer */
+  --oxblood:  #44020F;   /* the one burgundy band (paper on it 15.8:1) */
 
   /* ---- Primitives: ramps 50 to 900 (500 = key colour) ---- */
-  --crimson-50: #FEF4F4;
-  --crimson-100: #FEDEDC;
-  --crimson-200: #FFADAB;
-  --crimson-300: #ED8181;
-  --crimson-400: #D55358;
-  --crimson-500: #B5012B;
-  --crimson-600: #9A0223;
-  --crimson-700: #80001B;
-  --crimson-800: #670114;
-  --crimson-900: #44020F;
+  --crimson-50:  #FEF4F4; --crimson-100: #FEDEDC; --crimson-200: #FFADAB; --crimson-300: #ED8181; --crimson-400: #D55358;
+  --crimson-500: #B5012B; --crimson-600: #9A0223; --crimson-700: #80001B; --crimson-800: #670114; --crimson-900: #44020F;
 
-  --charcoal-50: #F6F3EA;
-  --charcoal-100: #ECE8DC;
-  --charcoal-200: #DAD6CB;
-  --charcoal-300: #C1BEB6;
-  --charcoal-400: #A29E94;
-  --charcoal-500: #938B7D;
-  --charcoal-600: #666058;
-  --charcoal-700: #4A4741;
-  --charcoal-800: #35332F;
-  --charcoal-900: #2A2825;
+  --charcoal-50:  #F6F3EA; --charcoal-100: #ECE8DC; --charcoal-200: #DAD6CB; --charcoal-300: #C1BEB6; --charcoal-400: #A29E94;
+  --charcoal-500: #938B7D; --charcoal-600: #666058; --charcoal-700: #4A4741; --charcoal-800: #35332F; --charcoal-900: #2A2825;
 
-  --kraft-50: #FFF6E7;
-  --kraft-100: #F9ECD8;
-  --kraft-200: #EBD9BC;
-  --kraft-300: #E2CBA3;
-  --kraft-400: #CEB182;
-  --kraft-500: #BC9A62;
-  --kraft-600: #987A47;
-  --kraft-700: #755B2D;
-  --kraft-800: #543E14;
-  --kraft-900: #352301;
+  --kraft-50:  #FFF6E7; --kraft-100: #F9ECD8; --kraft-200: #EBD9BC; --kraft-300: #E2CBA3; --kraft-400: #CEB182;
+  --kraft-500: #BC9A62; --kraft-600: #987A47; --kraft-700: #755B2D; --kraft-800: #543E14; --kraft-900: #352301;
 
-  --blush-50: #FEF4F5;
-  --blush-100: #FEE7EA;
-  --blush-200: #F0D4D6;
-  --blush-300: #E8BBC1;
-  --blush-400: #DAA4AC;
-  --blush-500: #C98B94;
-  --blush-600: #A36D75;
-  --blush-700: #7F4F57;
-  --blush-800: #5D343B;
-  --blush-900: #3C1A21;
+  --blush-50:  #FEF4F5; --blush-100: #FEE7EA; --blush-200: #F0D4D6; --blush-300: #E8BBC1; --blush-400: #DAA4AC;
+  --blush-500: #C98B94; --blush-600: #A36D75; --blush-700: #7F4F57; --blush-800: #5D343B; --blush-900: #3C1A21;
 
+  /* ---- Semantic: surfaces ---- */
+  --surface-page:    var(--canvas);
+  --surface-card:    var(--paper);
+  --surface-well:    var(--charcoal-100);
+  --surface-sunken:  var(--kraft-100);
+  --surface-inverse: var(--band-ink);
+  --surface-oxblood: var(--oxblood);
+  --surface-kraft:   var(--kraft-300);
+  --surface-blush:   var(--blush-200);
+  --surface-overlay: rgb(42 40 37 / 0.56);
 
-  /* ---- Semantic colour ---- */
-  --bg: var(--canvas);
-  --surface: var(--paper);
-  --surface-sunken: var(--kraft-100);
-  --field: #FFFDF7;                            /* input fill: a touch lighter than paper */
-  --surface-inverse: var(--oxblood);
-  --surface-band: var(--band-ink);
-  --text: var(--ink);
-  --text-strong: var(--band-ink);
-  --text-muted: var(--charcoal-600);              /* 5.98:1 on paper */
+  /* ---- Semantic: text ---- */
+  --text-strong:  var(--band-ink);
+  --text-body:    var(--ink);
+  --text-muted:   var(--charcoal-600);          /* 5.9:1 on paper, 5.1:1 on canvas */
+  --text-on-primary: var(--paper);
+  --text-on-secondary: var(--paper);
   --text-on-inverse: var(--paper);
-  --text-accent-on-dark: var(--blush-200);     /* headings on dark bands */
-  --text-accent-alt-on-dark: var(--kraft-300); /* numerals, marks on dark bands */
-  --border: rgb(74 47 39 / 0.16);              /* hairlines */
-  --border-strong: var(--charcoal-500);           /* field borders, 3.98:1 (non-text) */
-  --rule: rgb(74 47 39 / 0.2);                 /* ledger ruled lines */
-  --margin-line: var(--crimson-500);             /* the red margin rule */
+  --text-on-inverse-muted: var(--blush-200);
+  --text-on-kraft: var(--ink);
+  --text-on-blush: var(--ink);
+  --text-link:       var(--crimson-600);
+  --text-link-hover: var(--crimson-700);
 
-  --primary: var(--crimson-500);                 /* paper on it 5.52:1 */
-  --primary-hover: var(--crimson-600);
-  --primary-pressed: var(--crimson-700);
-  --primary-text: var(--paper);
-  --secondary: var(--charcoal-700);              /* paper on it 5.38:1 */
-  --secondary-text: var(--paper);
-  --danger: var(--crimson-700);
-  --success: var(--charcoal-800);
-  --info: var(--charcoal-700);
-  --warning: var(--kraft-900);
-  --focus-ring: 0 0 0 2px var(--paper), 0 0 0 4px var(--charcoal-800);
+  /* ---- Semantic: borders ---- */
+  --border-hairline:   rgb(74 47 39 / 0.16);
+  --border-ink:        var(--ink);
+  --border-strong:     var(--charcoal-500);      /* decorative dashed / outline borders (not form controls) */
+  --border-on-inverse: rgb(252 249 239 / 0.22);
+  --rule:              rgb(74 47 39 / 0.2);      /* ruled-paper lines */
+  --margin-line:       var(--crimson-400);       /* the red margin rule */
+  /* Form controls. 4.6:1 against the field fill (WCAG 1.4.11 asks for 3:1). */
+  --field-border:       #7A7468;
+  --field-border-hover: var(--charcoal-700);
+  --field-border-focus: var(--ink);
+  --placeholder:        #6F695D;                 /* 5.4:1 on the field fill */
+
+  /* ---- Semantic: actions and status ---- */
+  --action-primary:         var(--crimson-500);   /* paper on it 6.6:1 */
+  --action-primary-hover:   var(--crimson-600);
+  --action-primary-active:  var(--crimson-700);
+  --action-secondary:       var(--charcoal-700);
+  --action-secondary-hover: var(--charcoal-800);
+  --action-ink:             var(--ink);
+  --action-ink-hover:       var(--band-ink);
+
+  --success-fg: var(--charcoal-800);  --success-bg: var(--charcoal-100);  --success-solid: var(--charcoal-700);
+  --info-fg:    var(--ink);           --info-bg:    var(--charcoal-100);
+  --warning-fg: var(--kraft-800);     --warning-bg: var(--kraft-100);     --warning-solid: var(--kraft-500);
+  --danger-fg:  var(--crimson-700);   --danger-bg:  var(--crimson-50);    --danger-solid:  var(--crimson-500);
+
+  --focus-ring:         0 0 0 2px var(--paper), 0 0 0 4px var(--charcoal-800);
+  --focus-ring-inverse: 0 0 0 2px var(--band-ink), 0 0 0 4px var(--kraft-300);
 
   /* ---- Ledger vocabulary: stamps (term status) ---- */
-  --stamp-active-fg: var(--charcoal-800);   --stamp-active-bg: var(--paper);   --stamp-active-line: var(--charcoal-800);
-  --stamp-pending-fg: var(--kraft-800);    --stamp-pending-bg: var(--kraft-100);   --stamp-pending-line: var(--kraft-500);
-  --stamp-closed-fg: var(--paper);     --stamp-closed-bg: var(--charcoal-800);    --stamp-closed-line: var(--charcoal-800);
-  --stamp-danger-fg: var(--crimson-600);     --stamp-danger-bg: var(--crimson-50);    --stamp-danger-line: var(--crimson-500);
-  --stamp-rotate: -2.5deg;                        /* used once, on emphasis stamps only */
-  --stamp-border: 2px;
+  --stamp-active-fg:  var(--charcoal-800); --stamp-active-bg:  var(--paper);     --stamp-active-border:  var(--charcoal-800);
+  --stamp-pending-fg: var(--kraft-800);    --stamp-pending-bg: var(--kraft-100); --stamp-pending-border: var(--kraft-500);
+  --stamp-sealed-fg:  var(--paper);        --stamp-sealed-bg:  var(--charcoal-800); --stamp-sealed-border: var(--charcoal-800);
+  --stamp-active-fg-inv:  var(--charcoal-200); --stamp-active-border-inv:  var(--charcoal-300);
+  --stamp-pending-fg-inv: var(--kraft-300);    --stamp-pending-border-inv: var(--kraft-300);
+  --stamp-sealed-fg-inv:  var(--charcoal-200); --stamp-sealed-border-inv:  var(--charcoal-400);
+  --stamp-rotate: -2deg;
+  --stamp-border-w: 1.5px;
+  --stamp-tracking: 0.1em;
 
   /* ---- Ledger vocabulary: roles (chips) ---- */
-  --role-member-bg: var(--charcoal-200);    --role-member-fg: var(--ink);       /* 8.62:1 */
-  --role-head-bg: var(--kraft-300);       --role-head-fg: var(--ink);         /* 7.20:1 */
-  --role-exec-bg: var(--oxblood);         --role-exec-fg: var(--paper);       /* 11.61:1 */
+  --role-member-bg: var(--charcoal-200); --role-member-fg: var(--ink);    /* 8.6:1 */
+  --role-head-bg:   var(--kraft-300);    --role-head-fg:   var(--ink);    /* 7.2:1 */
+  --role-exec-bg:   var(--oxblood);      --role-exec-fg:   var(--paper);  /* 15.8:1 */
+
+  /* ---- Ledger vocabulary: spines ---- */
+  --spine-1-bg: var(--charcoal-700); --spine-1-fg: var(--paper);
+  --spine-2-bg: var(--oxblood);      --spine-2-fg: var(--paper);
+  --spine-3-bg: var(--crimson-500);  --spine-3-fg: var(--paper);
+  --spine-4-bg: var(--kraft-500);    --spine-4-fg: var(--ink);
+  --spine-band: var(--kraft-300);
+  --spine-lift: 10px;
 
   /* ---- Type families (self-hosted, see fonts.css) ---- */
-  --font-display: "Literata", "OL Peso", "Iowan Old Style", "Palatino Linotype", Georgia, serif;   /* headings, page titles */
-  --font-display-xl: var(--font-display);  /* oversized only: wordmark, hero, big numerals */
-  --font-body: "Geist", "OL Peso", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "OL Peso", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --font-accent: var(--font-display);     /* no italic system: italics only for descriptors and quotes */
-  --font-code: var(--font-mono);          /* alias kept for existing components */
+  --font-serif: "Literata", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-ui:    "Geist", "OL Peso", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono:  "Geist Mono", "OL Peso", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* ---- Type scale ---- */
-  --fs-2xs: 0.6875rem;   /* 11: mono labels, stamps */
-  --fs-xs: 0.75rem;      /* 12 */
-  --fs-table: 0.8125rem; /* 13: dense ledger rows */
-  --fs-sm: 0.875rem;     /* 14: app UI base */
-  --fs-base: 1rem;       /* 16: marketing body, inputs on mobile */
-  --fs-md: 1.125rem;
-  --fs-lg: 1.375rem;
-  --fs-xl: 1.75rem;
-  --fs-2xl: clamp(2rem, 1.5rem + 2vw, 2.75rem);
-  --fs-3xl: clamp(2.5rem, 1.5rem + 3.6vw, 4.5rem);
-  --fs-4xl: clamp(3.25rem, 1rem + 7vw, 7rem);     /* page hero */
-  --fs-mark: clamp(4rem, 1rem + 12vw, 10rem);     /* wordmark only */
-  --fw-display: 600;     /* Caslon has 400 and 700 only. 700 for small headings and labels */
-  --fw-display-bold: 700;
-  --lh-tight: 1.02;  --lh-snug: 1.2;  --lh-body: 1.55;  --lh-table: 1.35;
+  --text-2xs:   0.6875rem;  /* 11: mono labels, stamps */
+  --text-xs:    0.75rem;    /* 12 */
+  --text-dense: 0.8125rem;  /* 13: dense ledger rows */
+  --text-sm:    0.875rem;   /* 14: app UI base */
+  --text-md:    1rem;       /* 16: marketing body, inputs on mobile */
+  --text-lg:    1.125rem;
+  --text-xl:    1.375rem;
+  --text-2xl:   clamp(1.625rem, 1.3rem + 1vw, 2rem);
+  --text-3xl:   clamp(2rem, 1.5rem + 1.6vw, 2.75rem);
+  --text-4xl:   clamp(2.375rem, 1.6rem + 2.6vw, 3.5rem);
+  --text-display: clamp(2.75rem, 1.2rem + 5.2vw, 5.25rem);   /* landing hero only */
+
+  --leading-none: 1;  --leading-tight: 1.1;  --leading-snug: 1.25;
+  --leading-normal: 1.55;  --leading-dense: 1.4;
+
   --tracking-display: -0.02em;
-  --tracking-tight: -0.01em;
-  --tracking-label: 0.08em;     /* mono/uppercase labels only */
-  --num: tabular-nums lining-nums;
+  --tracking-tight:   -0.01em;
+  --tracking-label:   0.06em;
+  --tracking-accession: 0.08em;
 
-  /* ---- Ledger vocabulary: geometry ---- */
-  --ledger-row-h: 44px;          /* dense table row; 40px compact variant allowed */
-  --ledger-rule: 1px solid var(--rule);
-  --ledger-margin-x: 3rem;       /* where the crimson margin line sits on catalogue cards */
-  --catalogue-pad: var(--sp-6);
-  --spine-w: 56px;               /* volume spine width */
-  --spine-pull: 14px;            /* newest volume stands this far out */
-  --accession-cell: 44px;        /* one monospaced cell of an accession number */
-  --dot-grid: radial-gradient(rgb(74 47 39 / 0.16) 1px, transparent 1.5px);
-  --dot-grid-size: 22px 22px;
-  --paper-grain: url("../images/landing/paper-grain.webp");
-  --nav-glass: color-mix(in srgb, var(--paper) 72%, transparent);
-  --nav-h: 64px;
+  --weight-regular: 400;  --weight-medium: 500;  --weight-semi: 600;  --weight-bold: 700;
 
-  /* ---- Space (4px base) ---- */
-  --sp-1: 0.25rem;  --sp-2: 0.5rem;   --sp-3: 0.75rem;  --sp-4: 1rem;
-  --sp-5: 1.5rem;   --sp-6: 2rem;     --sp-7: 3rem;     --sp-8: 4.5rem;   --sp-9: 7rem;
+  /* ---- Space (4px base), layout ---- */
+  --space-0: 0;  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;  --space-4: 1rem;
+  --space-5: 1.25rem;  --space-6: 1.5rem;  --space-8: 2rem;  --space-10: 2.5rem;  --space-12: 3rem;
+  --space-16: 4rem;  --space-20: 5rem;  --space-24: 7rem;
+  --gutter: clamp(1rem, 0.5rem + 2vw, 2rem);
+  --page-max: 1240px;
+  --tap: 2.75rem;
 
   /* ---- Shape ---- */
-  --r-sm: 6px;  --r-md: 10px;  --r-lg: 16px;  --r-xl: 24px;  --r-pill: 999px;
+  --radius-xs: 0.1875rem;  --radius-sm: 0.375rem;  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;    --radius-xl: 1.75rem;   --radius-pill: 999px;  --radius-round: 50%;
 
   /* ---- Depth: warm, tinted, soft. Never black. Glass only on the landing top bar. ---- */
   --shadow-1: 0 1px 2px rgb(51 32 27 / 0.08), 0 2px 6px rgb(51 32 27 / 0.05);
   --shadow-2: 0 2px 4px rgb(51 32 27 / 0.07), 0 10px 24px rgb(51 32 27 / 0.09);
   --shadow-3: 0 4px 8px rgb(51 32 27 / 0.09), 0 24px 48px rgb(51 32 27 / 0.15);
+  --shadow-spine: inset -3px 0 0 rgb(42 40 37 / 0.18), 2px 0 0 rgb(51 32 27 / 0.10);
 
-  /* ---- Motion (animate + emil-design-eng): transform/opacity only ---- */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
-  --dur-press: 100ms;   /* press scale-down 0.97 */
-  --dur-fast: 150ms;    /* hovers */
-  --dur-base: 220ms;    /* enters, modals */
-  --dur-exit: 140ms;    /* exits are faster than enters */
-  --dur-stamp: 320ms;   /* a stamp pressing in, once */
-  --dur-slow: 400ms;    /* load reveal */
-  --stagger: 50ms;
+  /* ---- Paper devices ---- */
+  --rule-step: 2rem;
+  --ruled-paper: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--rule-step) - 1px),
+                   var(--rule) calc(var(--rule-step) - 1px), var(--rule) var(--rule-step));
+  --margin-offset: 3.25rem;
+  --ledger-row-h: 2.75rem;
+  --ledger-row-h-compact: 2.125rem;
+  --ledger-dotted: 1px dotted var(--charcoal-400);
+  --dot-grid: radial-gradient(circle, rgb(74 47 39 / 0.16) 1px, transparent 1.4px);
+  --dot-grid-size: 22px 22px;
+  /* Paper fibre: inline SVG noise, no file to 404. Lay it over a paper colour. */
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .30  0 0 0 0 .20  0 0 0 0 .14  0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 
-  /* ---- Layout ---- */
-  --content-max: 1200px;
-  --sidebar-w: 264px;
-  --topbar-h: 64px;
-  --touch: 44px;
-  --z-nav: 20;  --z-drawer: 40;  --z-modal: 50;  --z-toast: 60;
+  --accession-cell-w: 2.25rem;  --accession-cell-h: 3rem;
+  --accession-gap: 0.375rem;    --accession-group-gap: 1rem;
+
+  /* ---- Motion: transform and opacity only ---- */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-press: 120ms;  --dur-hover: 160ms;  --dur-small: 180ms;  --dur-medium: 240ms;
+  --dur-drawer: 320ms; --dur-reveal: 420ms; --dur-stamp: 280ms;
+  --stagger: 55ms;
+  --press-scale: 0.97;  --lift-y: -2px;  --enter-y: 8px;
+
+  /* ---- Layers ---- */
+  --z-base: 0;  --z-raised: 10;  --z-sticky: 100;  --z-rail: 200;
+  --z-drawer: 400;  --z-modal: 500;  --z-toast: 600;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --dur-press: 0ms; --dur-fast: 60ms; --dur-base: 60ms; --dur-exit: 40ms; --dur-stamp: 0ms; --dur-slow: 60ms; --stagger: 0ms; }
-}
-
-/* Global defaults from the system */
-html { scrollbar-color: var(--kraft-300) var(--canvas); text-underline-offset: 0.18em; }
-body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: var(--fs-sm); line-height: var(--lh-body); font-variant-numeric: lining-nums; }
-::selection { background: var(--charcoal-800); color: var(--paper); }
-:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--r-sm); }
-input, textarea, select { caret-color: var(--crimson-500); accent-color: var(--crimson-500); }
-/* Tabular figures only where numbers align. Applying tnum globally widens punctuation in Schibsted Grotesk. */
-.mono, .num, .kpi__v, .accession, time, [data-tabular] { font-variant-numeric: var(--num); }
-.mono { font-family: var(--font-mono); }
-
-/* ==========================================================================
-   TEMPORARY ALIASES for pages built in the previous pass. They keep the
-   current site rendering until each page is rebuilt on the Ledger system.
-   Delete this block when the last old page is gone.
-   ========================================================================== */
-:root {
-  --cream-100: var(--paper);  --cream-200: var(--canvas);  --cream-300: var(--kraft-100);  --cream-400: var(--kraft-300);
-  --espresso-500: var(--ink); --espresso-700: var(--band-ink); --espresso-900: var(--band-ink);
-  --teal-100: var(--charcoal-100); --teal-300: var(--charcoal-200); --teal-500: var(--charcoal-700); --teal-700: var(--charcoal-800);
-  --coral-100: var(--crimson-100); --coral-500: var(--crimson-500); --coral-700: var(--crimson-600);
-  --salmon-500: var(--crimson-400);
-  --fs-hero: var(--fs-mark);
+  :root {
+    --dur-press: 1ms;  --dur-hover: 120ms;  --dur-small: 120ms;  --dur-medium: 160ms;
+    --dur-drawer: 160ms;  --dur-reveal: 200ms;  --dur-stamp: 160ms;
+    --stagger: 0ms;  --press-scale: 1;  --lift-y: 0px;  --enter-y: 0px;
+    --stamp-rotate: 0deg;  --spine-lift: 0px;
+  }
 }
