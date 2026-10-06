@@ -14,9 +14,9 @@ LIVE_STATUSES = (Term.Status.ACTIVE, Term.Status.PENDING_SIGNOFF)
 
 
 def ay_label(label):
-    """'2026-2027' or 'A.Y. 2026-2027' -> 'A.Y. 2026–2027'. One spelling everywhere."""
+    """'2026-2027' or 'A.Y. 2026-2027' -> 'A.Y. 2026-2027'. One spelling everywhere: full years, plain hyphen."""
     text = re.sub(r"^\s*A\.?\s*Y\.?\s*", "", label or "", flags=re.I).strip()
-    text = re.sub(r"(?<=\d)\s*[-–]\s*(?=\d)", "–", text)
+    text = re.sub(r"(?<=\d)\s*[-\u2013\u2014]\s*(?=\d)", "-", text)
     return f"A.Y. {text}" if text else "A.Y."
 
 

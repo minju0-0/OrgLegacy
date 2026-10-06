@@ -5,28 +5,27 @@
 {% block auth_class %} auth--flip{% endblock %}
 
 {% block panel %}
-{% include "shared/_auth_panel.html" with badge="New member" quote="Every document preserved is a gift to the next team." sub="Event notes, supplier contacts and handover checklists, so incoming officers never start from scratch." %}
+{% include "shared/auth/_panel.html" with quote="Every document preserved is a gift to the next team." sub="Event notes, supplier contacts and handover checklists, so incoming officers never start from scratch." %}
 {% endblock %}
 
 {% block card %}
 <div class="auth-sheet" id="register-form-panel">
   <span class="auth-sheet__punch" aria-hidden="true"></span>
   <header class="auth-sheet__head">
-    <p class="eyebrow">New member</p>
     <h1>Create your account</h1>
-    <p class="lede">Set up your login. To join an organization you will need an accession number from one of its officers.</p>
+    <p class="lede">Set up your login. To join an organization you will need a join code from one of its officers.</p>
   </header>
 
-  {% include "shared/_auth_notices.html" %}
+  {% include "shared/auth/_notices.html" %}
 
   <form method="post" class="fields">
     {% csrf_token %}
     {% for field in form %}
       {% if field.name == 'first_name' or field.name == 'last_name' %}
-        <div class="field--half">{% include "shared/_field.html" with field=field help=False %}</div>
+        <div class="field--half">{% include "shared/ui/_field.html" with field=field help=False %}</div>
       {% elif field.name == 'password1' %}
         <div>
-          {% include "shared/_field.html" with field=field password=True help=False %}
+          {% include "shared/ui/_field.html" with field=field password=True help=False %}
           {% if field.help_text %}
           <details class="rules" id="password-rules-details"{% if field.errors %} open{% endif %}>
             <summary>Password requirements</summary>
@@ -35,9 +34,9 @@
           {% endif %}
         </div>
       {% elif field.name == 'password2' %}
-        {% include "shared/_field.html" with field=field password=True help=False %}
+        {% include "shared/ui/_field.html" with field=field password=True help=False %}
       {% else %}
-        {% include "shared/_field.html" with field=field %}
+        {% include "shared/ui/_field.html" with field=field %}
       {% endif %}
     {% endfor %}
     <button type="submit" class="btn btn--primary auth-sheet__submit">Create account</button>

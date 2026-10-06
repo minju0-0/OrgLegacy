@@ -3,3 +3,6 @@
 .auth--login { --auth-crop: 30% 60%; }          /* keeps the pen and notebook in frame */
 .auth--login .auth-sheet__head h1 { white-space: nowrap; }
 @media (max-width: 380px) { .auth--login .auth-sheet__head h1 { white-space: normal; } }
+/* Desk: the sheet is short here, so the boards are fixed-height and centred on it, which leaves
+   room above for the stamp and below for the shelf. */
+.auth--login .auth__main { --board-top: calc(50% - 19.5rem); --board-bottom: auto; --board-h: 39rem; --slip-top: calc(50% - 18rem); --slip-bottom: auto; --slip-h: 36rem; }

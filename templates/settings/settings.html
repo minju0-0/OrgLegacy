@@ -6,129 +6,228 @@
 {% block extra_js %}<script src="{% static 'js/settings/settings.js' %}" defer></script>{% endblock %}
 
 {% block content %}
+{% comment %}
+  SETTINGS SCREEN. Context contract (full reference in docs/PROFILE_SETTINGS.md):
+    password_form, delete_form   REAL TODAY.
+    notification_groups          the catalog of notifications with default switches (apps/settings/preferences.py).
+    sessions                     optional list of {id, device, kind, place, last_active, current}. Shows "Where you're signed in".
+    two_factor                   optional dict {enabled}. Shows "Two-step sign-in".
+  Hooks: settings:save-notifications, account:export, security:sign-out-session, security:sign-out-all,
+         security:two-step-setup, security:two-step-disable.
+{% endcomment %}
 <header class="page-head">
   <div>
-    <h1 class="page-head__title">Account Settings</h1>
-    <p class="page-head__sub">Your password, and closing your account.</p>
+    <h1 class="page-head__title">Account settings</h1>
+    <p class="page-head__sub">How you sign in, what reaches you, and your data.</p>
   </div>
 </header>
 
-<div data-tabs>
+<div data-tabs{% if preview %} data-preview="{{ preview }}"{% endif %}>
   <div class="tabs" role="tablist" aria-label="Settings sections">
     <button type="button" class="tab" role="tab" id="tab-account" aria-controls="panel-account" aria-selected="true" data-tab="account">Account</button>
-    <button type="button" class="tab" role="tab" id="tab-password" aria-controls="panel-password" aria-selected="false" tabindex="-1" data-tab="password">Password</button>
+    <button type="button" class="tab" role="tab" id="tab-security" aria-controls="panel-security" aria-selected="false" tabindex="-1" data-tab="security">Security</button>
     <button type="button" class="tab" role="tab" id="tab-notifications" aria-controls="panel-notifications" aria-selected="false" tabindex="-1" data-tab="notifications">Notifications</button>
   </div>
 
   <div class="settings-panels">
-    <section class="tabpanel" role="tabpanel" id="panel-account" aria-labelledby="tab-account" tabindex="0">
-      <div class="settings-stack">
-        <div class="catalogue">
-          <span class="catalogue__punch" aria-hidden="true"></span>
-          <div class="catalogue__head">
-            <h2 class="catalogue__title">Account</h2>
-            <p class="catalogue__sub">The details on file for you.</p>
-          </div>
-          <div class="catalogue__body">
-            <dl class="dl">
-              <div><dt>Name</dt><dd>{% if user.first_name or user.last_name %}{{ user.get_full_name }}{% else %}Not set{% endif %}</dd></div>
-              <div><dt>Username</dt><dd class="t-mono">{{ user.username }}</dd></div>
-              <div><dt>Email</dt><dd>{{ user.email|default:"Not set" }}</dd></div>
-              <div><dt>Joined</dt><dd>{{ user.date_joined|date:"j F Y" }}</dd></div>
-            </dl>
-            <p style="margin-top: var(--space-5)"><a class="link-arrow" href="{% url 'profile' %}">Edit your details {% include "shared/_icon.html" with name="arrow-right" class="icon--sm" %}</a></p>
-          </div>
-        </div>
-
-        <!-- Danger zone / account deletion -->
-        <section class="danger-zone" aria-labelledby="danger-title">
-          <div class="danger-zone__intro">
-            <div class="danger-zone__head">{% include "shared/_icon.html" with name="warning" class="icon--lg" %}<h2 id="danger-title" class="danger-zone__title">Danger zone</h2></div>
-            <p>Deleting your account will permanently purge your login credentials, profile attribution, and administrative history from the institutional archive. This action is irreversible.</p>
-          </div>
-          <form method="post" action="{% url 'settings' %}#account" id="delete-form" novalidate class="form-stack danger-zone__form">
-            {% csrf_token %}
-            <input type="hidden" name="form_name" value="delete_account">
-            {% if delete_form.non_field_errors %}
-            <div class="alert alert--danger" role="alert">{% include "shared/_icon.html" with name="warning-circle" %}
-              <ul>{% for error in delete_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
-            </div>
-            {% endif %}
-            <div class="field{% if delete_form.confirm.errors %} field--invalid{% endif %}">
-              <label class="field__label" for="{{ delete_form.confirm.id_for_label }}">To confirm, type DELETE</label>
-              <div class="confirm-field">
-                <div class="confirm-slots" aria-hidden="true" id="confirm-slots">{% for c in "DELETE" %}<span class="confirm-slot"></span>{% endfor %}</div>
-                {{ delete_form.confirm }}
-              </div>
-              {% for error in delete_form.confirm.errors %}<p class="field__error" data-field-error id="{{ delete_form.confirm.id_for_label }}-error">{% include "shared/_icon.html" with name="warning-circle" class="icon--sm" %}<span>{{ error }}</span></p>{% endfor %}
-            </div>
-            <div><button type="submit" class="btn btn--danger" id="delete-account-btn" disabled>Delete my account</button></div>
-          </form>
-        </section>
+    <section class="tabpanel" role="tabpanel" id="panel-account" aria-labelledby="tab-account" tabindex="0">{% comment %}Account tab. Hook: account:export (resolve to {url} when the file is ready). Delete account is a real form.{% endcomment %}
+<div class="settings-cols">
+  <div class="settings-col">
+    <div class="catalogue">
+      <span class="catalogue__punch" aria-hidden="true"></span>
+      <div class="catalogue__head">
+        <h2 class="catalogue__title">Account</h2>
+        <p class="catalogue__sub">The details on file for you.</p>
       </div>
-    </section>
+      <div class="catalogue__body">
+        <dl class="dl">
+          <div><dt>Name</dt><dd>{% if user.first_name or user.last_name %}{{ user.get_full_name }}{% else %}Not set{% endif %}</dd></div>
+          <div><dt>Username</dt><dd class="t-mono">{{ user.username }}</dd></div>
+          <div><dt>Email</dt><dd>{{ user.email|default:"Not set" }}</dd></div>
+          <div><dt>Joined</dt><dd>{{ user.date_joined|date:"j F Y" }}</dd></div>
+        </dl>
+        <p style="margin-top: var(--space-5)"><a class="link-arrow" href="{% url 'profile' %}">Edit your details {% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}</a></p>
+      </div>
+    </div>
 
-    <section class="tabpanel" role="tabpanel" id="panel-password" aria-labelledby="tab-password" tabindex="0" hidden>
-     <div class="pwd-layout">
-      <div class="catalogue">
-        <span class="catalogue__punch" aria-hidden="true"></span>
-        <div class="catalogue__head">
-          <h2 class="catalogue__title">Change password</h2>
-          <p class="catalogue__sub">Ensure your account uses an authoritative, high-entropy password.</p>
-        </div>
-        <div class="catalogue__body">
-          <form method="post" action="{% url 'settings' %}#password" id="password-form" novalidate class="form-stack">
-            {% csrf_token %}
-            <input type="hidden" name="form_name" value="change_password">
-            {% if password_form.non_field_errors %}
-            <div class="alert alert--danger" role="alert">{% include "shared/_icon.html" with name="warning-circle" %}
-              <ul>{% for error in password_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
-            </div>
-            {% endif %}
-            {% for field in password_form %}
-              {% if field.name == 'new_password1' or field.name == 'new_password2' %}
-                {% include "shared/_field.html" with field=field password=True help=False %}
-              {% else %}
-                {% include "shared/_field.html" with field=field password=True %}
-              {% endif %}
-              {% if field.name == 'new_password1' %}
-              <div class="strength" aria-live="polite">
-                <div class="strength__bars" aria-hidden="true"><span class="pwd-strength-bar" id="pwd-str-1"></span><span class="pwd-strength-bar" id="pwd-str-2"></span><span class="pwd-strength-bar" id="pwd-str-3"></span><span class="pwd-strength-bar" id="pwd-str-4"></span></div>
-                <span class="strength__text" id="pwd-str-text">Password strength: pending input</span>
-              </div>
-              {% endif %}
-              {% if field.name == 'new_password2' %}<p class="match" id="pwd-match-indicator" aria-live="polite"></p>{% endif %}
-            {% endfor %}
-            <div class="form-actions">
-              <span id="pwd-feedback-area" class="form-feedback" role="status" aria-live="polite"></span>
-              <button type="submit" class="btn btn--primary" id="save-pwd-btn">Update password</button>
-            </div>
-          </form>
+    <div class="catalogue" aria-labelledby="data-title">
+      <span class="catalogue__punch" aria-hidden="true"></span>
+      <div class="catalogue__head">
+        <h2 class="catalogue__title" id="data-title">Your data</h2>
+        <p class="catalogue__sub">A copy of what is kept about you.</p>
+      </div>
+      <div class="catalogue__body">
+        <p class="t-muted">Get a file with your profile details, your memberships and the entries you added.</p>
+        <div class="export" data-export data-state="idle">
+          <button type="button" class="btn btn--outline" data-export-btn>{% include "shared/ui/_icon.html" with name="download" class="icon--sm" %}<span>Request a copy</span></button>
+          <p class="export__status" role="status" aria-live="polite" data-export-status></p>
         </div>
       </div>
+    </div>
+  </div>
 
-      {% if password_form.new_password1.help_text %}
-      <aside class="catalogue" aria-labelledby="req-title">
-        <span class="catalogue__punch" aria-hidden="true"></span>
-        <div class="catalogue__head">
-          <h2 id="req-title" class="catalogue__title">Password requirements</h2>
-          <p class="catalogue__sub">What a new password has to meet.</p>
-        </div>
-        <div class="catalogue__body">
-          {{ password_form.new_password1.help_text|safe }}
-          <p class="requirements-note">After you change it you stay signed in on this device.</p>
-        </div>
-      </aside>
+  <section class="danger-zone" aria-labelledby="danger-title">
+    <div class="danger-zone__intro">
+      <div class="danger-zone__head">{% include "shared/ui/_icon.html" with name="warning" class="icon--lg" %}<h2 id="danger-title" class="danger-zone__title">Danger zone</h2></div>
+      <p>Deleting your account removes your login and profile details. You will lose access to your organizations, and this cannot be undone.</p>
+    </div>
+    <form method="post" action="{% url 'settings' %}#account" id="delete-form" novalidate class="form-stack danger-zone__form">
+      {% csrf_token %}
+      <input type="hidden" name="form_name" value="delete_account">
+      {% if delete_form.non_field_errors %}
+      <div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}
+        <ul>{% for error in delete_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      </div>
       {% endif %}
-     </div>
-    </section>
-
-    <section class="tabpanel" role="tabpanel" id="panel-notifications" aria-labelledby="tab-notifications" tabindex="0" hidden>
-      <div class="empty">
-        <h2 class="empty__title">Nothing to configure yet</h2>
-        <p class="empty__text">When your organizations start sending reminders, such as an A.Y. waiting for sign-off, you will choose what reaches you here.</p>
+      <div class="field{% if delete_form.confirm.errors %} field--invalid{% endif %}">
+        <label class="field__label" for="{{ delete_form.confirm.id_for_label }}">To confirm, type DELETE</label>
+        <div class="confirm-field">
+          <div class="confirm-slots" aria-hidden="true" id="confirm-slots">{% for c in "DELETE" %}<span class="confirm-slot"></span>{% endfor %}</div>
+          {{ delete_form.confirm }}
+        </div>
+        {% for error in delete_form.confirm.errors %}<p class="field__error" data-field-error id="{{ delete_form.confirm.id_for_label }}-error">{% include "shared/ui/_icon.html" with name="warning-circle" class="icon--sm" %}<span>{{ error }}</span></p>{% endfor %}
       </div>
-    </section>
+      <div><button type="submit" class="btn btn--danger" id="delete-account-btn" disabled>Delete my account</button></div>
+    </form>
+  </section>
+</div>
+</section>
+    <section class="tabpanel" role="tabpanel" id="panel-security" aria-labelledby="tab-security" tabindex="0" hidden>{% comment %}Security tab. Real today: change password. Optional: sessions, two_factor.
+  Hooks: security:sign-out-session ({id}), security:sign-out-all, security:two-step-setup, security:two-step-disable.{% endcomment %}
+<div class="pwd-layout">
+ <div class="catalogue">
+   <span class="catalogue__punch" aria-hidden="true"></span>
+   <div class="catalogue__head">
+     <h2 class="catalogue__title">Change password</h2>
+     <p class="catalogue__sub">Choose a password you don't use anywhere else.</p>
+   </div>
+   <div class="catalogue__body">
+     <form method="post" action="{% url 'settings' %}#security" id="password-form" novalidate class="form-stack">
+       {% csrf_token %}
+       <input type="hidden" name="form_name" value="change_password">
+       {# Lets password managers tie the new password to this account. Not shown, not tabbable. #}
+       <input type="text" name="username" value="{{ user.username }}" autocomplete="username" class="sr-only" tabindex="-1" readonly aria-hidden="true">
+       {% if password_form.non_field_errors %}
+       <div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}
+         <ul>{% for error in password_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+       </div>
+       {% endif %}
+       {% for field in password_form %}
+         {% if field.name == 'new_password1' or field.name == 'new_password2' %}
+           {% include "shared/ui/_field.html" with field=field password=True help=False %}
+         {% else %}
+           {% include "shared/ui/_field.html" with field=field password=True %}
+         {% endif %}
+         {% if field.name == 'new_password1' %}
+         <div class="strength" aria-live="polite">
+           <div class="strength__bars" aria-hidden="true"><span class="pwd-strength-bar" id="pwd-str-1"></span><span class="pwd-strength-bar" id="pwd-str-2"></span><span class="pwd-strength-bar" id="pwd-str-3"></span><span class="pwd-strength-bar" id="pwd-str-4"></span></div>
+           <span class="strength__text" id="pwd-str-text">Password strength: pending input</span>
+         </div>
+         {% endif %}
+         {% if field.name == 'new_password2' %}<p class="match" id="pwd-match-indicator" aria-live="polite"></p>{% endif %}
+       {% endfor %}
+       <div class="form-actions">
+         <button type="submit" class="btn btn--primary" id="save-pwd-btn">Update password</button>
+         <span id="pwd-feedback-area" class="form-feedback" role="status" aria-live="polite"></span>
+       </div>
+     </form>
+   </div>
+ </div>
+
+ {% if password_form.new_password1.help_text %}
+ <aside class="catalogue" aria-labelledby="req-title">
+   <span class="catalogue__punch" aria-hidden="true"></span>
+   <div class="catalogue__head">
+     <h2 id="req-title" class="catalogue__title">Password requirements</h2>
+     <p class="catalogue__sub">What a new password has to meet.</p>
+   </div>
+   <div class="catalogue__body">
+     {{ password_form.new_password1.help_text|safe }}
+     <p class="requirements-note">After you change it you stay signed in on this device.</p>
+   </div>
+ </aside>
+ {% endif %}
+</div>
+
+{% if sessions or two_factor %}
+<div class="security-extras">
+  {% if sessions %}
+  <section class="catalogue sessions" aria-labelledby="sessions-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head catalogue__head--row">
+      <div>
+        <h2 class="catalogue__title" id="sessions-title">Where you're signed in</h2>
+        <p class="catalogue__sub">Sign out of anything you do not recognize.</p>
+      </div>
+      {% if sessions|length > 1 %}<button type="button" class="btn btn--outline btn--sm" data-action="security:sign-out-all">Sign out of all other devices</button>{% endif %}
+    </div>
+    <div class="catalogue__body">
+      <ul class="session-list" role="list">
+        {% for s in sessions %}
+        <li class="session">
+          <span class="session__ico" aria-hidden="true">{% if s.kind == 'phone' %}{% include "shared/ui/_icon.html" with name="smartphone" %}{% else %}{% include "shared/ui/_icon.html" with name="monitor" %}{% endif %}</span>
+          <div class="session__body">
+            <p class="session__name">{{ s.device }}{% if s.current %}<span class="stamp">This device</span>{% endif %}</p>
+            <p class="session__meta"><span>{{ s.place }}</span><span class="t-mono">{{ s.last_active }}</span></p>
+          </div>
+          {% if not s.current %}<button type="button" class="link-btn" data-action="security:sign-out-session" data-id="{{ s.id }}" aria-label="Sign out {{ s.device }}">Sign out</button>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if two_factor %}
+  <section class="catalogue" aria-labelledby="twostep-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head">
+      <h2 class="catalogue__title" id="twostep-title">Two-step sign-in</h2>
+      <p class="catalogue__sub">A second check when you sign in.</p>
+    </div>
+    <div class="catalogue__body">
+      <p class="twostep__state"><span class="chip {% if two_factor.enabled %}chip--exec{% else %}chip--outline{% endif %}">{% if two_factor.enabled %}On{% else %}Off{% endif %}</span></p>
+      <p class="t-muted">{% if two_factor.enabled %}You enter a code from your authenticator app each time you sign in.{% else %}Add a code from an authenticator app, so a password alone is not enough.{% endif %}</p>
+      <p class="twostep__act">{% if two_factor.enabled %}<button type="button" class="btn btn--outline" data-action="security:two-step-disable">Turn off</button>{% else %}<button type="button" class="btn btn--primary" data-action="security:two-step-setup">{% include "shared/ui/_icon.html" with name="shield" class="icon--sm" %}Set up</button>{% endif %}</p>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endif %}
+</section>
+    <section class="tabpanel" role="tabpanel" id="panel-notifications" aria-labelledby="tab-notifications" tabindex="0" hidden>{% comment %}Notifications tab. Context: notification_groups = [{label, items:[{key, label, help, in_app, email}]}]
+  A channel of None means "not offered". Switches work in the browser; Save hands the values to
+  settings:save-notifications as {prefs: {key: {in_app, email}}}.{% endcomment %}
+<form id="notif-form" class="catalogue" novalidate aria-labelledby="notif-title">
+  <span class="catalogue__punch" aria-hidden="true"></span>
+  <div class="catalogue__head">
+    <h2 class="catalogue__title" id="notif-title">What reaches you</h2>
+    <p class="catalogue__sub">{% if user.email %}Choose where each update shows up. Emails go to <strong>{{ user.email }}</strong>.{% else %}Choose where each update shows up. <a href="{% url 'profile' %}">Add an email on your profile</a> to receive emails.{% endif %}</p>
+  </div>
+  <div class="catalogue__body">
+    <table class="prefs">
+      <thead><tr><th scope="col">Update</th><th scope="col" class="prefs__chan">In app</th><th scope="col" class="prefs__chan">Email</th></tr></thead>
+      {% for g in notification_groups %}
+      <tbody>
+        <tr class="prefs__group"><th scope="colgroup" colspan="3">{{ g.label }}</th></tr>
+        {% for it in g.items %}
+        <tr class="prefs__row">
+          <th scope="row"><span class="prefs__label">{{ it.label }}</span>{% if it.help %}<span class="prefs__help">{{ it.help }}</span>{% endif %}</th>
+          <td data-label="In app">{% if it.in_app is None %}<span class="prefs__na">Not offered</span>{% else %}<label class="switch"><input type="checkbox" role="switch" name="{{ it.key }}:in_app" aria-label="In app: {{ it.label }}"{% if it.in_app %} checked{% endif %}><span class="switch__track"></span><span class="switch__text">In app</span></label>{% endif %}</td>
+          <td data-label="Email">{% if it.email is None %}<span class="prefs__na">Not offered</span>{% else %}<label class="switch"><input type="checkbox" role="switch" name="{{ it.key }}:email" aria-label="Email: {{ it.label }}"{% if it.email %} checked{% endif %}{% if not user.email %} disabled{% endif %}><span class="switch__track"></span><span class="switch__text">Email</span></label>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endfor %}
+    </table>
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" data-notif-reset disabled>Reset</button>
+      <span id="notif-feedback" class="form-feedback" role="status" aria-live="polite"></span>
+      <button type="submit" class="btn btn--primary" data-notif-save disabled>Save preferences</button>
+    </div>
+  </div>
+</form>
+</section>
   </div>
 </div>
 {% endblock %}

@@ -10,6 +10,8 @@ class CustomLoginForm(AuthenticationForm):
                 "class": "form-input",
                 "placeholder": "Enter your username",
                 "autocomplete": "username",
+                "autocapitalize": "none",
+                "spellcheck": "false",
                 "autofocus": True,
             }
         ),

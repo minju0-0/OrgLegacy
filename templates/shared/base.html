@@ -4,22 +4,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}OrgLegacy{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}A closed-door institutional memory for student organizations.{% endblock %}">
+  <meta name="description" content="{% block meta_description %}A private archive where student organizations keep what each set of officers learned.{% endblock %}">
   <meta name="theme-color" content="#ECE8DC">
   <script>document.documentElement.className = 'js';</script>
   <link rel="preload" href="{% static 'fonts/literata-latin-600-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/geist-sans-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="{% static 'css/shared/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'css/shared/tokens.css' %}">
-  <link rel="stylesheet" href="{% static 'css/shared/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/shared/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/shared/shared.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip-link" href="#main">Skip to content</a>
-  {% include "shared/_icons.html" %}
+  {% include "shared/ui/_icons.html" %}
   {% block body %}{% endblock %}
-  {% include "shared/_messages.html" %}
+  {% comment %}
+  Django messages rendered as toasts on every page. Server-rendered so they work
+  without JS; base.js adds auto-dismiss and the close button behaviour.
+{% endcomment %}
+<div class="toast-region" id="toast-region" role="region" aria-label="Notifications">
+  {% for message in messages %}
+    <div class="toast toast--{{ message.level_tag|default:'info' }}" role="{% if message.level_tag == 'error' %}alert{% else %}status{% endif %}" data-toast>
+      {% if message.level_tag == 'success' %}{% include "shared/ui/_icon.html" with name="check-circle" %}
+      {% elif message.level_tag == 'error' %}{% include "shared/ui/_icon.html" with name="warning-circle" %}
+      {% elif message.level_tag == 'warning' %}{% include "shared/ui/_icon.html" with name="warning" %}
+      {% else %}{% include "shared/ui/_icon.html" with name="info" %}{% endif %}
+      <p class="toast__msg">{{ message }}</p>
+      <button type="button" class="toast__close" data-toast-close aria-label="Dismiss notification">{% include "shared/ui/_icon.html" with name="x" class="icon--sm" %}</button>
+    </div>
+  {% endfor %}
+</div>
+
   <script src="{% static 'js/shared/core.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>

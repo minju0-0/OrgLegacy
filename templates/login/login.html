@@ -5,25 +5,24 @@
 {% block auth_class %} auth--login{% endblock %}
 
 {% block panel %}
-{% include "shared/_auth_panel.html" with badge="Closed-door archive" quote="The best handover is the one nobody has to ask for." sub="Charters, event playbooks, supplier notes and committee history, kept for whoever comes next." %}
+{% include "shared/auth/_panel.html" with quote="The best handover is the one nobody has to ask for." sub="Events, supplier notes, committee history and handover letters, kept for whoever comes next." %}
 {% endblock %}
 
 {% block card %}
 <div class="auth-sheet" id="login-form-panel">
   <span class="auth-sheet__punch" aria-hidden="true"></span>
   <header class="auth-sheet__head">
-    <p class="eyebrow">Member sign-in</p>
     <h1>Welcome back.</h1>
     <p class="lede">Sign in to open your archive.</p>
   </header>
 
-  {% include "shared/_auth_notices.html" %}
+  {% include "shared/auth/_notices.html" %}
 
   <form method="post" class="fields">
     {% csrf_token %}
     {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-    {% include "shared/_field.html" with field=form.username help=False %}
-    {% include "shared/_field.html" with field=form.password password=True help=False %}
+    {% include "shared/ui/_field.html" with field=form.username help=False %}
+    {% include "shared/ui/_field.html" with field=form.password password=True help=False %}
     <button type="submit" class="btn btn--primary auth-sheet__submit">Sign in</button>
   </form>
 

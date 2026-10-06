@@ -1,4 +1,4 @@
-/* Settings: pill tabs, sectioned cards, brick danger zone. Without JS all
+/* Settings: pill tabs, sectioned cards, crimson danger zone. Without JS all
    panels are shown (progressive enhancement); with JS only one at a time. */
 .settings-panels { margin-top: var(--space-6); }
 html:not(.js) .tabs { display: none; }
@@ -7,7 +7,8 @@ html:not(.js) .tabpanel + .tabpanel { margin-top: var(--space-8); }
 .settings-stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--space-8); align-items: start; }
 .pwd-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); align-items: start; }
 @media (min-width: 1000px) { .pwd-layout { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
-.pwd-layout .form-stack { max-width: 34rem; }
+.pwd-layout .form-stack { max-width: none; }
+.pwd-layout .form-actions { justify-content: flex-start; }
 .pwd-layout aside ul { padding-left: 1.1em; list-style: disc; display: grid; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-muted); }
 .pwd-layout aside li { padding-left: var(--space-1); }
 .requirements-note { margin-top: var(--space-5); padding-top: var(--space-4); border-top: var(--ledger-dotted); font-size: var(--text-sm); color: var(--text-muted); }
@@ -21,3 +22,52 @@ html:not(.js) .tabpanel + .tabpanel { margin-top: var(--space-8); }
 .danger-zone .confirm-slot.is-filled { color: var(--danger-fg); border-bottom-color: var(--danger-solid); }
 .danger-zone__head { display: flex; align-items: center; gap: var(--space-2); color: var(--danger-fg); margin-bottom: var(--space-2); }
 .danger-zone__head .danger-zone__title { margin: 0; }
+
+/* ---- Account tab: two columns, details and data on the left, danger zone on the right ---- */
+.settings-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+@media (min-width: 1000px) { .settings-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.settings-col { display: grid; gap: var(--space-8); min-width: 0; }
+.catalogue__head--row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-3) var(--space-5); }
+.export { display: grid; justify-items: start; gap: var(--space-3); margin-top: var(--space-5); }
+.export__status { min-height: 1.25rem; font-size: var(--text-sm); color: var(--text-muted); }
+.export[data-state="error"] .export__status { color: var(--danger-fg); }
+
+/* ---- Security tab: sessions and two-step sign-in beneath the password form ---- */
+.security-extras { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); align-items: start; margin-top: var(--space-8); }
+@media (min-width: 1000px) { .security-extras { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
+.session-list { display: grid; }
+.session { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-4); padding: var(--space-3) 0; }
+.session + .session { border-top: var(--ledger-dotted); }
+.session__ico { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-round); background: var(--kraft-100); box-shadow: inset 0 0 0 1px var(--kraft-300); color: var(--charcoal-800); }
+.session__name { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); font: var(--weight-semi) var(--text-md)/1.3 var(--font-ui); color: var(--text-strong); }
+.session__meta { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); font-size: var(--text-sm); color: var(--text-muted); }
+.twostep__state { margin-bottom: var(--space-3); }
+.twostep__act { margin-top: var(--space-5); }
+
+/* ---- Notifications tab: a grid of switches ---- */
+.prefs { width: 100%; border-collapse: collapse; }
+.prefs thead th { padding: 0 0 var(--space-3); border-bottom: 2px solid var(--ink); font: var(--weight-semi) var(--text-xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); text-align: left; }
+.prefs__chan { width: 6.5rem; text-align: center !important; }
+.prefs__group th { padding: var(--space-6) 0 var(--space-2); font: var(--weight-semi) var(--text-lg)/1.2 var(--font-serif); color: var(--text-strong); text-align: left; }
+.prefs tbody:first-of-type .prefs__group th { padding-top: var(--space-4); }
+.prefs__row > th, .prefs__row > td { border-bottom: var(--ledger-dotted); }
+.prefs__row > th { padding: var(--space-3) var(--space-5) var(--space-3) 0; font-weight: var(--weight-regular); text-align: left; }
+.prefs__row > td { text-align: center; }
+.prefs__label { display: block; font: var(--weight-medium) var(--text-sm)/1.35 var(--font-ui); color: var(--text-strong); }
+.prefs__help { display: block; margin-top: 2px; font-size: var(--text-xs); color: var(--text-muted); }
+.prefs__na { font-size: var(--text-xs); color: var(--text-muted); }
+.prefs .switch__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.prefs + .form-actions { margin-top: var(--space-6); }
+@media (max-width: 640px) {
+  .prefs, .prefs tbody, .prefs tr, .prefs th, .prefs td { display: block; }
+  .prefs thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+  .prefs__row { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--space-4); padding: var(--space-3) 0; border-bottom: var(--ledger-dotted); }
+  .prefs__row > th { grid-column: 1 / -1; padding: 0 0 var(--space-1); border: 0; }
+  .prefs__row > td { border: 0; text-align: left; }
+  .prefs .switch__text { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+}
+#password-form .form-actions { justify-content: flex-start; padding: 0; margin: 0; gap: var(--space-4); }
+#password-form .form-actions .btn { margin: 0; order: 0; }
+#password-form .form-feedback { order: 1; }
+#password-form .form-feedback:empty { display: none; }
+#notif-feedback:empty { display: none; }

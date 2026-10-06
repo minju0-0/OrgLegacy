@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (typeof showToast === 'function') {
-                        showToast('Password credentials updated.');
+                        showToast('Password updated.');
                     }
                 }
             } catch (err) {
@@ -160,3 +160,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
+/* ---------------------------------------------------------------------------
+   Notification preferences and data export.
+   Works as is:  the switches, dirty tracking, Reset, and the export button states.
+   Needs logic:  register with OL.register (see docs/PROFILE_SETTINGS.md)
+     settings:save-notifications  (el, {prefs: {key: {in_app, email}}})   resolve = saved, reject(Error('message'))
+     account:export               (el)  resolve to {url} when the file is ready, or to anything else for "on its way"
+     security:*                   see the Security tab
+--------------------------------------------------------------------------- */
+(function () {
+    'use strict';
+    var $ = function (s, r) { return (r || document).querySelector(s); };
+
+    /* ---- Notification preferences ---- */
+    var form = document.getElementById('notif-form');
+    if (form) {
+        var boxes = Array.prototype.slice.call(form.querySelectorAll('input[type="checkbox"]'));
+        var save = $('[data-notif-save]', form), reset = $('[data-notif-reset]', form), fb = document.getElementById('notif-feedback');
+        var UNSAVED = 'You have unsaved changes.';
+        var say = function (t, kind) { fb.textContent = t; fb.className = 'form-feedback' + (kind ? ' is-' + kind : ''); };
+        var dirty = function () { return boxes.some(function (b) { return b.checked !== b.defaultChecked; }); };
+        var sync = function () {
+            var d = dirty(); save.disabled = !d; reset.disabled = !d;
+            if (d) say(UNSAVED, ''); else if (fb.textContent === UNSAVED) say('', '');
+        };
+        boxes.forEach(function (b) { b.addEventListener('change', sync); });
+        reset.addEventListener('click', function () { boxes.forEach(function (b) { b.checked = b.defaultChecked; }); sync(); });
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!dirty()) return;
+            var prefs = {};
+            boxes.forEach(function (b) { var p = b.name.split(':'); (prefs[p[0]] = prefs[p[0]] || {})[p[1]] = b.checked; });
+            save.disabled = true; reset.disabled = true;
+            var kept = OL.run('settings:save-notifications', form, { prefs: prefs },
+                function () { boxes.forEach(function (b) { b.defaultChecked = b.checked; }); say('Saved.', 'ok'); if (window.olToast) window.olToast('Notification preferences saved.', 'success'); sync(); },
+                function (m) { say(m, 'error'); save.disabled = false; reset.disabled = false; });
+            if (!kept) sync();       // not connected: the toast was shown, the changes stay
+        });
+    }
+
+    /* ---- Data export: idle, preparing, ready ---- */
+    var box = $('[data-export]');
+    if (box) {
+        var btn = $('[data-export-btn]', box), label = $('span', btn), status = $('[data-export-status]', box), idleText = label.textContent;
+        btn.addEventListener('click', function () {
+            btn.disabled = true; label.textContent = 'Preparing\u2026'; box.setAttribute('data-state', 'busy'); status.textContent = '';
+            var back = function () { btn.disabled = false; label.textContent = idleText; box.setAttribute('data-state', 'idle'); };
+            var kept = OL.run('account:export', btn, {},
+                function (res) {
+                    back(); label.textContent = 'Request a new copy'; box.setAttribute('data-state', 'ready');
+                    status.textContent = '';
+                    if (res && res.url) {
+                        var a = document.createElement('a'); a.href = res.url; a.className = 'link-arrow'; a.setAttribute('download', ''); a.textContent = 'Download your data';
+                        status.appendChild(a);
+                    } else status.textContent = 'Your copy is on its way.';
+                },
+                function (m) { back(); box.setAttribute('data-state', 'error'); status.textContent = m; });
+            if (!kept) back();
+        });
+    }
+})();

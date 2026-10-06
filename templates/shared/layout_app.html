@@ -1,29 +1,65 @@
 {% extends "shared/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/shared/shell.css' %}">{% block page_css %}{% endblock %}{% endblock %}
+{% block extra_css %}{% block page_css %}{% endblock %}{% endblock %}
 {% block body_class %}app-body{% endblock %}
 {% block body %}
 {% firstof active_page request.resolver_match.url_name as current %}
 <div class="app">
-  <aside class="app__sidebar">{% include "shared/_sidebar.html" %}</aside>
+  <aside class="app__sidebar">{% include "shared/shell/_sidebar.html" %}</aside>
 
   <div class="app__main">
     <header class="topbar">
-      <button type="button" class="icon-btn icon-btn--solid topbar__menu" data-dialog-open="app-menu" aria-label="Open menu">{% include "shared/_icon.html" with name="list" %}</button>
+      <button type="button" class="icon-btn icon-btn--solid topbar__menu" data-dialog-open="app-menu" aria-label="Open menu">{% include "shared/ui/_icon.html" with name="list" %}</button>
       <div class="topbar__crumbs">{% block crumbs %}{% endblock %}</div>
       <div class="topbar__spacer"></div>
 
-      {# Placeholder: not wired to a view yet. Point action= at a search URL when one exists. #}
-      <form class="topbar__search" role="search" action="" onsubmit="return false">
-        <span class="topbar__search-icon">{% include "shared/_icon.html" with name="magnifying-glass" %}</span>
-        <input type="search" name="q" placeholder="Search" aria-label="Search" autocomplete="off">
-      </form>
+      {% comment %} Search. Desktop: inline field with a results popover. Phone: an icon that opens a sheet.
+         Connect with OL.search.connect(fn). See docs/HOME.md, "Search". {% endcomment %}
+      <div class="topbar__search" data-search>
+        <form class="topbar__search-form" role="search" onsubmit="return false">
+          <span class="topbar__search-icon">{% include "shared/ui/_icon.html" with name="magnifying-glass" %}</span>
+          <input type="search" name="q" placeholder="Search" aria-label="Search organizations, events, suppliers and notes" autocomplete="off" autocapitalize="none" spellcheck="false" aria-controls="search-panel" aria-expanded="false" data-search-input>
+          <kbd class="topbar__kbd" aria-hidden="true">/</kbd>
+        </form>
+        <div class="popover popover--search" id="search-panel" hidden data-search-panel>{% include "shared/shell/_search_body.html" %}</div>
+      </div>
+      <button type="button" class="icon-btn icon-btn--solid topbar__search-btn" data-dialog-open="search-sheet" aria-label="Search">{% include "shared/ui/_icon.html" with name="magnifying-glass" %}</button>
 
       <div class="topbar__actions">
         {% block topbar_actions %}{% endblock %}
-        <button type="button" class="icon-btn icon-btn--solid topbar__bell" aria-label="Notifications">
-          {% include "shared/_icon.html" with name="bell" %}
-        </button>
+        {# Notifications. Context: `notifications` (list) and `notifications_unread` (int). See docs/HOME.md. #}
+        <div class="topbar__bell-wrap">
+          <button type="button" class="icon-btn icon-btn--solid topbar__bell" aria-label="Notifications{% if notifications_unread %}, {{ notifications_unread }} unread{% endif %}" aria-haspopup="dialog" aria-expanded="false" aria-controls="bell-panel" data-popover-open="bell-panel">
+            {% include "shared/ui/_icon.html" with name="bell" %}{% if notifications_unread %}<span class="topbar__badge" aria-hidden="true">{{ notifications_unread }}</span>{% endif %}
+          </button>
+          {% comment %} Notifications popover. Context: notifications = [{id, text, org, ago, unread, url}], notifications_unread = int.
+   Hooks: notifications:mark-all-read, notifications:open-item (when url is empty), notifications:view-all. {% endcomment %}
+<section class="popover popover--bell" id="bell-panel" aria-labelledby="bell-title" hidden data-popover>
+  <header class="popover__head">
+    <h2 class="popover__title" id="bell-title">Notifications</h2>
+    <button type="button" class="link-btn" data-action="notifications:mark-all-read"{% if not notifications_unread %} disabled{% endif %}>Mark all read</button>
+  </header>
+  {% if notifications %}
+  <ul class="popover__list" role="list">
+    {% for n in notifications %}
+    <li class="note-row{% if n.unread %} is-unread{% endif %}">
+      {% if n.url %}<a class="note-row__link" href="{{ n.url }}">{% else %}<button type="button" class="note-row__link" data-action="notifications:open-item" data-id="{{ n.id }}">{% endif %}
+        <span class="note-row__text">{% if n.unread %}<span class="sr-only">Unread: </span>{% endif %}{{ n.text }}</span>
+        <span class="note-row__meta"><span>{{ n.org }}</span><span class="t-mono">{{ n.ago }}</span></span>
+      {% if n.url %}</a>{% else %}</button>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <footer class="popover__foot"><button type="button" class="link-arrow" data-action="notifications:view-all">View all notifications {% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}</button></footer>
+  {% else %}
+  <div class="popover__empty">
+    <p><strong>You're all caught up.</strong></p>
+    <p>Approvals, new handover notes and people joining will show up here.</p>
+  </div>
+  {% endif %}
+</section>
+
+        </div>
       </div>
 
       <a class="topbar__user" href="{% url 'profile' %}" aria-label="Your profile"{% if current == 'profile' %} aria-current="page"{% endif %}>
@@ -41,9 +77,9 @@
   </div>
 
   <nav class="bottombar" aria-label="Quick">
-    <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="books" %}<span>Home</span></a>
-    <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>{% include "shared/_icon.html" with name="gear" %}<span>Settings</span></a>
-    <button type="button" class="nav-item" data-dialog-open="app-menu">{% include "shared/_icon.html" with name="list" %}<span>Menu</span></button>
+    <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>{% include "shared/ui/_icon.html" with name="books" %}<span>Home</span></a>
+    <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>{% include "shared/ui/_icon.html" with name="gear" %}<span>Settings</span></a>
+    <button type="button" class="nav-item" data-dialog-open="app-menu">{% include "shared/ui/_icon.html" with name="list" %}<span>Menu</span></button>
   </nav>
 </div>
 
@@ -51,9 +87,20 @@
   <div class="drawer__panel">
     <div class="drawer__head">
       <h2 id="app-menu-title" class="card__title">Menu</h2>
-      <button type="button" class="icon-btn" data-dialog-close aria-label="Close menu">{% include "shared/_icon.html" with name="x" %}</button>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Close menu">{% include "shared/ui/_icon.html" with name="x" %}</button>
     </div>
-    <div class="drawer__body">{% include "shared/_sidebar.html" %}</div>
+    <div class="drawer__body">{% include "shared/shell/_sidebar.html" %}</div>
+  </div>
+</dialog>
+
+<dialog class="overlay sheet-top" id="search-sheet" aria-label="Search">
+  <div class="sheet-top__panel" data-search>
+    <form class="sheet-top__form" role="search" onsubmit="return false">
+      <span class="topbar__search-icon">{% include "shared/ui/_icon.html" with name="magnifying-glass" %}</span>
+      <input type="search" name="q" placeholder="Search" aria-label="Search organizations, events, suppliers and notes" autocomplete="off" autocapitalize="none" spellcheck="false" data-search-input>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Close search">{% include "shared/ui/_icon.html" with name="x" %}</button>
+    </form>
+    {% include "shared/shell/_search_body.html" %}
   </div>
 </dialog>
 {% endblock %}

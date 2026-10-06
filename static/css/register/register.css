@@ -5,6 +5,8 @@
 .auth--flip .auth__visual { order: -1; }
 .fields > .field--half { grid-column: span 1; }
 .rules { padding: 0 var(--space-3); border: 1px solid var(--border-hairline); border-radius: var(--radius-sm); background: var(--surface-well); font-size: var(--text-xs); }
-.rules summary { display: flex; align-items: center; min-height: 2.25rem; cursor: pointer; font-weight: var(--weight-semi); color: var(--text-strong); }
+.rules summary { display: flex; align-items: center; min-height: var(--tap); cursor: pointer; font-weight: var(--weight-semi); color: var(--text-strong); }
 .rules ul { margin: var(--space-1) 0 var(--space-3); padding-left: 1.1em; list-style: disc; color: var(--text-muted); }
 @media (max-width: 640px) { .fields > .field--half { grid-column: span 2; } }
+/* Desk, mirrored because the photo is on the left here. The sheet is tall, so the boards stretch with it. */
+.auth--flip .auth__main { --stamp-pos: left -3.5rem top -3rem; --shelf-pos: right 2rem bottom 0; --board-r: -1.4deg; --board-x: -0.5rem; --slip-r: 1.1deg; --slip-x: 0.4rem; }

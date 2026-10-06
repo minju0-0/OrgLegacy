@@ -6,75 +6,154 @@
 {% block extra_js %}<script src="{% static 'js/profile/profile.js' %}" defer></script>{% endblock %}
 
 {% block content %}
-<section class="card profile-head" aria-label="Your profile">
-  <span class="avatar avatar--lg avatar--oxblood" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
+{% comment %}
+  PROFILE SCREEN. Context contract (full reference in docs/PROFILE_SETTINGS.md):
+    user_form          REAL TODAY. Every field in it is rendered, so new model fields appear on their own.
+    organizations      REAL TODAY. One dict per seat (a role in an organization during one A.Y.).
+    organization_count, seat_count   computed in the view.
+    profile_stats      optional list of {label, value}. Shows the "What you've added" card.
+    avatar_url         optional string. Shows the photo instead of initials.
+  Hooks: profile:avatar-save, profile:avatar-remove, org:open.
+{% endcomment %}
+<div class="profile" data-profile{% if preview %} data-preview="{{ preview }}"{% endif %}>
+  <section class="card profile-head" aria-label="Your profile">
+  <button type="button" class="avatar-btn" data-dialog-open="avatar-modal" aria-label="Change your photo">
+    <span class="avatar avatar--xl avatar--oxblood" aria-hidden="true">{% if avatar_url %}<img class="avatar__img" src="{{ avatar_url }}" alt="">{% else %}{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}{% endif %}</span>
+    <span class="avatar-btn__badge" aria-hidden="true">{% include "shared/ui/_icon.html" with name="camera" class="icon--sm" %}</span>
+  </button>
   <div class="profile-head__id">
     <h1 class="profile-head__name">{% if user.first_name or user.last_name %}{{ user.first_name|default:user.username }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</h1>
-    <p class="profile-head__line">
-      <span class="t-mono">@{{ user.username }}</span>
-      {% if user.email %}<span aria-hidden="true">·</span><span>{{ user.email }}</span>{% endif %}
-    </p>
+    <p class="profile-head__line"><span class="t-mono">@{{ user.username }}</span>{% if user.email %}<span>{{ user.email }}</span>{% endif %}</p>
     <div class="chip-row">
       <span class="chip chip--neutral">Member since {{ user.date_joined|date:"F Y" }}</span>
-      {% with total=organizations|length %}<span class="chip chip--outline">{{ total }} membership{{ total|pluralize }}</span>{% endwith %}
+      <span class="chip chip--outline">{{ organization_count }} organization{{ organization_count|pluralize }}</span>
+      <span class="chip chip--outline">{{ seat_count }} membership{{ seat_count|pluralize }}</span>
     </div>
   </div>
-  <a class="btn btn--outline profile-head__action" href="{% url 'settings' %}">{% include "shared/_icon.html" with name="gear" class="icon--sm" %}Account settings</a>
+  <a class="btn btn--outline profile-head__action" href="{% url 'settings' %}">{% include "shared/ui/_icon.html" with name="gear" class="icon--sm" %}Account settings</a>
 </section>
 
-<div class="profile-grid">
-  <section class="catalogue" aria-labelledby="details-title">
-    <span class="catalogue__punch" aria-hidden="true"></span>
-    <div class="catalogue__head">
-      <h2 id="details-title" class="catalogue__title">Account details</h2>
-      <p class="catalogue__sub">The name and email on your account.</p>
-    </div>
-    <div class="catalogue__body">
-      <form method="post" id="profile-form" novalidate class="form-stack">
-        {% csrf_token %}
-        {% if user_form.non_field_errors %}
-        <div class="alert alert--danger" role="alert">{% include "shared/_icon.html" with name="warning-circle" %}
-          <ul>{% for error in user_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
-        </div>
-        {% endif %}
-        <div class="field-row">
-          {% include "shared/_field.html" with field=user_form.first_name %}
-          {% include "shared/_field.html" with field=user_form.last_name %}
-        </div>
-        {% include "shared/_field.html" with field=user_form.email %}
-        <div class="form-actions">
-          <span id="inline-save-feedback" class="form-feedback" role="status" aria-live="polite"></span>
-          <button type="submit" class="btn btn--primary" id="save-profile-btn">Save changes</button>
-        </div>
-      </form>
-    </div>
-  </section>
 
-  <section aria-labelledby="memberships-title">
-    <div class="section-title"><h2 id="memberships-title">Memberships</h2><span>Your record across A.Y.s</span></div>
-    {% if organizations %}
-    <div class="ledger-wrap">
-      <table class="ledger ledger--stack">
-        <thead><tr><th scope="col">Organization</th><th scope="col">Role</th><th scope="col">A.Y.</th><th scope="col">Status</th></tr></thead>
-        <tbody>
-          {% for org in organizations %}
-          <tr>
-            <td class="ledger__lead" data-label="Organization"><span class="ledger__primary">{{ org.name }}</span>{% if org.committee or org.title %}<span class="ledger__secondary">{{ org.committee|default:"" }}{% if org.committee and org.title %} · {% endif %}{{ org.title|default:"" }}</span>{% endif %}</td>
-            <td data-label="Role"><span class="chip {% if org.role_code == 'EXECUTIVE' %}chip--exec{% elif org.role_code == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span></td>
-            <td data-label="A.Y." class="ref">{{ org.ay }}</td>
-            <td data-label="Status">{% include "shared/_stamp.html" with status=org.status %}</td>
-          </tr>
+  {% if organizations or profile_stats %}
+  <div class="profile-band{% if profile_stats %} profile-band--stats{% endif %}">
+    {% if organizations %}{% comment %}Your shelf: one spine per seat, oldest on the left. Height = role, fill = status, label = A.Y.
+  Context: organizations (seats). Hook: org:open (data-org).{% endcomment %}
+<section class="card shelf-card" aria-labelledby="shelf-title">
+  <header class="shelf-card__head">
+    <h2 class="card__title" id="shelf-title">Your shelf</h2>
+    <ul class="legend" aria-label="How to read the shelf">
+      <li><span class="legend__swatch legend__swatch--active" aria-hidden="true"></span>Active</li>
+      <li><span class="legend__swatch legend__swatch--pending" aria-hidden="true"></span>Awaiting approval</li>
+      <li><span class="legend__swatch legend__swatch--closed" aria-hidden="true"></span>Closed</li>
+      <li class="legend__note">Taller means a bigger role.</li>
+    </ul>
+  </header>
+  <ul class="shelf shelf--you" role="list">
+    {% for org in organizations reversed %}
+    <li class="seat">
+      <button type="button" class="seat__btn" data-action="org:open" data-org="{{ org.id }}" aria-label="{{ org.name }}, {{ org.ay }}, {{ org.role }}, {% if org.status == 'ACTIVE' %}active{% elif org.status == 'PENDING_SIGNOFF' %}awaiting approval{% else %}closed{% endif %}">
+        <span class="spine {% if org.status == 'ACTIVE' %}spine--3{% elif org.status == 'PENDING_SIGNOFF' %}spine--4{% else %}spine--1{% endif %}" style="--h:{% if org.role_code == 'EXECUTIVE' %}11rem{% elif org.role_code == 'COMMITTEE_HEAD' %}9.25rem{% else %}7.5rem{% endif %}"><span class="spine__label">{{ org.ay }}</span></span>
+        <span class="seat__cap">{{ org.acronym|default:org.name|truncatechars:8 }}</span>
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+    {% if profile_stats %}{% comment %}What you've added. Context: profile_stats = [{label, value}]. Read-only, no hooks.{% endcomment %}
+<section class="card stats" aria-labelledby="stats-title">
+  <h2 class="card__title" id="stats-title">What you've added</h2>
+  <dl class="stats__list">
+    {% for s in profile_stats %}<div><dt>{{ s.label }}</dt><dd>{{ s.value }}</dd></div>{% endfor %}
+  </dl>
+</section>
+{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="profile-grid">
+    <section class="catalogue" aria-labelledby="details-title">
+      <span class="catalogue__punch" aria-hidden="true"></span>
+      <div class="catalogue__head">
+        <h2 id="details-title" class="catalogue__title">Your details</h2>
+        <p class="catalogue__sub">What other officers see next to your name.</p>
+      </div>
+      <div class="catalogue__body">
+        <form method="post" id="profile-form" novalidate class="form-stack">
+          {% csrf_token %}
+          {% if user_form.non_field_errors %}
+          <div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}
+            <ul>{% for error in user_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          </div>
+          {% endif %}
+          {% for field in user_form %}
+            {% if field.name == 'first_name' %}
+              <div class="field-row">{% include "shared/ui/_field.html" with field=field %}{% include "shared/ui/_field.html" with field=user_form.last_name %}</div>
+            {% elif field.name == 'last_name' %}
+            {% else %}
+              {% include "shared/ui/_field.html" with field=field %}
+            {% endif %}
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty">
-      <h3 class="empty__title">No memberships yet</h3>
-      <p class="empty__text">When you join an organization with an accession number, each A.Y. you serve in is recorded here.</p>
-      <a class="btn btn--outline" href="{% url 'home' %}">Go to Home</a>
-    </div>
-    {% endif %}
-  </section>
+          <div class="form-actions">
+            <span id="inline-save-feedback" class="form-feedback" role="status" aria-live="polite"></span>
+            <button type="submit" class="btn btn--primary" id="save-profile-btn">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    {% comment %}Memberships ledger. Context: organizations (seats). Hook: org:open (data-org).{% endcomment %}
+<section aria-labelledby="memberships-title">
+  <div class="section-title"><h2 id="memberships-title">Memberships</h2><span>Every seat you have held</span></div>
+  {% if organizations %}
+  <div class="ledger-wrap">
+    <table class="ledger ledger--stack">
+      <thead><tr><th scope="col">Organization</th><th scope="col">Role</th><th scope="col">A.Y.</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>
+        {% for org in organizations %}
+        <tr>
+          <td class="ledger__lead" data-label="Organization"><span class="ledger__primary">{{ org.name }}</span>{% if org.committee or org.title %}<span class="ledger__secondary">{{ org.title|default:"" }}{% if org.committee and org.title %}, {% endif %}{{ org.committee|default:"" }}</span>{% endif %}</td>
+          <td data-label="Role"><span class="chip {% if org.role_code == 'EXECUTIVE' %}chip--exec{% elif org.role_code == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span></td>
+          <td data-label="A.Y." class="ref">{{ org.ay }}</td>
+          <td data-label="Status">{% include "shared/ui/_stamp.html" with status=org.status %}</td>
+          <td class="ledger__act"><button type="button" class="link-btn" data-action="org:open" data-org="{{ org.id }}" aria-label="Open {{ org.name }}, {{ org.ay }}">Open</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <h3 class="empty__title">No memberships yet</h3>
+    <p class="empty__text">When you join an organization with a join code, each A.Y. you serve in is recorded here.</p>
+    <div class="empty__actions"><a class="btn btn--primary" href="{% url 'home' %}">{% include "shared/ui/_icon.html" with name="key" class="icon--sm" %}Go to Home to join</a></div>
+  </div>
+  {% endif %}
+</section>
+
+  </div>
 </div>
+
+{% comment %}Change photo. Works without a backend up to Save: choose or drop a file, it is checked and previewed.
+  Hooks: profile:avatar-save (detail: {file}), profile:avatar-remove.{% endcomment %}
+<dialog class="overlay modal modal--form" id="avatar-modal" aria-labelledby="avatar-title" aria-describedby="avatar-help">
+  <div class="modal__panel" data-avatar>
+    <span class="modal__tab" aria-hidden="true">Photo</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="avatar-title">Change your photo</h2></div>
+    <p id="avatar-help" class="t-muted">A square photo works best. JPG, PNG or WebP, up to 2 MB.</p>
+    <div class="avatar-edit" data-avatar-drop>
+      <span class="avatar avatar--2xl avatar--oxblood" aria-hidden="true" data-avatar-preview data-initials="{{ user.first_name|default:user.username|slice:':1' }}{{ user.last_name|slice:':1' }}">{% if avatar_url %}<img class="avatar__img" src="{{ avatar_url }}" alt="">{% else %}{{ user.first_name|default:user.username|slice:":1" }}{{ user.last_name|slice:":1" }}{% endif %}</span>
+      <div class="avatar-edit__actions">
+        <label class="btn btn--outline avatar-edit__choose">{% include "shared/ui/_icon.html" with name="camera" class="icon--sm" %}Choose a photo<input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" data-avatar-input></label>
+        {% if avatar_url %}<button type="button" class="btn btn--ghost" data-avatar-remove>Remove photo</button>{% endif %}
+      </div>
+    </div>
+    <p class="form-feedback" data-avatar-feedback role="status" aria-live="polite">You can also drop a photo here.</p>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="button" class="btn btn--primary" data-avatar-save disabled>Save photo</button>
+    </div>
+  </div>
+</dialog>
+
 {% endblock %}
