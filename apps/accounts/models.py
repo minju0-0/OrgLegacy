@@ -10,7 +10,6 @@ from django.db import models
 # User
 class User(AbstractUser):
 
-
     def __str__(self):
         return self.username
 
@@ -77,7 +76,7 @@ class Term(models.Model):
         return f"{self.organization} - {self.label}"
 
 
-# Membership  (junction: User <-> Organization / Committee / Term)
+# Membership  (junction: User - Organization / Committee / Term)
 class Membership(models.Model):
     class Role(models.TextChoices):
         MEMBER = "MEMBER", "Member"
@@ -105,7 +104,7 @@ class Membership(models.Model):
     role = models.CharField(
         max_length=20, choices=Role.choices, default=Role.MEMBER
     )
-    title = models.CharField(max_length=100, blank=True)  # e.g. "Treasurer"
+    title = models.CharField(max_length=100, blank=True)  # example "Treasurer"
     valid_from = models.DateField(null=True, blank=True)
     valid_until = models.DateField(null=True, blank=True)
     appointment_note = models.CharField(max_length=255, blank=True)

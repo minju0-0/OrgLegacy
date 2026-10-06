@@ -1,0 +1,28 @@
+{% comment %}Sidebar content, used in the fixed sidebar and the mobile menu drawer. Active item comes from request.resolver_match (or an explicit active_page).{% endcomment %}
+{% firstof active_page request.resolver_match.url_name as current %}
+<nav class="sidebar" aria-label="Main">
+  <div class="sidebar__brand">
+    <a href="{% url 'home' %}" class="brand-link" aria-label="orglegacy, home"><span class="wordmark wordmark--inverse" role="img" aria-label="orglegacy"><span class="wordmark__o" aria-hidden="true"></span><span aria-hidden="true">rglegacy</span></span>
+</a>
+  </div>
+
+  <div class="nav-group">
+    <p class="nav-group__label">Archive</p>
+    <a class="nav-item" href="{% url 'home' %}"{% if current == 'home' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="books" %}</span><span>Home</span>
+    </a>
+  </div>
+
+  <div class="sidebar__spacer"></div>
+
+  <div class="nav-group nav-group--foot">
+    <a class="nav-item" href="{% url 'settings' %}"{% if current == 'settings' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="gear" %}</span><span>Settings</span>
+    </a>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+      <button type="submit" class="nav-item">
+        <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="sign-out" %}</span><span>Log out</span>
+      </button>
+    </form>
+  </div>
+</nav>

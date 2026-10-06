@@ -1,0 +1,238 @@
+{% extends "shared/base.html" %}
+{% load static %}
+{% block title %}OrgLegacy | Every term, on record{% endblock %}
+{% block meta_description %}A private archive where a student organization keeps its events, budgets, suppliers and handover notes, so each new set of officers inherits what the last set knew.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing/landing.css' %}">{% endblock %}
+{% block body_class %}landing{% endblock %}
+
+{% block body %}
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <symbol id="seal" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="97" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 5"/>
+      <circle cx="100" cy="100" r="62" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="54" fill="none" stroke="currentColor" stroke-width="1"/>
+      <text x="100" y="114" text-anchor="middle" font-size="38" fill="currentColor" style="font-family:var(--font-serif);font-weight:600">A.Y.</text>
+    </symbol>
+  </defs></svg>
+  <header class="lp-nav">
+    <div class="lp-nav__bar">
+      <a href="{% url 'landing' %}" class="wordmark" aria-label="orglegacy home"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</a>
+      <nav class="lp-nav__links" id="lp-links" aria-label="Sections"><a href="#top">Overview</a><a href="#features">Features</a><a href="#how">How it works</a><a href="#record">Records</a><a href="#private">Private</a><a href="#roles">Roles</a></nav>
+      <div class="lp-nav__cta">
+        {% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary btn--sm">Open your archive</a>
+        {% else %}<a href="{% url 'login' %}" class="btn btn--outline btn--sm">Sign in</a><a href="{% url 'register' %}" class="btn btn--primary btn--sm">Get started</a>{% endif %}
+        <button type="button" class="btn btn--ghost btn--sm lp-nav__toggle" aria-expanded="false" aria-controls="lp-links">{% include "shared/ui/_icon.html" with name="list" %}Menu</button>
+      </div>
+    </div>
+  </header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="hero__frame on-inverse">
+      <figure class="hero__bg"><img src="{% static 'images/shared/hero.avif' %}" width="900" height="600" fetchpriority="high" alt="" onerror="this.remove()"></figure>
+
+      <div class="hero__body">
+        <div class="hero__copy">
+          <p class="hero__label" data-reveal>For student organizations</p>
+          <h1 class="hero__h1" data-reveal>Every term, <em>on record.</em></h1>
+          <p class="hero__sub" data-reveal>Where a student organization keeps its events, budgets, suppliers and handover notes for the officers who follow.</p>
+          <div class="hero__cta" data-reveal>
+            {% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary">Open your archive</a>
+            {% else %}<a href="{% url 'register' %}" class="btn btn--primary">Get started</a><a href="{% url 'login' %}" class="btn btn--paper">Sign in</a>{% endif %}
+          </div>
+        </div>
+        <div class="shelf hero__shelf" role="img" aria-label="Four academic years shelved side by side, the newest standing out" data-reveal>
+          <div class="spine spine--1" style="--h:9.5rem"><span class="spine__label">A.Y. 2023-2024</span></div>
+          <div class="spine spine--2" style="--h:11rem"><span class="spine__label">A.Y. 2024-2025</span></div>
+          <div class="spine spine--3" style="--h:10.25rem"><span class="spine__label">A.Y. 2025-2026</span></div>
+          <div class="spine spine--hot spine--new" style="--h:11.5rem"><span class="spine__label">A.Y. 2026-2027</span></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="dock" aria-labelledby="dock-title" data-reveal>
+      <h2 id="dock-title" class="sr-only">How joining works</h2>
+      <div class="dock__cell">
+        <h3>Get a code</h3>
+        <div class="dock__vis accession" role="img" aria-label="Example join code 4F7K 92QD">
+          <div class="accession__group">{% for c in "4F7K" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+          <div class="accession__group">{% for c in "92QD" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+        </div>
+        <p>An officer hands you an eight-character join code.</p>
+      </div>
+      <div class="dock__cell">
+        <h3>Enter it</h3>
+        <span class="dock__vis"><span class="feat__ico">{% include "shared/ui/_icon.html" with name="key" %}</span></span>
+        <p>Sign in, open Home and enter the code. There is no directory to browse.</p>
+      </div>
+      <div class="dock__cell">
+        <h3>Read the record</h3>
+        <span class="dock__vis"><span class="stamp">Active</span></span>
+        <p>The organization's events, suppliers and handover notes open to you.</p>
+      </div>
+    </section>
+  </section>
+
+  <section class="lp-sec feat" id="features">
+    <svg class="deco-seal" aria-hidden="true" focusable="false"><use href="#seal"/></svg>
+    <div class="lp-wrap feat__in">
+      <div class="sec-head sec-head--split" data-reveal>
+        <h2>Everything the last officers knew, in one place.</h2>
+        <div class="deco-tabs" aria-hidden="true"><span>Events</span><span>Suppliers</span><span>Handover</span></div>
+      </div>
+      <ul class="feat__list">
+        <li class="feat__row" data-reveal><span class="feat__ico">{% include "shared/ui/_icon.html" with name="calendar" %}</span><h3>Events and budgets</h3><p>What was run, what it cost and what went wrong, entered against the A.Y. it belongs to.</p></li>
+        <li class="feat__row" data-reveal><span class="feat__ico">{% include "shared/ui/_icon.html" with name="package" %}</span><h3>Supplier memory</h3><p>Contacts and honest ratings from whoever used them last, so nobody re-learns the same lesson.</p></li>
+        <li class="feat__row" data-reveal><span class="feat__ico">{% include "shared/ui/_icon.html" with name="note" %}</span><h3>Handover notes</h3><p>Outgoing officers write to the people who follow them, filed by committee and kept for good.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="lp-sec how on-inverse" id="how">
+    <div class="lp-wrap how__grid">
+      <div class="how__intro" data-reveal>
+        <p class="eyebrow eyebrow--inverse">How it works</p>
+        <h2>An A.Y., from open to closed.</h2>
+        <p>Every A.Y. moves through three states, and only an executive moves it forward.</p>
+        <ol class="states" aria-label="A.Y. states">
+          <li style="--i:0"><span class="stamp">Active</span><small>Officers log the A.Y. as it happens.</small></li>
+          <li style="--i:1"><span class="stamp stamp--pending">Awaiting approval</span><small>Executives review it before it closes.</small></li>
+          <li style="--i:2"><span class="stamp stamp--sealed">Closed</span><small>Filed on the shelf. Anyone can read it, no one can change it.</small></li>
+        </ol>
+      </div>
+      <ol class="steps">
+        <li data-reveal><h3>Create</h3><p>An executive creates the organization and opens its first A.Y.</p></li>
+        <li data-reveal><h3>Join by code</h3><p>Members join with a code handed over by an officer.</p></li>
+        <li data-reveal><h3>Record</h3><p>Events, budgets, suppliers and lessons go on the record.</p></li>
+        <li data-reveal><h3>Hand over</h3><p>Outgoing officers write notes for the people who follow.</p></li>
+        <li data-reveal><h3>Approve</h3><p>Executives approve, and the A.Y. is closed.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="lp-sec show" id="record">
+    <svg class="deco-seal" aria-hidden="true" focusable="false"><use href="#seal"/></svg>
+    <div class="lp-wrap">
+      <div class="sec-head" data-reveal>
+        <h2>Everything filed. <span class="t-muted">Nothing overwritten.</span></h2>
+      </div>
+      <div class="show__grid">
+        <article class="cell cell--ledger" data-reveal>
+          <div class="ledger-wrap">
+            <table class="ledger ledger--stack">
+              <caption>Events, sample entries</caption>
+              <thead><tr><th scope="col">Event</th><th scope="col">A.Y.</th><th scope="col" class="num">Budget</th></tr></thead>
+              <tbody>
+                <tr><td class="ledger__lead" data-label="Event">Freshmen welcome</td><td data-label="A.Y." class="ref">2025-2026</td><td data-label="Budget" class="num">₱8,500.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Leadership summit</td><td data-label="A.Y." class="ref">2026-2027</td><td data-label="Budget" class="num">₱24,000.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Foundation day booth</td><td data-label="A.Y." class="ref">2025-2026</td><td data-label="Budget" class="num">₱6,200.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Officer induction</td><td data-label="A.Y." class="ref">2026-2027</td><td data-label="Budget" class="num">₱3,750.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Intramurals support</td><td data-label="A.Y." class="ref">2025-2026</td><td data-label="Budget" class="num">₱12,400.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Orientation week</td><td data-label="A.Y." class="ref">2026-2027</td><td data-label="Budget" class="num">₱5,600.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Recruitment drive</td><td data-label="A.Y." class="ref">2025-2026</td><td data-label="Budget" class="num">₱4,800.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Alumni homecoming</td><td data-label="A.Y." class="ref">2026-2027</td><td data-label="Budget" class="num">₱18,300.00</td></tr>
+                <tr><td class="ledger__lead" data-label="Event">Community outreach</td><td data-label="A.Y." class="ref">2024-2025</td><td data-label="Budget" class="num">₱9,150.00</td></tr>
+              </tbody>
+              <tfoot><tr><th scope="row" colspan="2">Total on record</th><td data-label="Budget" class="num">₱92,700.00</td></tr></tfoot>
+            </table>
+          </div>
+        </article>
+        <article class="cell cell--shelf" data-reveal>
+          <div class="shelf shelf--mini" role="img" aria-label="Three A.Y.s on a shelf">
+            <div class="spine spine--1" style="--h:7rem"><span class="spine__label">2024-2025</span></div>
+            <div class="spine spine--2" style="--h:8.25rem"><span class="spine__label">2025-2026</span></div>
+            <div class="spine spine--3" style="--h:7.5rem"><span class="spine__label">2026-2027</span></div>
+          </div>
+          <h3>Every entry belongs to an A.Y.</h3>
+          <p>Anything on the record can be traced to the officers who made it.</p>
+        </article>
+        <article class="cell cell--sealed" data-reveal>
+          <svg class="deco-seal" aria-hidden="true" focusable="false"><use href="#seal"/></svg>
+          <span class="stamp stamp--sealed stamp--tilt">Closed</span>
+          <h3>A closed A.Y. stays closed.</h3>
+          <p>A closed A.Y. can be read by anyone with access, and changed by no one.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec door on-inverse" id="private">
+    <svg class="deco-seal" aria-hidden="true" focusable="false"><use href="#seal"/></svg>
+    <div class="lp-wrap door__in">
+      <div class="door__copy" data-reveal>
+        <p class="eyebrow eyebrow--inverse">Private</p>
+        <h2>No public directory. Join by code only.</h2>
+        <p>There is no listing to browse and no request-to-join button. If an officer hasn't handed you a join code, the archive doesn't know you exist.</p>
+      </div>
+      <div class="acc-card" data-reveal>
+        <span class="stamp stamp--tilt">Join code only</span>
+        <div class="accession" role="img" aria-label="Example join code 4F7K 92QD">
+          <div class="accession__group">{% for c in "4F7K" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+          <div class="accession__group">{% for c in "92QD" %}<span class="acc-cell acc-cell--static">{{ c }}</span>{% endfor %}</div>
+        </div>
+        <span class="hint">Example join code</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-sec roles" id="roles">
+    <svg class="deco-seal" aria-hidden="true" focusable="false"><use href="#seal"/></svg>
+    <div class="lp-wrap roles__in">
+      <div class="sec-head" data-reveal>
+        <h2>Three seats. <span class="t-muted">One shared memory.</span></h2>
+      </div>
+      <ul class="ladder">
+        <li class="ladder__row" style="--step:0" data-reveal><span class="chip chip--member">Member</span><p>Joins with a code and adds to the records of their committee.</p><span class="feat__ico">{% include "shared/ui/_icon.html" with name="user" %}</span></li>
+        <li class="ladder__row" style="--step:1" data-reveal><span class="chip chip--head">Committee Head</span><p>Leads a committee and writes its handover notes.</p><span class="feat__ico">{% include "shared/ui/_icon.html" with name="users" %}</span></li>
+        <li class="ladder__row" style="--step:2" data-reveal><span class="chip chip--exec">Executive</span><p>Creates the organization and approves each A.Y.</p><span class="feat__ico">{% include "shared/ui/_icon.html" with name="crown" %}</span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="close on-inverse" id="start">
+  <svg class="deco-seal" aria-hidden="true" focusable="false"><use href="#seal"/></svg>
+  <div class="lp-wrap close__in">
+    <div class="close__copy" data-reveal>
+      <h2>Start the <em>record.</em></h2>
+      <p>Setting up takes a minute. Everything after that is filed.</p>
+      <div class="hero__cta">{% if user.is_authenticated %}<a href="{% url 'home' %}" class="btn btn--primary">Open your archive</a>{% else %}<a href="{% url 'register' %}" class="btn btn--primary">Get started</a><a href="{% url 'login' %}" class="btn btn--paper">Sign in</a>{% endif %}</div>
+    </div>
+    <aside class="cat-card" aria-label="About the archive" data-reveal>
+      <span class="cat-card__hole" aria-hidden="true"></span>
+      <div class="cat-card__title"><h3>OrgLegacy</h3><span class="stamp">Private</span></div>
+      <dl class="cat-card__rows">
+        <div><dt>Kept by</dt><dd>The officers of each A.Y.</dd></div>
+        <div><dt>Holds</dt><dd>Events, budgets, suppliers and handover notes</dd></div>
+        <div><dt>Opens with</dt><dd>An eight-character join code</dd></div>
+        <div><dt>Changes</dt><dd>Until an executive closes the A.Y.</dd></div>
+      </dl>
+    </aside>
+  </div>
+  <div class="lp-wrap"><div class="shelf close__shelf" aria-hidden="true"><span class="spine spine--1" style="--h:4rem"></span><span class="spine spine--2" style="--h:6rem"></span><span class="spine spine--3" style="--h:5rem"></span><span class="spine spine--1" style="--h:7rem"></span><span class="spine spine--4" style="--h:4.5rem"></span><span class="spine spine--2" style="--h:6.5rem"></span><span class="spine spine--3" style="--h:5.5rem"></span><span class="spine spine--1" style="--h:7.5rem"></span><span class="spine spine--4" style="--h:5rem"></span><span class="spine spine--hot" style="--h:8.5rem"></span></div></div>
+  <nav class="lp-wrap close__nav" aria-label="Footer">
+    <div class="close__brand">
+      <a href="{% url 'landing' %}" class="wordmark" aria-label="orglegacy home"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</a>
+      <p>A private archive where each set of officers inherits what the last set knew.</p>
+    </div>
+    <div class="close__col">
+      <h3>On this page</h3>
+      <ul class="close__links close__links--2">
+        <li><a href="#top">Overview</a></li><li><a href="#features">Features</a></li><li><a href="#how">How it works</a></li>
+        <li><a href="#record">Records</a></li><li><a href="#private">Private</a></li><li><a href="#roles">Roles</a></li>
+      </ul>
+    </div>
+    <div class="close__col">
+      <h3>Your account</h3>
+      <ul class="close__links">
+        {% if user.is_authenticated %}<li><a href="{% url 'home' %}">Open your archive</a></li>
+        {% else %}<li><a href="{% url 'register' %}">Get started</a></li><li><a href="{% url 'login' %}">Sign in</a></li>{% endif %}
+      </ul>
+    </div>
+  </nav>
+  <div class="lp-wrap close__foot"><span>© 2026 OrgLegacy. All rights reserved.</span><a href="#top" class="close__top">Back to top</a></div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/landing/landing.js' %}" defer></script>{% endblock %}

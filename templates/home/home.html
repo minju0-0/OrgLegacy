@@ -1,93 +1,276 @@
-{% extends "base.html" %}
+{% extends "shared/layout_app.html" %}
 {% load static %}
 {% block title %}Home | OrgLegacy{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/home/home.css' %}">
-{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
+{% block crumbs %}<strong>Home</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/home/home.js' %}" defer></script>{% endblock %}
+
 {% block content %}
-{% include 'partials/_navbar.html' %}
+{% comment %}
+  HOME SCREEN. Layout: header, a top row that adapts to what exists (needs attention beside recent activity, 5 rows each then scroll), then the organization cards. Context contract (full reference in docs/HOME.md):
+    organizations      list of dicts   REAL TODAY. See apps/shared/selectors.py.
+                       optional per-org keys: counts{events,suppliers,notes}, last_activity, can_share_code, join_code, join_code_expires
+    attention          list of dicts   optional. Cross-organization to-dos.
+    activity           list of dicts   optional. Recent entries across organizations.
+    show_attention     bool            True once `attention` is real: an empty list then shows "all caught up".
+    show_activity      bool            True once `activity` is real: an empty list then shows an empty feed.
+    notifications / notifications_unread   topbar bell (all app pages).
+    home_state         'ready' (default) | 'loading' | 'error'
+  Every interactive element that needs logic carries data-action="area:verb". Connect with OL.register(name, fn).
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Welcome back, {{ user.first_name|default:user.username }}.</h1>
+    <p class="page-head__sub">{% if home_state == 'ready' and organizations %}{{ organizations|length }} organization{{ organizations|length|pluralize }}.{% if attention %} {% if attention|length == 1 %}1 thing needs{% else %}{{ attention|length }} things need{% endif %} your attention.{% endif %}{% else %}Your organizations, and the A.Y.s kept inside them.{% endif %}</p>
+  </div>
+  <div class="page-head__actions">
+    <button type="button" class="btn btn--outline" data-dialog-open="charter-modal">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Create an organization</button>
+    <button type="button" class="btn btn--primary" data-dialog-open="accession-modal">{% include "shared/ui/_icon.html" with name="key" class="icon--sm" %}Enter join code</button>
+  </div>
+</header>
 
-<div class="flex-1 min-h-0 flex flex-row">
-{% include 'partials/_sidebar.html' with active_page='home' %}
+<div class="home" data-home data-state="{{ home_state|default:'ready' }}"{% if preview %} data-preview="{{ preview }}"{% endif %}>
 
-<main class="flex-1 min-h-0 overflow-y-auto w-full bg-warm-vellum-tint">
-    <div class="max-w-6xl w-full mx-auto px-8 sm:px-12 py-12 pb-24">
-
-        <!-- Welcome banner -->
-        <div class="welcome-banner rounded-2xl px-6 sm:px-10 py-8 sm:py-10 text-white mb-10">
-            <p class="text-[11px] uppercase tracking-widest text-white/60 mb-2">Institutional Archive</p>
-            <h1 class="font-serif text-2xl sm:text-3xl font-medium tracking-tight">
-                Welcome back, {{ user.first_name|default:user.username }}.
-            </h1>
-            <p class="text-sm text-white/70 mt-2 max-w-lg">
-                This is your organization's home base for handover knowledge — charters, playbooks,
-                directories, and notes kept safe from one leadership team to the next.
-            </p>
-        </div>
-
-        <!-- Quick links -->
-        <div class="mb-10">
-            <h2 class="font-serif text-lg font-medium text-warm-espresso mb-1">Your account</h2>
-            <p class="text-xs font-serif italic text-warm-charcoal mb-4">Keep your profile and security settings up to date.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="{% url 'profile' %}" class="card feature-tile flex items-center gap-4 p-5">
-                    <span class="w-10 h-10 rounded-lg bg-warm-linen flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-warm-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5"/></svg>
-                    </span>
-                    <span>
-                        <span class="block font-serif font-medium text-warm-espresso">Edit your profile</span>
-                        <span class="block text-xs text-warm-charcoal mt-0.5">Update your name, email, bio, and photo.</span>
-                    </span>
-                </a>
-                <a href="{% url 'settings' %}" class="card feature-tile flex items-center gap-4 p-5">
-                    <span class="w-10 h-10 rounded-lg bg-warm-linen flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-warm-espresso" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H4a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5.6 8.4a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H10a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V8.6c.14.62.62 1.13 1.51 1.4H22a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </span>
-                    <span>
-                        <span class="block font-serif font-medium text-warm-espresso">Account settings</span>
-                        <span class="block text-xs text-warm-charcoal mt-0.5">Change your password or manage your account.</span>
-                    </span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Upcoming feature slices -->
-        <div>
-            <h2 class="font-serif text-lg font-medium text-warm-espresso mb-1">Coming to the archive</h2>
-            <p class="text-xs font-serif italic text-warm-charcoal mb-4">Each of these will arrive as its own vertical slice — its own app, templates, and static assets.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Event Logger</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">Record events, attendance, and outcomes for future officers to reference.</p>
-                </div>
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Supplier Directory</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">Keep vendor contacts, pricing notes, and reliability history in one place.</p>
-                </div>
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Handover Notes</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">Structured notes from outgoing officers for the incoming team.</p>
-                </div>
-                <div class="card feature-tile p-5 opacity-90">
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="font-serif font-medium text-warm-espresso">Adviser Sign-off</span>
-                        <span class="coming-soon-badge">Planned</span>
-                    </div>
-                    <p class="text-xs text-warm-charcoal leading-relaxed">A lightweight approval trail for documents that need adviser review.</p>
-                </div>
-            </div>
-        </div>
-
+{% if home_state == 'loading' %}
+  {# LOADING: swap this in while the first request is in flight. Same shape as the ready state: top row, then cards. #}
+  <div aria-busy="true" aria-live="polite" class="home__loading">
+    <div class="home__top home__top--split" aria-hidden="true">
+      {% for _ in "12" %}<div class="card"><span class="skeleton skeleton--title"></span>{% for _ in "1234" %}<span class="skeleton skeleton--row"></span>{% endfor %}</div>{% endfor %}
     </div>
-</main>
+    <div class="org-grid" aria-label="Loading your organizations">
+      {% for _ in "1234" %}<div class="card skeleton-card"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--chips"></span><span class="skeleton skeleton--foot"></span></div>{% endfor %}
+    </div>
+  </div>
+
+{% elif home_state == 'error' %}
+  {# ERROR: the list could not be loaded. Retry reloads the page unless you register home:retry. #}
+  <div class="empty empty--error" role="alert">
+    {% include "shared/ui/_icon.html" with name="warning-circle" class="icon--lg empty__icon" %}
+    <h2 class="empty__title">We couldn't load your organizations.</h2>
+    <p class="empty__text">Check your connection and try again. Nothing was lost.</p>
+    <div class="empty__actions"><button type="button" class="btn btn--primary" data-action="home:retry">{% include "shared/ui/_icon.html" with name="refresh" class="icon--sm" %}Try again</button></div>
+  </div>
+
+{% else %}
+  {% comment %}
+    TOP ROW. It adapts to what exists, so it never leaves a hole:
+      both have rows        -> split, equal height. A short list gets blank ledger lines (home__top--compact when both are 3 or fewer)
+      attention only        -> one full-width panel, two columns on wide screens (solo)
+      activity only         -> a slim "all caught up" strip (when the feature is live), then the feed full width (solo)
+      neither, feature live -> the slim strip alone
+      neither, not live     -> nothing
+    An empty feed is never drawn.
+  {% endcomment %}
+  {% if attention and activity %}
+  <div class="home__top home__top--split{% if attention|length <= 3 and activity|length <= 3 %} home__top--compact{% endif %}">
+    {% include "home/_attention.html" %}
+    {% include "home/_activity.html" %}
+  </div>
+  {% elif attention %}
+  <div class="home__top">{% include "home/_attention.html" with solo=True %}</div>
+  {% elif activity %}
+  <div class="home__top">
+    {% if show_attention and organizations %}{% include "home/_attention.html" %}{% endif %}
+    {% include "home/_activity.html" with solo=True %}
+  </div>
+  {% elif show_attention and organizations %}
+  <div class="home__top">{% include "home/_attention.html" %}</div>
+  {% endif %}
+
+  <section aria-labelledby="orgs-title">
+    <div class="orgs-head">
+      <h2 id="orgs-title">Your organizations</h2>
+      {% if organizations|length >= 4 %}{% comment %} Shown once there are 4 or more organizations: filter by status, and sort. Both run in the browser (home.js).
+   There is no name filter on purpose: the search in the top bar already finds organizations by name.
+   Swap for a server query later by listening to the "ol:filter" event. {% endcomment %}
+<div class="orgs-tools">
+  <div class="seg" role="group" aria-label="Filter by status">
+    <button type="button" class="seg__btn" data-filter="all" aria-pressed="true">All <span class="seg__count" data-count="all"></span></button>
+    <button type="button" class="seg__btn" data-filter="ACTIVE" aria-pressed="false">Active <span class="seg__count" data-count="ACTIVE"></span></button>
+    <button type="button" class="seg__btn" data-filter="PENDING_SIGNOFF" aria-pressed="false">Awaiting approval <span class="seg__count" data-count="PENDING_SIGNOFF"></span></button>
+    <button type="button" class="seg__btn" data-filter="CLOSED" aria-pressed="false">Closed <span class="seg__count" data-count="CLOSED"></span></button>
+  </div>
+  <label class="title-sort"><span class="sr-only">Sort organizations</span>
+    <select data-sort>
+      <option value="recent">Recently active</option>
+      <option value="name">Name, A to Z</option>
+      <option value="ay">Newest A.Y.</option>
+    </select>
+  </label>
 </div>
+
+      {% elif organizations %}<span class="orgs-head__total">{{ organizations|length }} in total</span>{% endif %}
+    </div>
+
+    {% if organizations %}
+      <ul class="org-grid" role="list" data-org-grid>
+        {% for org in organizations %}{% comment %} One organization. Variable: org (dict, see apps/shared/selectors.py).
+   Optional keys: acronym, title, committee, counts, last_activity, can_share_code, join_code, join_code_expires, url.
+   Hooks: org:open (when url is empty), org:share-code, org:view-years, org:leave.
+   Rows, top to bottom: name and menu / acronym, A.Y. and seat / role and status / counts / members and last activity. {% endcomment %}
+<li class="org card{% if org.status == 'CLOSED' %} org--closed{% endif %}" data-org-card data-org="{{ org.id }}" data-status="{{ org.status }}" data-name="{{ org.name|lower }}" data-ay="{{ org.ay }}" data-order="{{ forloop.counter0 }}">
+  <div class="org__head">
+    <h3 class="org__name">{% if org.url %}<a class="org__link" href="{{ org.url }}">{{ org.name }}</a>{% else %}<button type="button" class="org__link" data-action="org:open" data-org="{{ org.id }}">{{ org.name }}</button>{% endif %}</h3>
+    <div class="menu" data-menu>
+      <button type="button" class="icon-btn menu__trigger" aria-haspopup="menu" aria-expanded="false" aria-label="Actions for {{ org.name }}">{% include "shared/ui/_icon.html" with name="dots" %}</button>
+      <div class="menu__panel" role="menu" hidden>
+        {% if org.url %}<a class="menu__item" role="menuitem" href="{{ org.url }}">{% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}Open</a>
+        {% else %}<button type="button" class="menu__item" role="menuitem" data-action="org:open" data-org="{{ org.id }}">{% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}Open</button>{% endif %}
+        {% if org.can_share_code %}<button type="button" class="menu__item" role="menuitem" data-action="org:share-code" data-org="{{ org.id }}" data-org-name="{{ org.name }}" data-code="{{ org.join_code }}" data-expires="{{ org.join_code_expires }}">{% include "shared/ui/_icon.html" with name="key" class="icon--sm" %}Share join code</button>{% endif %}
+        <button type="button" class="menu__item" role="menuitem" data-action="org:view-years" data-org="{{ org.id }}">{% include "shared/ui/_icon.html" with name="books" class="icon--sm" %}View all A.Y.s</button>
+        <div class="menu__sep" role="separator"></div>
+        <button type="button" class="menu__item menu__item--danger" role="menuitem" data-action="org:leave" data-org="{{ org.id }}" data-org-name="{{ org.name }}">{% include "shared/ui/_icon.html" with name="sign-out" class="icon--sm" %}Leave organization</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="org__meta">{% if org.acronym %}<span class="org__acr">{{ org.acronym }}</span>{% endif %}<span class="t-mono">{{ org.ay }}</span>{% if org.title or org.committee %}<span class="org__seat">{{ org.title }}{% if org.title and org.committee %}, {% endif %}{{ org.committee }}</span>{% endif %}</p>
+
+  <div class="chip-row org__who">
+    <span class="chip {% if org.role_code == 'EXECUTIVE' %}chip--exec{% elif org.role_code == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ org.role }}</span>
+    {% include "shared/ui/_stamp.html" with status=org.status %}
+  </div>
+
+  <div class="org__lower">
+    {% if org.counts %}
+    <dl class="org__stats">
+      <div><dt>Events</dt><dd>{{ org.counts.events }}</dd></div>
+      <div><dt>Suppliers</dt><dd>{{ org.counts.suppliers }}</dd></div>
+      <div><dt>Notes</dt><dd>{{ org.counts.notes }}</dd></div>
+    </dl>
+    {% endif %}
+    <div class="org__foot">
+      <div class="avatar-stack" aria-hidden="true">{% for m in org.members|slice:":3" %}<span class="avatar avatar--sm">{{ m.username|slice:":1" }}</span>{% endfor %}</div>
+      <span class="org__count">{{ org.member_count }} member{{ org.member_count|pluralize }}</span>
+      {% if org.last_activity %}<span class="org__active">{% include "shared/ui/_icon.html" with name="clock" class="icon--sm" %}{{ org.last_activity }}</span>{% endif %}
+    </div>
+  </div>
+</li>
+{% endfor %}
+      </ul>
+      <div class="empty empty--compact" data-no-match hidden>
+        <p class="empty__title">No organizations match.</p>
+        <p class="empty__text">Try a different status.</p>
+        <div class="empty__actions"><button type="button" class="btn btn--outline btn--sm" data-clear-filters>Clear filters</button></div>
+      </div>
+    {% else %}
+      {# EMPTY: a shelf with room for the first spines. #}
+      <div class="empty">
+        <div class="shelf shelf--empty" aria-hidden="true">
+          <div class="spine spine--1" style="--h:6.5rem"></div><div class="spine spine--2" style="--h:8rem"></div><div class="spine spine--ghost" style="--h:7rem"></div><div class="spine spine--ghost" style="--h:6rem"></div>
+        </div>
+        <h3 class="empty__title">Nothing on the shelf yet.</h3>
+        <p class="empty__text">Enter a join code from an officer, or create an organization of your own. Each A.Y. you serve in will stand here.</p>
+        <div class="empty__actions">
+          <button type="button" class="btn btn--primary" data-dialog-open="accession-modal">{% include "shared/ui/_icon.html" with name="key" class="icon--sm" %}Enter join code</button>
+          <button type="button" class="btn btn--outline" data-dialog-open="charter-modal">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Create an organization</button>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endif %}
+</div>
+
+{# All Home dialogs. Hooks: join:submit, org:create, org:leave-confirm, share:copy (works as is), share:regenerate. #}
+
+{# 1. Enter a join code #}
+<dialog class="overlay modal modal--form" id="accession-modal" aria-labelledby="accession-title" aria-describedby="accession-help">
+  <div class="modal__panel" data-accession>
+    <span class="modal__tab" aria-hidden="true">Join code</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="accession-title">Enter your join code</h2></div>
+    <p id="accession-help" class="t-muted">An officer hands you an eight-character join code. Enter it here to join their organization. Letters and numbers only.</p>
+    <form id="accession-form" class="modal__form" novalidate>
+      <div class="accession" id="accession-cells" role="group" aria-labelledby="accession-title">
+        <div class="accession__group">{% for n in "1234" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
+        <div class="accession__group">{% for n in "5678" %}<input class="acc-cell" type="text" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Character {{ n }} of 8" data-acc-cell>{% endfor %}</div>
+      </div>
+      <p class="form-feedback" id="accession-feedback" role="status" aria-live="polite">Paste works too.</p>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="accession-form" class="btn btn--primary btn--arrow" id="accession-submit" disabled>Join {% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}</button>
+    </div>
+  </div>
+</dialog>
+
+{# 2. Confirm joining (stacks on top of 1) #}
+<dialog class="overlay modal" id="join-modal" aria-labelledby="join-modal-t">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="join-modal-t">Join with this code?</h2>
+    <div class="modal__body">
+      <p>Your join code is <strong class="t-mono" data-join="code"></strong>. Confirming adds you to the organization it belongs to.</p>
+    </div>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="button" class="btn btn--primary" data-join-confirm>Confirm</button>
+    </div>
+  </div>
+</dialog>
+
+{# 3. Create an organization #}
+<dialog class="overlay modal modal--form" id="charter-modal" aria-labelledby="charter-title" aria-describedby="charter-help">
+  <div class="modal__panel" data-charter>
+    <span class="modal__tab" aria-hidden="true">New</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="charter-title">Create an organization</h2></div>
+    <p id="charter-help" class="t-muted">Set up your organization and open its first A.Y. You become its Executive.</p>
+    <form id="charter-form" class="modal__form form-stack" novalidate>
+      <div class="field-row field-row--name">
+        <div class="field">
+          <label class="field__label" for="charter-name">Organization name</label>
+          <div class="field__control"><input class="form-input" id="charter-name" name="name" type="text" maxlength="120" autocomplete="off" placeholder="Junior Philippine Computer Society" required aria-describedby="charter-feedback"></div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="charter-acronym">Acronym</label>
+          <div class="field__control"><input class="form-input" id="charter-acronym" name="acronym" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="JPCS"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label" for="charter-ay">First A.Y.</label>
+        <div class="field__control"><input class="form-input" id="charter-ay" name="academic_year" type="text" maxlength="9" inputmode="numeric" autocomplete="off" placeholder="2026-2027" required></div>
+        <div class="field__help">The academic year you are opening the record for.</div>
+      </div>
+      <p class="form-feedback" id="charter-feedback" role="status" aria-live="polite"></p>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="charter-form" class="btn btn--primary">Create organization</button>
+    </div>
+  </div>
+</dialog>
+
+{# 4. Share a join code. States: data-state="empty" (no code yet) | "ready" (code present). #}
+<dialog class="overlay modal modal--form" id="share-modal" aria-labelledby="share-title" aria-describedby="share-help">
+  <div class="modal__panel" data-share data-state="empty">
+    <span class="modal__tab" aria-hidden="true">Join code</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="share-title">Share a join code</h2></div>
+    <p id="share-help" class="t-muted">Give this code to someone you want in <strong data-share="org">this organization</strong>. They enter it on their Home page.</p>
+    <div class="share__code">
+      <div class="accession" role="img" aria-label="Join code" data-share-code>
+        <div class="accession__group">{% for n in "1234" %}<span class="acc-cell acc-cell--static" data-share-cell>&middot;</span>{% endfor %}</div>
+        <div class="accession__group">{% for n in "5678" %}<span class="acc-cell acc-cell--static" data-share-cell>&middot;</span>{% endfor %}</div>
+      </div>
+      <p class="share__note" data-share="note" role="status" aria-live="polite">There is no active code yet. Make one to start inviting people.</p>
+    </div>
+    <div class="modal__foot modal__foot--split">
+      <button type="button" class="btn btn--ghost" data-action="share:regenerate">{% include "shared/ui/_icon.html" with name="refresh" class="icon--sm" %}Make a new code</button>
+      <div class="modal__foot-end">
+        <button type="button" class="btn btn--outline" data-dialog-close>Done</button>
+        <button type="button" class="btn btn--primary" data-action="share:copy" data-share-copy>{% include "shared/ui/_icon.html" with name="copy" class="icon--sm" %}<span>Copy code</span></button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+{# 5. Leave an organization #}
+<dialog class="overlay modal" id="leave-modal" aria-labelledby="leave-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="leave-title">Leave <span data-leave="org">this organization</span>?</h2>
+    <div class="modal__body"><p>You will lose access to its records. To come back you will need a new join code from an officer.</p></div>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Stay</button>
+      <button type="button" class="btn btn--danger" data-action="org:leave-confirm" data-leave-confirm>Leave organization</button>
+    </div>
+  </div>
+</dialog>
+
 {% endblock %}

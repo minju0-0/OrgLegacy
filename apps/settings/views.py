@@ -1,18 +1,21 @@
+from django.conf import settings as dj_settings
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from .forms import AccountDeleteForm, StyledPasswordChangeForm
+from .preferences import groups
 
 
 @login_required
 def settings_view(request):
     """
-    Account security and management: change password, or permanently
-    delete the account. This page has two independent <form> elements;
-    each POST carries a hidden 'form_name' field so this single view
-    knows which one was submitted.
+    Account management: change password, or permanently delete the account.
+    The page has independent <form> elements; each POST carries a hidden
+    'form_name' field so this single view knows which one was submitted.
+    Notification preferences, sessions, two-step sign-in and data export are
+    designed but not stored yet: they connect through data-action hooks.
     """
     password_form = StyledPasswordChangeForm(user=request.user)
     delete_form = AccountDeleteForm()
@@ -37,9 +40,17 @@ def settings_view(request):
                 logout(request)
                 user.delete()  # cascades to accounts.Profile via on_delete=CASCADE
                 messages.info(request, "Your account has been permanently deleted.")
-                return redirect('ogin')
+                return redirect('login')
 
-    return render(request, 'settings/settings.html', {
+    context = {
         'password_form': password_form,
         'delete_form': delete_form,
-    })
+        'notification_groups': groups(),          # catalog with defaults; pass saved values to groups() later
+    }
+    # Optional, supply when real: sessions (list), two_factor ({'enabled': bool}). See docs/PROFILE_SETTINGS.md.
+
+    if dj_settings.DEBUG and request.GET.get('preview'):          # design preview, delete with preview.py
+        from .preview import preview_context
+        context.update(preview_context(request.GET['preview']))
+
+    return render(request, 'settings/settings.html', context)

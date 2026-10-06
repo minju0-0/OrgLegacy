@@ -1,0 +1,21 @@
+{% comment %} Recent activity across organizations. Context: activity = [{id, actor, text, org, ay, ago, at?}]
+   Only included when there are entries (an empty feed is not drawn). Hook: activity:view-all.
+   Variable: solo (true when it is the only panel in the top row: the list then runs in two columns on wide screens). {% endcomment %}
+<aside class="card feed{% if solo %} feed--solo{% endif %}" aria-labelledby="feed-title">
+  <header class="feed__head">
+    <h2 class="card__title" id="feed-title">Recent activity</h2>
+    {% if activity|length > 5 and not solo or activity|length > 6 %}<button type="button" class="link-arrow" data-action="activity:view-all">View all {{ activity|length }} {% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}</button>{% endif %}
+  </header>
+  <ol class="feed__list" role="list"{% if activity|length > 5 and not solo or activity|length > 6 %} tabindex="0" aria-label="Recent activity, scrollable list"{% endif %}>
+    {% for a in activity|slice:":20" %}
+    <li class="feed__row">
+      <span class="avatar avatar--sm" aria-hidden="true">{{ a.actor|slice:":1" }}</span>
+      <div class="feed__body">
+        <p class="feed__text" title="{{ a.actor }} {{ a.text }}"><strong>{{ a.actor }}</strong> {{ a.text }}</p>
+        <p class="feed__meta"><span>{{ a.org }}</span><span class="t-mono">{{ a.ay }}</span></p>
+      </div>
+      <time class="feed__time"{% if a.at %} datetime="{{ a.at }}"{% endif %}>{{ a.ago }}</time>
+    </li>
+    {% endfor %}
+  </ol>
+</aside>

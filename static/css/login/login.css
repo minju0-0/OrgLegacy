@@ -1,39 +1,8 @@
-/* Login feature — styling specific to the login screen only.
-   Shared tokens/resets/animations live in static/css/shared/base.css. */
-
-#auth-split-layout .auth-hero-panel {
-    border-radius: 0;
-}
-
-@media (min-width: 768px) {
-    #auth-split-layout .auth-hero-panel {
-        border-radius: 0 18px 18px 0;
-        margin: 10px;
-        height: calc(100% - 20px);
-        overflow: hidden;
-    }
-}
-
-.auth-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.85);
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 999px;
-    padding: 0.3rem 0.7rem;
-    width: fit-content;
-    backdrop-filter: blur(2px);
-}
-
-#login-form-panel {
-    animation: fadeInUp 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(8px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
+/* Login: rules owned by the sign-in screen only.
+   The shared frame (top bar, paper sheet, photo column) lives in css/shared/auth.css. */
+.auth--login { --auth-crop: 30% 60%; }          /* keeps the pen and notebook in frame */
+.auth--login .auth-sheet__head h1 { white-space: nowrap; }
+@media (max-width: 380px) { .auth--login .auth-sheet__head h1 { white-space: normal; } }
+/* Desk: the sheet is short here, so the boards are fixed-height and centred on it, which leaves
+   room above for the stamp and below for the shelf. */
+.auth--login .auth__main { --board-top: calc(50% - 19.5rem); --board-bottom: auto; --board-h: 39rem; --slip-top: calc(50% - 18rem); --slip-bottom: auto; --slip-h: 36rem; }

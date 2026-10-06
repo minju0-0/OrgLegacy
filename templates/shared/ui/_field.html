@@ -1,0 +1,16 @@
+{% comment %}
+  One labelled field. Pass field=form.field_name. Optional: password=True (adds the
+  visibility toggle), help=False (hide help text). The widget is rendered untouched,
+  so id, name and the form-input class from Django stay exactly as they are.
+{% endcomment %}
+<div class="field{% if field.errors %} field--invalid{% endif %}">
+  <label class="field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  <div class="field__control{% if password %} field__control--password{% endif %}">
+    {{ field }}
+    {% if password %}
+    <button type="button" class="pwd-toggle" aria-pressed="false" aria-label="Show password" data-target="{{ field.id_for_label }}">{% include "shared/ui/_icon.html" with name="eye" class="icon-show" %}{% include "shared/ui/_icon.html" with name="eye-slash" class="icon-hide" %}</button>
+    {% endif %}
+  </div>
+  {% if field.help_text and help != False %}<div class="field__help">{{ field.help_text|safe }}</div>{% endif %}
+  {% for error in field.errors %}<p class="field__error" data-field-error id="{{ field.id_for_label }}-error">{% include "shared/ui/_icon.html" with name="warning-circle" class="icon--sm" %}<span>{{ error }}</span></p>{% endfor %}
+</div>

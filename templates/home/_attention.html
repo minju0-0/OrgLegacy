@@ -1,0 +1,31 @@
+{% comment %} Needs your attention. Context: attention = [{id, kind, title, org, ay, stamp?, due?, action, url?}]
+   kind: approval | handover | event | invite | note. Hooks: attention:act (when url is empty), attention:view-all.
+   Variable: solo (true when it is the only panel in the top row: the list then runs in two columns on wide screens).
+   Two shapes: with items, a ruled list (5 rows, then it scrolls); with none, a slim "all caught up" strip. {% endcomment %}
+{% if attention %}
+<section class="card attn{% if solo %} attn--solo{% endif %}" aria-labelledby="attn-title">
+  <header class="attn__head">
+    <h2 class="card__title" id="attn-title">Needs your attention</h2>
+    {% if attention|length > 5 and not solo or attention|length > 6 %}<button type="button" class="link-arrow" data-action="attention:view-all">View all {{ attention|length }} {% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}</button>{% endif %}
+  </header>
+  <ul class="attn__list" role="list"{% if attention|length > 5 and not solo or attention|length > 6 %} tabindex="0" aria-label="Needs your attention, scrollable list"{% endif %}>
+    {% for a in attention|slice:":20" %}
+    <li class="attn__row">
+      <span class="attn__ico" aria-hidden="true">{% if a.kind == 'approval' %}{% include "shared/ui/_icon.html" with name="check-circle" %}{% elif a.kind == 'handover' or a.kind == 'note' %}{% include "shared/ui/_icon.html" with name="note" %}{% elif a.kind == 'event' %}{% include "shared/ui/_icon.html" with name="calendar" %}{% else %}{% include "shared/ui/_icon.html" with name="key" %}{% endif %}</span>
+      <div class="attn__body">
+        <p class="attn__title">{{ a.title }}</p>
+        <p class="attn__meta"><span class="attn__org">{{ a.org }}</span><span class="t-mono">{{ a.ay }}</span>{% if a.stamp %}<span class="stamp stamp--pending">{{ a.stamp }}</span>{% endif %}{% if a.due %}<span class="attn__due">{% include "shared/ui/_icon.html" with name="clock" class="icon--sm" %}{{ a.due }}</span>{% endif %}</p>
+      </div>
+      {% if a.url %}<a class="btn btn--outline btn--sm attn__act" href="{{ a.url }}">{{ a.action }}</a>
+      {% else %}<button type="button" class="btn btn--outline btn--sm attn__act" data-action="attention:act" data-id="{{ a.id }}" data-kind="{{ a.kind }}">{{ a.action }}</button>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% else %}
+<section class="card attn-clear" aria-labelledby="attn-title">
+  <h2 class="sr-only" id="attn-title">Needs your attention</h2>
+  <span class="attn__ico" aria-hidden="true">{% include "shared/ui/_icon.html" with name="check-circle" %}</span>
+  <p class="attn-clear__text"><strong>You're all caught up.</strong> <span>Approvals and handover notes that need you will show up here.</span></p>
+</section>
+{% endif %}

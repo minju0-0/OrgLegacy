@@ -3,7 +3,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 
 class StyledFormMixin:
-    
+    """Adds the shared form-input class and a default placeholder to every field."""
 
     def _style_fields(self):
         for field_name, field in self.fields.items():

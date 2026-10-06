@@ -1,0 +1,25 @@
+{% extends "shared/base.html" %}
+{% load static %}
+{% block extra_css %}{% block page_css %}{% endblock %}{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+{% block body %}
+<header class="auth-nav">
+  <div class="auth-nav__bar">
+    <a href="{% url 'landing' %}" class="wordmark" aria-label="orglegacy home"><span class="wordmark__o" aria-hidden="true"></span>rglegacy</a>
+    <nav class="auth-nav__links" aria-label="Site">
+      <a href="{% url 'landing' %}">Home</a>
+      <a href="{% url 'landing' %}#features">Features</a>
+      <a href="{% url 'landing' %}#how">How it works</a>
+    </nav>
+    <div class="auth-nav__cta">
+      <a href="{% url 'login' %}" class="btn btn--outline btn--sm"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>Sign in</a>
+      <a href="{% url 'register' %}" class="btn btn--primary btn--sm"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>Get started</a>
+    </div>
+  </div>
+</header>
+
+<div class="auth{% block auth_class %}{% endblock %}">
+  <main class="auth__main" id="main">{% block card %}{% endblock %}</main>
+  <aside class="auth__visual" aria-label="OrgLegacy">{% block panel %}{% endblock %}</aside>
+</div>
+{% endblock %}
