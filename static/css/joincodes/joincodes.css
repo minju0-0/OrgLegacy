@@ -1,0 +1,13 @@
+/* Join codes: a ledger of codes and a short form. Codes are references, so they are set in mono. */
+.codes .code { font-size: var(--text-sm); font-weight: var(--weight-semi); letter-spacing: 0.08em; color: var(--text-strong); white-space: nowrap; }
+.codes tr.is-past .code { color: var(--text-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.codes td .ledger__secondary { margin-top: 2px; }
+.codes .ledger__act { text-align: right; white-space: nowrap; }
+.codes .ledger__act > * + * { margin-left: var(--space-5); }
+.link-btn--danger { color: var(--danger-fg); }
+@media (max-width: 640px) { .codes .ledger__act { text-align: left; } .codes .ledger__act > * + * { margin-left: var(--space-6); } }
+.page-head + .alert { margin-bottom: var(--space-6); align-items: center; }
+.page-head + .alert p { margin: 0; }
+.empty .accession { margin-bottom: var(--space-2); }
+.empty .acc-cell { color: var(--text-muted); border-style: dashed; }
+[data-head-note] { margin: calc(-1 * var(--space-2)) 0 0; }

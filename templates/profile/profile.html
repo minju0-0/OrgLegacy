@@ -3,7 +3,10 @@
 {% block title %}Profile | OrgLegacy{% endblock %}
 {% block page_css %}<link rel="stylesheet" href="{% static 'css/profile/profile.css' %}">{% endblock %}
 {% block crumbs %}<span>Account</span><span aria-hidden="true">/</span><strong>Profile</strong>{% endblock %}
-{% block extra_js %}<script src="{% static 'js/profile/profile.js' %}" defer></script>{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/profile/profile.js' %}" defer></script>
+<script src="{% static 'js/organizations/organizations.js' %}" defer></script>{# org:open #}
+{% endblock %}
 
 {% block content %}
 {% comment %}

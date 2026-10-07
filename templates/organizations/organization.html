@@ -1,0 +1,86 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}{{ organization.name }} | OrgLegacy{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/organizations/organizations.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><strong>{{ organization.acronym|default:organization.name }}</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/organizations/organizations.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  ORGANIZATION PAGE. One organization, seen from the A.Y. the person works in.
+  Context: organization, term, access (role, seat), ay, founder, counts {members, committees, events}, recent_events, years [{label, status, is_this, dates}].
+  This page only describes. Moving around is the sidebar's job (one way to each page), so there are no links here.
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{{ organization.name }}</h1>
+    <p class="page-head__sub">{% if organization.acronym %}<span class="t-mono">{{ organization.acronym }}</span> &nbsp;{% endif %}<span class="t-mono">{{ ay }}</span></p>
+  </div>
+</header>
+
+{% if not access.is_open %}
+<div class="alert alert--info org-note" role="status">
+  {% include "shared/ui/_icon.html" with name="lock" %}
+  <p>{% if term.status == 'PENDING_SIGNOFF' %}This A.Y. is awaiting approval. It can be read but not changed until the Executives decide.{% else %}This A.Y. is closed. It stays here as a record and can only be read.{% endif %}</p>
+</div>
+{% endif %}
+
+<div class="org-top">
+  <section class="catalogue org-seat" aria-labelledby="seat-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head org-seat__head">
+      <div>
+        <h2 class="catalogue__title" id="seat-title">{{ ay }}</h2>
+        <p class="catalogue__sub t-mono">{{ term.start_date|date:"j M Y" }} to {{ term.end_date|date:"j M Y" }}</p>
+      </div>
+      {% include "shared/ui/_stamp.html" with status=term.status class="stamp--lg stamp--tilt" %}
+    </div>
+    <div class="catalogue__body">
+      <dl class="dl">
+        <div><dt>Your role</dt><dd><span class="chip {% if access.role == 'EXECUTIVE' %}chip--exec{% elif access.role == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ access.seat.get_role_display }}</span></dd></div>
+        {% if access.seat.title %}<div><dt>Title</dt><dd>{{ access.seat.title }}</dd></div>{% endif %}
+        <div><dt>Committee</dt><dd>{% if access.committee %}{{ access.committee.name }}{% else %}<span class="t-muted">All committees</span>{% endif %}</dd></div>
+        <div><dt>Created by</dt><dd>{{ founder.get_full_name|default:founder.username }}</dd></div>
+        <div><dt>Created</dt><dd class="t-mono">{{ organization.created_at|date:"j M Y" }}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="org-facts" aria-label="This A.Y. in numbers">
+    <div class="kpi kpi--paper"><div class="kpi__top"><span>Members</span>{% include "shared/ui/_icon.html" with name="users" class="icon--sm" %}</div><p class="kpi__value">{{ counts.members }}</p></div>
+    <div class="kpi kpi--blush"><div class="kpi__top"><span>Events</span>{% include "shared/ui/_icon.html" with name="calendar" class="icon--sm" %}</div><p class="kpi__value">{{ counts.events }}</p></div>
+    <div class="kpi kpi--kraft"><div class="kpi__top"><span>Committees</span>{% include "shared/ui/_icon.html" with name="identification-card" class="icon--sm" %}</div><p class="kpi__value">{{ counts.committees }}</p></div>
+  </section>
+</div>
+
+{% if recent_events %}
+<section class="card recent" aria-labelledby="recent-title">
+  <h2 class="card__title" id="recent-title">{% if recent_events.0.date >= today %}Next and recent events{% else %}Recent events{% endif %}</h2>
+  <ul class="recent__list" role="list">
+    {% for e in recent_events %}
+    <li><a class="recent__row" href="{% url 'event_detail' organization.pk e.pk %}"><span class="t-mono recent__date">{{ e.date|date:"j M" }}</span><span class="recent__title">{{ e.title }}</span>{% if e.date >= today %}<span class="chip chip--outline">Upcoming</span>{% endif %}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card years" id="years" aria-labelledby="years-title">
+  <header class="years__head">
+    <h2 class="card__title" id="years-title">A.Y.s</h2>
+    <ul class="legend" aria-label="How to read the shelf">
+      <li><span class="legend__swatch legend__swatch--active" aria-hidden="true"></span>Active</li>
+      <li><span class="legend__swatch legend__swatch--pending" aria-hidden="true"></span>Awaiting approval</li>
+      <li><span class="legend__swatch legend__swatch--closed" aria-hidden="true"></span>Closed</li>
+    </ul>
+  </header>
+  <ul class="shelf years__shelf" role="list">
+    {% for y in years %}
+    <li class="years__item">
+      <span class="spine {% if y.status == 'ACTIVE' %}spine--3{% elif y.status == 'PENDING_SIGNOFF' %}spine--4{% else %}spine--1{% endif %}{% if forloop.last %} spine--new{% endif %}" style="--h:8.5rem" role="img" aria-label="{{ y.label }}, {% if y.status == 'ACTIVE' %}active{% elif y.status == 'PENDING_SIGNOFF' %}awaiting approval{% else %}closed{% endif %}{% if y.is_this %}, the one you are viewing{% endif %}"><span class="spine__label">{{ y.label }}</span></span>
+      <span class="years__cap{% if y.is_this %} is-this{% endif %}">{% if y.is_this %}You are here{% else %}&nbsp;{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="t-muted years__note">{% if years|length == 1 %}Each A.Y. the organization completes will stand next to this one.{% else %}Oldest on the left. The newest stands tallest.{% endif %}</p>
+</section>
+{% endblock %}

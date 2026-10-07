@@ -1,0 +1,54 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}{{ event.title }} | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/events/events.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><a href="{% url 'event_list' organization.pk %}">Events</a><span aria-hidden="true">/</span><strong>{{ event.title|truncatechars:28 }}</strong>{% endblock %}
+
+{% block content %}
+{% comment %} EVENT. Context: event, can_edit (Head or Executive, ACTIVE A.Y.), can_delete (Executive, ACTIVE A.Y.), today. {% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{{ event.title }}</h1>
+    <p class="page-head__sub"><span class="t-mono">{{ event.date|date:"j M Y" }}</span> &nbsp;{% if event.date >= today %}<span class="chip chip--outline">Upcoming</span>{% else %}<span class="chip chip--neutral">Done</span>{% endif %}</p>
+  </div>
+  {% if can_edit or can_delete %}
+  <div class="page-head__actions">
+    {% if can_edit %}<a class="btn btn--outline" href="{% url 'event_edit' organization.pk event.pk %}">Edit</a>{% endif %}
+    {% if can_delete %}<button type="button" class="btn btn--outline btn--danger-quiet" data-dialog-open="event-delete-modal">Delete</button>{% endif %}
+  </div>
+  {% endif %}
+</header>
+
+<div class="event-body">
+  <section class="catalogue event-facts" aria-labelledby="facts-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head"><h2 class="catalogue__title" id="facts-title">The record</h2><p class="catalogue__sub t-mono">{{ ay }}</p></div>
+    <div class="catalogue__body">
+      <dl class="dl">
+        <div><dt>Date</dt><dd class="t-mono">{{ event.date|date:"j M Y" }}</dd></div>
+        <div><dt>Budget</dt><dd>{% if event.budget %}<span class="t-mono">&#8369;{{ event.budget|floatformat:"2g" }}</span>{% else %}<span class="t-muted">Not set</span>{% endif %}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="event-text">
+    <section class="card" aria-labelledby="what-title"><h2 class="card__title" id="what-title">What happened</h2><p class="prose">{{ event.description }}</p></section>
+    <section class="card" aria-labelledby="vol-title"><h2 class="card__title" id="vol-title">Volunteers</h2>{% if event.volunteers %}<p class="prose">{{ event.volunteers }}</p>{% else %}<p class="t-muted">Nobody listed yet.</p>{% endif %}</section>
+    <section class="card" aria-labelledby="les-title"><h2 class="card__title" id="les-title">Challenges and lessons</h2>{% if event.challenges_lessons %}<p class="prose">{{ event.challenges_lessons }}</p>{% else %}<p class="t-muted">Nothing written yet.</p>{% endif %}</section>
+  </div>
+</div>
+
+{% if can_delete %}
+<dialog class="overlay modal" id="event-delete-modal" aria-labelledby="event-delete-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="event-delete-title">Delete {{ event.title }}?</h2>
+    <div class="modal__body"><p>It is removed from the log for good, along with its volunteers and lessons. This cannot be undone.</p></div>
+    <form method="post" id="event-delete-form" action="{% url 'event_delete' organization.pk event.pk %}">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep it</button>
+      <button type="submit" form="event-delete-form" class="btn btn--danger">Delete event</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

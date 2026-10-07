@@ -3,6 +3,7 @@
    Works on its own (no backend needed):  filtering, sorting, the join-code cells, validation,
    the share dialog (copy), the leave dialog, the retry button.
    Needs your logic (register with OL.register, see docs/HOME.md):
+     join:preview       (el, {code}) -> {summary}        optional: what the code is for, shown before Confirm
      join:submit        (el, {code})                     join with a code
      org:create         (el, {name, acronym, academicYear})
      org:open           (el, {org})                      only when a card has no url
@@ -70,7 +71,13 @@
       var c = code();
       if (c.length < cells.length) { cells.forEach(function (x) { if (!x.value) shake(x); }); say('Enter all eight characters.', 'error'); (cells.filter(function (x) { return !x.value; })[0] || cells[0]).focus(); return; }
       var d = $('#join-modal'); $('[data-join="code"]', d).textContent = 'OL-' + c.slice(0, 4) + '-' + c.slice(4);
-      OL_open(d);
+      var summary = $('[data-join="summary"]', d), base = summary ? summary.textContent : '';
+      if (!OL.has('join:preview')) { OL_open(d); return; }
+      // join:preview resolves {summary}: "You are about to join [Org] as [Role] in [Committee]. Confirm?" Reject to show why not.
+      btn.disabled = true;
+      Promise.resolve(OL.act('join:preview', form, { code: c })).then(function (p) {
+        btn.disabled = false; if (summary) summary.textContent = (p && p.summary) || base; OL_open(d);
+      }).catch(function (err) { btn.disabled = false; say((err && err.message) || 'That code is not valid.', 'error'); });
     });
 
     // Confirm: hand the code to your logic. Resolve closes both dialogs; reject shows the message under the cells.

@@ -13,6 +13,30 @@
     </a>
   </div>
 
+  {% comment %}Organization group: shown on every page that belongs to one organization (context: org_nav, set by OrgRoleRequiredMixin).{% endcomment %}
+  {% if org_nav %}
+  <div class="nav-group">
+    <p class="nav-group__label">{{ org_nav.label|truncatechars:22 }}</p>
+    <a class="nav-item" href="{% url 'organization_detail' org_nav.id %}"{% if current == 'organization_detail' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="archive" %}</span><span>Overview</span>
+    </a>
+    <a class="nav-item" href="{% url 'event_list' org_nav.id %}"{% if current == 'event_list' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="calendar" %}</span><span>Events</span>
+    </a>
+    <a class="nav-item" href="{% url 'member_list' org_nav.id %}"{% if current == 'member_list' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="users" %}</span><span>Members</span>
+    </a>
+    <a class="nav-item" href="{% url 'committee_list' org_nav.id %}"{% if current == 'committee_list' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="identification-card" %}</span><span>Committees</span>
+    </a>
+    {% if org_nav.can_issue_codes %}
+    <a class="nav-item" href="{% url 'joincode_list' org_nav.id %}"{% if current == 'joincode_list' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="key" %}</span><span>Join codes</span>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <div class="sidebar__spacer"></div>
 
   <div class="nav-group nav-group--foot">

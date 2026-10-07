@@ -3,7 +3,14 @@
 {% block title %}Home | OrgLegacy{% endblock %}
 {% block page_css %}<link rel="stylesheet" href="{% static 'css/home/home.css' %}">{% endblock %}
 {% block crumbs %}<strong>Home</strong>{% endblock %}
-{% block extra_js %}<script src="{% static 'js/home/home.js' %}" defer></script>{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/home/home.js' %}" defer></script>
+{% comment %} Each hook is registered by the slice that owns it. Home only draws the buttons. {% endcomment %}
+<script src="{% static 'js/organizations/organizations.js' %}" defer></script>
+<script src="{% static 'js/join/join.js' %}" defer></script>
+<script src="{% static 'js/joincodes/joincodes.js' %}" defer></script>
+<script src="{% static 'js/members/members.js' %}" defer></script>
+{% endblock %}
 
 {% block content %}
 {% comment %}
@@ -118,8 +125,8 @@
         {% else %}<button type="button" class="menu__item" role="menuitem" data-action="org:open" data-org="{{ org.id }}">{% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}Open</button>{% endif %}
         {% if org.can_share_code %}<button type="button" class="menu__item" role="menuitem" data-action="org:share-code" data-org="{{ org.id }}" data-org-name="{{ org.name }}" data-code="{{ org.join_code }}" data-expires="{{ org.join_code_expires }}">{% include "shared/ui/_icon.html" with name="key" class="icon--sm" %}Share join code</button>{% endif %}
         <button type="button" class="menu__item" role="menuitem" data-action="org:view-years" data-org="{{ org.id }}">{% include "shared/ui/_icon.html" with name="books" class="icon--sm" %}View all A.Y.s</button>
-        <div class="menu__sep" role="separator"></div>
-        <button type="button" class="menu__item menu__item--danger" role="menuitem" data-action="org:leave" data-org="{{ org.id }}" data-org-name="{{ org.name }}">{% include "shared/ui/_icon.html" with name="sign-out" class="icon--sm" %}Leave organization</button>
+        {% if org.status != 'CLOSED' %}<div class="menu__sep" role="separator"></div>
+        <button type="button" class="menu__item menu__item--danger" role="menuitem" data-action="org:leave" data-org="{{ org.id }}" data-org-name="{{ org.name }}">{% include "shared/ui/_icon.html" with name="sign-out" class="icon--sm" %}Leave organization</button>{% endif %}
       </div>
     </div>
   </div>
@@ -198,7 +205,8 @@
   <div class="modal__panel">
     <h2 class="modal__title" id="join-modal-t">Join with this code?</h2>
     <div class="modal__body">
-      <p>Your join code is <strong class="t-mono" data-join="code"></strong>. Confirming adds you to the organization it belongs to.</p>
+      <p data-join="summary">Confirming adds you to the organization this code belongs to.</p>
+      <p class="t-muted">Join code <strong class="t-mono" data-join="code"></strong></p>
     </div>
     <div class="modal__foot">
       <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>

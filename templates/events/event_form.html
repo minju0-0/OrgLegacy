@@ -1,0 +1,33 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}{{ heading }} | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/events/events.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><a href="{% url 'event_list' organization.pk %}">Events</a><span aria-hidden="true">/</span><strong>{{ heading }}</strong>{% endblock %}
+
+{% block content %}
+{% comment %} EVENT FORM (log and edit). Context: form (EventForm), event (None when logging), heading. Budget appears only for Executives. {% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{{ heading }}</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. It is saved to this A.Y.</p>
+  </div>
+</header>
+
+<form method="post" class="card event-form form-stack" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}<ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+  {% include "shared/ui/_field.html" with field=form.title %}
+  {% if form.budget %}
+  <div class="field-row">{% include "shared/ui/_field.html" with field=form.date %}{% include "shared/ui/_field.html" with field=form.budget %}</div>
+  {% else %}
+  {% include "shared/ui/_field.html" with field=form.date %}
+  {% endif %}
+  {% include "shared/ui/_field.html" with field=form.description %}
+  {% include "shared/ui/_field.html" with field=form.volunteers %}
+  {% include "shared/ui/_field.html" with field=form.challenges_lessons %}
+  <div class="event-form__foot">
+    <a class="btn btn--outline" href="{% if event %}{% url 'event_detail' organization.pk event.pk %}{% else %}{% url 'event_list' organization.pk %}{% endif %}">Cancel</a>
+    <button type="submit" class="btn btn--primary">{% if event %}Save changes{% else %}Add to the log{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

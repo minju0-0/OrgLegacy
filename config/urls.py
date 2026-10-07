@@ -15,4 +15,14 @@ urlpatterns = [
     path("home/", include("apps.home.urls")),
     path("profile/", include("apps.profile.urls")),
     path("settings/", include("apps.settings.urls")),
+
+    # Organization and membership slices. The first four share the /organizations/ prefix;
+    # each owns its own patterns and names (see each app's urls.py).
+    path("organizations/", include("apps.organizations.urls")),
+    path("organizations/", include("apps.committees.urls")),
+    path("organizations/", include("apps.members.urls")),
+    path("organizations/", include("apps.joincodes.urls")),
+    path("organizations/", include("apps.events.urls")),
+    path("join/", include("apps.join.urls")),
+    path("notifications/", include("apps.notifications.urls")),
 ]

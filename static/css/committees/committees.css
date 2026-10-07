@@ -1,0 +1,9 @@
+/* Committees: a ledger of divisions and three small dialogs. */
+.committees .ledger__act { text-align: right; white-space: nowrap; }
+.committees .ledger__act > * + * { margin-left: var(--space-5); }
+.committees tr.is-inactive .ledger__primary { color: var(--text-muted); }
+.inline-form { display: inline; }
+.link-btn--danger { color: var(--danger-fg); }
+@media (max-width: 640px) { .committees .ledger__act { text-align: left; } .committees .ledger__act > * + * { margin-left: var(--space-6); } }
+.page-head + .alert { margin-bottom: var(--space-6); align-items: center; }
+.page-head + .alert p { margin: 0; }

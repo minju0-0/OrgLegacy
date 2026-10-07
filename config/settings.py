@@ -58,6 +58,23 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.profile',
     'apps.settings',
+
+    # Organization and membership slices (Phase 1). One responsibility each:
+    #   organizations  charter an organization, its page and A.Y. shelf
+    #   committees     create, rename and deactivate committees
+    #   members        the roster, leaving, removing a member
+    #   joincodes      issue and revoke join codes
+    #   join           redeem a join code (preview, then confirm)
+    #   notifications  the bell: read, mark as read
+    'apps.organizations',
+    'apps.committees',
+    'apps.members',
+    'apps.joincodes',
+    'apps.join',
+    'apps.notifications',
+
+    # Phase 3: log what the organization did, scoped to its ACTIVE A.Y.
+    'apps.events',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +99,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.notifications.context.bell',
             ],
         },
     },
@@ -93,12 +111,28 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL'),
+#         conn_max_age=600,
+#         # Supabase/Postgres needs SSL; a local sqlite file (used for quick test runs) does not.
+#         ssl_require=not (os.getenv('DATABASE_URL') or '').startswith('sqlite'),
+#     )
+# }
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 

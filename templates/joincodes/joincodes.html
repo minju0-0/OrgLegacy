@@ -1,0 +1,99 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Join codes | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/joincodes/joincodes.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Join codes</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/joincodes/joincodes.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  JOIN CODES (issuing). Context: codes [{id, raw, pretty, role, committee, uses, max, expires, state, state_label, live, by, mine, can_revoke}],
+  form (JoinCodeForm), can_create (ACTIVE A.Y.), open_dialog, head_hours, member_hours.
+  Hooks: joincode:copy, joincode:revoke. Making a code is a form post. Redeeming codes is the Home dialog (apps/join).
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Join codes</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. {% if access.is_head %}Codes that bring Members into {{ access.committee.name }}.{% else %}Codes that bring Members and Committee Heads in. Anyone holding a code can use it until it runs out, expires or you cancel it.{% endif %}</p>
+  </div>
+  {% if can_create %}
+  <div class="page-head__actions">
+    <button type="button" class="btn btn--primary" data-dialog-open="joincode-modal">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Make a join code</button>
+  </div>
+  {% endif %}
+</header>
+
+{% if not can_create %}
+<div class="alert alert--info" role="status">{% include "shared/ui/_icon.html" with name="lock" %}<p>This A.Y. cannot be changed, so no new codes can be made. Codes made earlier do not work either.</p></div>
+{% endif %}
+
+{% if codes %}
+<div class="ledger-wrap">
+  <table class="ledger ledger--stack codes">
+    <thead><tr><th scope="col">Code</th><th scope="col">For</th><th scope="col" class="num">Used</th><th scope="col">Expires</th><th scope="col">Status</th><th scope="col">Made by</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>
+      {% for c in codes %}
+      <tr{% if not c.live %} class="is-past"{% endif %}>
+        <td class="ledger__lead" data-label="Code"><span class="code t-mono">{{ c.pretty }}</span></td>
+        <td data-label="For"><span class="chip {% if c.role_code == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ c.role }}</span><span class="ledger__secondary">{% if c.committee %}{{ c.committee }}{% else %}All committees{% endif %}</span></td>
+        <td class="num" data-label="Used">{{ c.uses }} of {{ c.max }}</td>
+        <td class="ref" data-label="Expires">{{ c.expires }}</td>
+        <td data-label="Status"><span class="chip {% if c.live %}chip--outline{% else %}chip--neutral{% endif %}">{{ c.state_label }}</span></td>
+        <td data-label="Made by">{% if c.mine %}You{% else %}{{ c.by }}{% endif %}</td>
+        <td class="ledger__act">
+          {% if c.live %}<button type="button" class="link-btn" data-action="joincode:copy" data-code="{{ c.pretty }}" aria-label="Copy join code {{ c.pretty }}">Copy</button>{% endif %}
+          {% if c.can_revoke %}<button type="button" class="link-btn link-btn--danger" data-action="joincode:revoke" data-url="{% url 'joincode_revoke' organization.pk c.id %}" data-code="{{ c.pretty }}" aria-label="Cancel join code {{ c.pretty }}">Cancel</button>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <div class="accession accession--sm" aria-hidden="true">
+    <div class="accession__group">{% for n in "1234" %}<span class="acc-cell acc-cell--static">&middot;</span>{% endfor %}</div>
+    <div class="accession__group">{% for n in "5678" %}<span class="acc-cell acc-cell--static">&middot;</span>{% endfor %}</div>
+  </div>
+  <h2 class="empty__title">No join codes yet.</h2>
+  <p class="empty__text">A join code is how someone with an account gets a seat. Make one, give it to them, and they enter it on their Home page.</p>
+</div>
+{% endif %}
+
+{% if can_create %}
+<dialog class="overlay modal modal--form" id="joincode-modal" aria-labelledby="joincode-title"{% if open_dialog == 'joincode-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Join code</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="joincode-title">Make a join code</h2></div>
+    <p class="t-muted">Anyone who holds the code can use it, so keep it to the people it is for. A code stops working when it runs out, expires or is cancelled.</p>
+    <form method="post" action="{% url 'joincode_create' organization.pk %}" id="joincode-form" class="modal__form form-stack" novalidate data-joincode-form data-head-hours="{{ head_hours }}" data-member-hours="{{ member_hours }}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}<ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+      {% include "shared/ui/_field.html" with field=form.role %}
+      {% if form.committee.is_hidden %}{{ form.committee }}{% else %}<div data-field="committee">{% include "shared/ui/_field.html" with field=form.committee %}</div>{% endif %}
+      <div class="field-row">
+        <div data-field="uses">{% include "shared/ui/_field.html" with field=form.max_uses %}</div>
+        <div data-field="hours">{% include "shared/ui/_field.html" with field=form.hours %}</div>
+      </div>
+      <p class="field__help" data-head-note hidden>A Committee Head code works once and for 24 hours at most, because a committee has one head per A.Y.</p>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="joincode-form" class="btn btn--primary">Make code</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="overlay modal" id="joincode-revoke-modal" aria-labelledby="joincode-revoke-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="joincode-revoke-title">Cancel this join code?</h2>
+    <div class="modal__body"><p>Join code <strong class="t-mono" data-revoke="code"></strong> stops working right away. People who already joined with it keep their seats.</p></div>
+    <form method="post" id="joincode-revoke-form" action="">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep it</button>
+      <button type="submit" form="joincode-revoke-form" class="btn btn--danger">Cancel code</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

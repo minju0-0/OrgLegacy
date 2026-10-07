@@ -1,0 +1,50 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Events | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/events/events.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Events</strong>{% endblock %}
+
+{% block content %}
+{% comment %}
+  EVENTS (the log). Context: rows [{event, upcoming}] upcoming first (soonest first), then past (latest first); total; can_log (ACTIVE A.Y.).
+  Opening an event goes to its own page, where it is edited or deleted. This page does not edit.
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Events</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. What the organization did this A.Y., kept for whoever comes next.</p>
+  </div>
+  {% if can_log %}
+  <div class="page-head__actions">
+    <a class="btn btn--primary" href="{% url 'event_create' organization.pk %}">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Log an event</a>
+  </div>
+  {% endif %}
+</header>
+
+{% if not access.is_open %}
+<div class="alert alert--info" role="status">{% include "shared/ui/_icon.html" with name="lock" %}<p>This A.Y. cannot be changed, so the event log is read-only.</p></div>
+{% endif %}
+
+{% if rows %}
+<div class="ledger-wrap">
+  <table class="ledger ledger--stack events">
+    <thead><tr><th scope="col">Date</th><th scope="col">Event</th><th scope="col" class="num">Budget</th><th scope="col">When</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr{% if not r.upcoming %} class="is-past"{% endif %}>
+        <td class="ref" data-label="Date">{{ r.event.date|date:"j M Y" }}</td>
+        <td class="ledger__lead" data-label="Event"><a class="ledger__primary events__link" href="{% url 'event_detail' organization.pk r.event.pk %}">{{ r.event.title }}</a><span class="ledger__secondary">{{ r.event.description|truncatechars:90 }}</span></td>
+        <td class="num" data-label="Budget">{% if r.event.budget %}&#8369;{{ r.event.budget|floatformat:"2g" }}{% else %}<span class="t-muted">Not set</span>{% endif %}</td>
+        <td data-label="When">{% if r.upcoming %}<span class="chip chip--outline">Upcoming</span>{% else %}<span class="chip chip--neutral">Done</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <h2 class="empty__title">No events logged yet.</h2>
+  <p class="empty__text">Log each event as it happens: what it was, who helped and what you would do differently. Next year's officers will start from this.</p>
+</div>
+{% endif %}
+{% endblock %}

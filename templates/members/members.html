@@ -1,0 +1,81 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Members | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/members/members.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Members</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/members/members.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  MEMBERS. Context: seats (Membership rows with user and committee, Executives first), headcount,
+  can_remove (Executive on an ACTIVE A.Y.), can_leave, sole_executive.
+  Hooks: member:remove (opens the confirmation), member:leave (opens the confirmation).
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Members</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. {{ headcount }} {{ headcount|pluralize:"person holds a seat,people hold seats" }} this A.Y.</p>
+  </div>
+  <div class="page-head__actions">
+    {% include "shared/ui/_stamp.html" with status=term.status class="stamp--lg" %}
+  </div>
+</header>
+
+<div class="ledger-wrap">
+  <table class="ledger ledger--stack members">
+    <thead><tr><th scope="col">Person</th><th scope="col">Role</th><th scope="col">Committee</th><th scope="col">Joined</th>{% if can_remove %}<th scope="col"><span class="sr-only">Actions</span></th>{% endif %}</tr></thead>
+    <tbody>
+      {% for s in seats %}
+      <tr>
+        <td class="ledger__lead" data-label="Person">
+          <span class="who"><span class="avatar avatar--sm {% if s.role == 'EXECUTIVE' %}avatar--oxblood{% elif s.role == 'COMMITTEE_HEAD' %}avatar--kraft{% endif %}" aria-hidden="true">{{ s.user.first_name|default:s.user.username|slice:":1" }}{{ s.user.last_name|slice:":1" }}</span>
+            <span class="who__text"><span class="ledger__primary">{{ s.user.get_full_name|default:s.user.username }}{% if s.user_id == user.pk %} <span class="who__you">(you)</span>{% endif %}</span><span class="ledger__secondary t-mono">@{{ s.user.username }}</span></span></span>
+        </td>
+        <td data-label="Role"><span class="chip {% if s.role == 'EXECUTIVE' %}chip--exec{% elif s.role == 'COMMITTEE_HEAD' %}chip--head{% else %}chip--member{% endif %}">{{ s.get_role_display }}</span>{% if s.title %}<span class="ledger__secondary">{{ s.title }}</span>{% endif %}</td>
+        <td data-label="Committee">{% if s.committee %}{{ s.committee.name }}{% else %}<span class="t-muted">All committees</span>{% endif %}</td>
+        <td data-label="Joined" class="ref">{{ s.created_at|date:"j M Y" }}</td>
+        {% if can_remove %}
+        <td class="ledger__act">{% if s.user_id != user.pk and s.role != 'EXECUTIVE' %}<button type="button" class="link-btn link-btn--danger" data-action="member:remove" data-url="{% url 'member_remove' organization.pk s.pk %}" data-name="{{ s.user.get_full_name|default:s.user.username }}" aria-label="Remove {{ s.user.get_full_name|default:s.user.username }}">Remove</button>{% endif %}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if can_leave %}
+<section class="card leave" aria-labelledby="leave-title">
+  <div>
+    <h2 class="card__title" id="leave-title">Leave this organization</h2>
+    <p class="t-muted">{% if sole_executive %}You are the only Executive, so you cannot leave until the organization has another one.{% else %}You lose access to its records. To come back you need a new join code from an officer. Seats from closed A.Y.s stay on the record.{% endif %}</p>
+  </div>
+  <button type="button" class="btn btn--outline" data-action="member:leave"{% if sole_executive %} disabled{% endif %}>{% include "shared/ui/_icon.html" with name="sign-out" class="icon--sm" %}Leave organization</button>
+</section>
+
+<dialog class="overlay modal" id="member-leave-modal" aria-labelledby="member-leave-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="member-leave-title">Leave {{ organization.name }}?</h2>
+    <div class="modal__body"><p>You will lose access to its records. To come back you will need a new join code from an officer.</p></div>
+    <form method="post" id="member-leave-form" action="{% url 'member_leave' organization.pk %}">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Stay</button>
+      <button type="submit" form="member-leave-form" class="btn btn--danger">Leave organization</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+
+{% if can_remove %}
+<dialog class="overlay modal" id="member-remove-modal" aria-labelledby="member-remove-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="member-remove-title">Remove <span data-member="name">this person</span>?</h2>
+    <div class="modal__body"><p>They lose their seat in {{ ay }} and can no longer open this organization's records. Their seats in closed A.Y.s stay on the record. They can come back with a new join code.</p></div>
+    <form method="post" id="member-remove-form" action="">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep them</button>
+      <button type="submit" form="member-remove-form" class="btn btn--danger">Remove from {{ ay }}</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

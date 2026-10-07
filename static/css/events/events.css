@@ -1,0 +1,17 @@
+/* Events: the log ledger, one event's record, and the form. */
+.events .events__link { color: var(--text-strong); text-decoration: none; }
+.events tr.is-past .ledger__primary { color: var(--text-body); }
+.events td .ledger__secondary { margin-top: 2px; max-width: 52ch; }
+@media (hover: hover) and (pointer: fine) { .events .events__link:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.events .events__link:focus-visible { outline: 2px solid var(--charcoal-800); outline-offset: 2px; border-radius: 2px; }
+.page-head + .alert { margin-bottom: var(--space-6); align-items: center; }
+.page-head + .alert p { margin: 0; }
+
+.event-body { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .event-body { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; } }
+.event-text { display: grid; gap: var(--space-5); }
+.prose { margin: var(--space-2) 0 0; white-space: pre-line; max-width: 68ch; line-height: var(--leading-body, 1.6); color: var(--text-body); }
+.btn--danger-quiet { color: var(--danger-fg); }
+
+.event-form { max-width: 44rem; }
+.event-form__foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-3); padding-top: var(--space-2); }
