@@ -90,17 +90,17 @@ lives and how the pages look.
 python -m venv venv
 source venv/bin/activate        # venv\Scripts\activate on Windows
 pip install -r requirements.txt
-cp .env.example .env             # then fill in SECRET_KEY and your Supabase DB_* values
+cp .env.example .env             # set SECRET_KEY; DATABASE_URL already points at a local SQLite file
 python manage.py check
-python manage.py makemigrations
-python manage.py migrate
+python manage.py migrate         # applies accounts 0001, 0002, 0003. Do not run makemigrations or delete them.
 python manage.py createsuperuser
 python manage.py runserver
 ```
 
-This project intentionally ships **without** `db.sqlite3` or a real
-`.env`, since the app-label restructuring (`authentication` → `login` /
-`register` / `accounts`) means old migration history from a previous
-SQLite/Postgres database won't line up. Run `makemigrations` + `migrate`
-against a fresh Supabase database as described in Sections 11–14 of the
-student guide.
+Then open http://127.0.0.1:8000/ . Register an account, then on Home create an organization.
+
+**Start from an empty database.** This project ships migrations (`apps/accounts/migrations/0001` to `0003`).
+If you ran an older copy of OrgLegacy before, its tables will not match: delete the old `db.sqlite3`, or point
+`DATABASE_URL` at a new empty Postgres/Supabase database, then run `migrate`.
+
+Run the tests with `python manage.py test` (about 115 tests; they use a temporary database).
