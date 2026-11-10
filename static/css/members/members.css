@@ -1,0 +1,12 @@
+/* Members: the roster ledger and the leave card. */
+.members .who { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.members .who__text { display: grid; min-width: 0; text-align: left; }
+.members .who__you { font: var(--weight-regular) var(--text-sm)/1 var(--font-ui); color: var(--text-muted); }
+.members .ledger__act { text-align: right; white-space: nowrap; }
+.members td .ledger__secondary { margin-top: 2px; }
+.link-btn--danger { color: var(--danger-fg); }
+@media (max-width: 640px) { .members .ledger__act { text-align: left; } .ledger--stack td.ledger__lead .who { display: flex; } }
+
+.leave { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4) var(--space-8); }
+.leave .t-muted { margin-top: var(--space-1); max-width: 56ch; font-size: var(--text-sm); }
+.leave .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
