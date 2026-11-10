@@ -1,0 +1,64 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Suppliers | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/suppliers/suppliers.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Suppliers</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/suppliers/suppliers.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  SUPPLIERS (the directory). Context: suppliers (Supplier rows annotated with average and votes), can_manage (Executive, ACTIVE A.Y.),
+  form (SupplierForm, only when can_manage), open_dialog (set when the server sends the dialog back with a mistake).
+  The directory belongs to the organization, not to one A.Y. Opening a supplier goes to its page, where it is rated and kept.
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Suppliers</h1>
+    <p class="page-head__sub">{{ organization.name }}. Who the organization has bought from, what it cost and how it went. It stays when officers change.</p>
+  </div>
+  {% if can_manage %}
+  <div class="page-head__actions">
+    <button type="button" class="btn btn--primary" data-dialog-open="supplier-add-modal">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Add a supplier</button>
+  </div>
+  {% endif %}
+</header>
+
+{% if suppliers %}
+<div class="ledger-wrap">
+  <table class="ledger ledger--stack suppliers">
+    <thead><tr><th scope="col">Supplier</th><th scope="col">Contact</th><th scope="col">Rating</th></tr></thead>
+    <tbody>
+      {% for s in suppliers %}
+      <tr>
+        <td class="ledger__lead" data-label="Supplier"><a class="ledger__primary suppliers__link" href="{% url 'supplier_detail' organization.pk s.pk %}">{{ s.name }}</a></td>
+        <td data-label="Contact"><span class="suppliers__contact">{{ s.contact_info|truncatechars:70 }}</span></td>
+        <td data-label="Rating">{% if s.votes %}<span class="t-mono suppliers__score">{{ s.average|floatformat:1 }}</span> <span class="t-muted">of 5 &middot; {{ s.votes }} rating{{ s.votes|pluralize }}</span>{% else %}<span class="t-muted">No ratings yet</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <h2 class="empty__title">No suppliers listed yet.</h2>
+  <p class="empty__text">Add the printers, caterers and venues you work with. Members can then rate them, and whoever comes next will know who to call and who to avoid.</p>
+</div>
+{% endif %}
+
+{% if can_manage %}
+<dialog class="overlay modal modal--form" id="supplier-add-modal" aria-labelledby="supplier-add-title"{% if open_dialog == 'supplier-add-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">New</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="supplier-add-title">Add a supplier</h2></div>
+    <form method="post" action="{% url 'supplier_create' organization.pk %}" id="supplier-add-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      {% include "suppliers/_supplier_fields.html" %}
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="supplier-add-form" class="btn btn--primary">Add supplier</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

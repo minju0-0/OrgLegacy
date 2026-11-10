@@ -1,0 +1,108 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}{{ supplier.name }} | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/suppliers/suppliers.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><a href="{% url 'supplier_list' organization.pk %}">Suppliers</a><span aria-hidden="true">/</span><strong>{{ supplier.name|truncatechars:28 }}</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/suppliers/suppliers.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  SUPPLIER. Context: supplier, ratings (newest first, with rated_by), votes, average (None if unrated), my_rating (this person's, or None),
+  score_choices, can_rate (ACTIVE A.Y., any member), can_manage (Executive, ACTIVE A.Y.), edit_form, open_dialog.
+  The rating form posts to the ratings app. Editing and deleting are the Executives' and post to this app.
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{{ supplier.name }}</h1>
+    <p class="page-head__sub">{% if votes %}<span class="t-mono">{{ average|floatformat:1 }}</span> of 5 &middot; {{ votes }} rating{{ votes|pluralize }}{% else %}No ratings yet{% endif %}</p>
+  </div>
+  {% if can_rate or can_manage %}
+  <div class="page-head__actions">
+    {% if can_rate %}<button type="button" class="btn btn--primary" data-dialog-open="rating-modal">{% if my_rating %}Change your rating{% else %}Rate this supplier{% endif %}</button>{% endif %}
+    {% if can_manage %}<button type="button" class="btn btn--outline" data-dialog-open="supplier-edit-modal">Edit</button>
+    <button type="button" class="btn btn--outline btn--danger-quiet" data-dialog-open="supplier-delete-modal">Delete</button>{% endif %}
+  </div>
+  {% endif %}
+</header>
+
+<div class="supplier-body">
+  <section class="catalogue supplier-facts" aria-labelledby="record-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head"><h2 class="catalogue__title" id="record-title">The record</h2></div>
+    <div class="catalogue__body">
+      <dl class="dl dl--stack">
+        <div><dt>How to reach them</dt><dd class="prose">{{ supplier.contact_info }}</dd></div>
+        <div><dt>Prices and cost notes</dt><dd class="prose">{% if supplier.cost_notes %}{{ supplier.cost_notes }}{% else %}<span class="t-muted">None written yet.</span>{% endif %}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="ratings-title">
+    <h2 class="card__title" id="ratings-title">Ratings</h2>
+    {% if ratings %}
+    <ul class="ratings" role="list">
+      {% for r in ratings %}
+      <li class="ratings__row">
+        <span class="chip chip--outline ratings__score" aria-label="{{ r.score }} out of 5">{{ r.score }} / 5</span>
+        <div class="ratings__text"><span class="ratings__who">{{ r.rated_by.get_full_name|default:r.rated_by.username }}{% if r.rated_by_id == user.pk %} <span class="t-muted">(you)</span>{% endif %}</span>{% if r.comment %}<p class="prose">{{ r.comment }}</p>{% endif %}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="t-muted">Nobody has rated {{ supplier.name }} yet.{% if can_rate %} If you have worked with them, be the first.{% endif %}</p>
+    {% endif %}
+  </section>
+</div>
+
+{% if can_rate %}
+<dialog class="overlay modal modal--form" id="rating-modal" aria-labelledby="rating-title">
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Rate</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="rating-title">{% if my_rating %}Change your rating{% else %}Rate {{ supplier.name }}{% endif %}</h2></div>
+    <p class="t-muted">Your name shows beside it. One rating each, so rating again replaces yours.</p>
+    <form method="post" action="{% url 'rating_submit' organization.pk supplier.pk %}" id="rating-form" class="modal__form form-stack">
+      {% csrf_token %}
+      <div class="field"><label class="field__label" for="rating-score">Score</label>
+        <div class="field__control"><select class="form-input" id="rating-score" name="score" required>
+          {% for value, label in score_choices %}<option value="{{ value }}"{% if my_rating.score == value %} selected{% elif not my_rating and value == 4 %} selected{% endif %}>{{ value }} &ndash; {{ label }}</option>{% endfor %}
+        </select></div></div>
+      <div class="field"><label class="field__label" for="rating-comment">Comment (optional)</label>
+        <div class="field__control"><textarea class="form-input" id="rating-comment" name="comment" rows="4" maxlength="1000" placeholder="On time? Fair price? Would you use them again?">{{ my_rating.comment }}</textarea></div></div>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="rating-form" class="btn btn--primary">Save rating</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+
+{% if can_manage %}
+<dialog class="overlay modal modal--form" id="supplier-edit-modal" aria-labelledby="supplier-edit-title"{% if open_dialog == 'supplier-edit-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Edit</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="supplier-edit-title">Edit {{ supplier.name }}</h2></div>
+    <form method="post" action="{% url 'supplier_edit' organization.pk supplier.pk %}" id="supplier-edit-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      {% include "suppliers/_supplier_fields.html" with form=edit_form %}
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="supplier-edit-form" class="btn btn--primary">Save changes</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="overlay modal" id="supplier-delete-modal" aria-labelledby="supplier-delete-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="supplier-delete-title">Remove {{ supplier.name }}?</h2>
+    <div class="modal__body"><p>It leaves the directory for good{% if votes %}, and its {{ votes }} rating{{ votes|pluralize }} go with it{% endif %}. This cannot be undone.</p></div>
+    <form method="post" id="supplier-delete-form" action="{% url 'supplier_delete' organization.pk supplier.pk %}">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep it</button>
+      <button type="submit" form="supplier-delete-form" class="btn btn--danger">Remove supplier</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}
