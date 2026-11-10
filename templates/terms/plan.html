@@ -1,0 +1,65 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Next A.Y. | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/terms/terms.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Next A.Y.</strong>{% endblock %}
+
+{% block content %}
+{% comment %}
+  NEXT A.Y. (Executives). Context: plan (TermPlan or None), form (PlanForm), can_plan (ACTIVE A.Y.).
+  This only records the next A.Y.'s name and dates. Closing this A.Y. and handing over is a later step (sign-off).
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Next A.Y.</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. Set up the A.Y. that follows while this one is still running.</p>
+  </div>
+  {% if plan and can_plan %}
+  <div class="page-head__actions"><button type="button" class="btn btn--outline btn--danger-quiet" data-dialog-open="plan-clear-modal">Clear plan</button></div>
+  {% endif %}
+</header>
+
+{% if not can_plan %}
+<div class="alert alert--info" role="status">{% include "shared/ui/_icon.html" with name="lock" %}<p>This A.Y. is awaiting approval, so the plan is locked with it.</p></div>
+{% endif %}
+
+<div class="plan-body">
+  <section class="catalogue plan-now" aria-labelledby="plan-now-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head"><h2 class="catalogue__title" id="plan-now-title">{% if plan %}{{ plan.label }}{% else %}Nothing set up yet{% endif %}</h2>{% if plan %}<p class="catalogue__sub t-mono">{{ plan.start_date|date:"j M Y" }} to {{ plan.end_date|date:"j M Y" }}</p>{% endif %}</div>
+    <div class="catalogue__body">
+      <dl class="dl">
+        <div><dt>Current A.Y.</dt><dd class="t-mono">{{ ay }}, ends {{ term.end_date|date:"j M Y" }}</dd></div>
+        <div><dt>Next A.Y.</dt><dd>{% if plan %}<span class="t-mono">{{ plan.label }}</span>{% else %}<span class="t-muted">Not set up</span>{% endif %}</dd></div>
+        {% if plan and plan.created_by %}<div><dt>Set up by</dt><dd>{{ plan.created_by.get_full_name|default:plan.created_by.username }}</dd></div>{% endif %}
+      </dl>
+      <p class="t-muted plan-now__note">The plan is only a record of what you intend. Nothing closes and nobody changes seat until the handover, which needs every Executive to approve.</p>
+    </div>
+  </section>
+
+  {% if can_plan %}
+  <form method="post" action="{% url 'term_plan_save' organization.pk %}" class="card plan-form form-stack" novalidate>
+    <h2 class="card__title">{% if plan %}Change the plan{% else %}Set it up{% endif %}</h2>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}<ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+    {% include "shared/ui/_field.html" with field=form.academic_year %}
+    <div class="field-row">{% include "shared/ui/_field.html" with field=form.start_date %}{% include "shared/ui/_field.html" with field=form.end_date %}</div>
+    <div class="plan-form__foot"><button type="submit" class="btn btn--primary">{% if plan %}Save changes{% else %}Set up next A.Y.{% endif %}</button></div>
+  </form>
+  {% endif %}
+</div>
+
+{% if plan and can_plan %}
+<dialog class="overlay modal" id="plan-clear-modal" aria-labelledby="plan-clear-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="plan-clear-title">Clear the plan for {{ plan.label }}?</h2>
+    <div class="modal__body"><p>The name and dates are removed. Nothing else changes, and you can set up a next A.Y. again any time.</p></div>
+    <form method="post" id="plan-clear-form" action="{% url 'term_plan_clear' organization.pk %}">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep it</button>
+      <button type="submit" form="plan-clear-form" class="btn btn--danger">Clear plan</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

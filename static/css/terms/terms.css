@@ -1,0 +1,9 @@
+/* Next A.Y.: what is planned, and the short form that plans it. */
+.plan-body { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .plan-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+.plan-now__note { margin: var(--space-4) 0 0; font-size: var(--text-sm); max-width: 52ch; }
+.plan-form { max-width: 36rem; }
+.plan-form__foot { display: flex; justify-content: flex-end; padding-top: var(--space-2); }
+.page-head + .alert { margin-bottom: var(--space-6); align-items: center; }
+.page-head + .alert p { margin: 0; }
+.btn--danger-quiet { color: var(--danger-fg); }
