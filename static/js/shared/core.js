@@ -302,3 +302,30 @@
     i.addEventListener('focus', function () { rules.open = true; });
   });
 })();
+
+
+/* ---- Network helper for the data-action hooks: OL.post(url, data) -> Promise of the JSON answer ----
+   Sends JSON with the CSRF token. When the server refuses it answers {"error": "..."} and this rejects
+   with Error(message), which is exactly what a dialog shows. See apps/shared/http.py. */
+(function () {
+  'use strict';
+  var OL = window.OL = window.OL || {};
+  OL.csrf = function () {
+    var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    if (m) return decodeURIComponent(m[1]);
+    var i = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return i ? i.value : '';
+  };
+  OL.post = function (url, data) {
+    return fetch(url, {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRFToken': OL.csrf() },
+      body: JSON.stringify(data || {})
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.error || 'Something went wrong. Try again.');
+        return j;
+      });
+    }, function () { throw new Error('Check your connection and try again.'); });
+  };
+})();
