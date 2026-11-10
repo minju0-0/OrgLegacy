@@ -1,0 +1,110 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Committees | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/committees/committees.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Committees</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/committees/committees.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  COMMITTEES. Context: committees [{id, name, active, head, size}], can_edit (Executive on an ACTIVE A.Y.),
+  add_form, rename_form + rename_target (only when a rename failed), open_dialog (id of the dialog to reopen on a mistake).
+  Hooks: committee:rename, committee:deactivate. Reactivating is a plain form post.
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Committees</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. The divisions of the organization and who leads each one.</p>
+  </div>
+  {% if can_edit %}
+  <div class="page-head__actions">
+    <button type="button" class="btn btn--primary" data-dialog-open="committee-add-modal">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Add a committee</button>
+  </div>
+  {% endif %}
+</header>
+
+{% if not access.is_open %}
+<div class="alert alert--info" role="status">{% include "shared/ui/_icon.html" with name="lock" %}<p>This A.Y. cannot be changed, so committees are read-only.</p></div>
+{% endif %}
+
+{% if committees %}
+<div class="ledger-wrap">
+  <table class="ledger ledger--stack committees">
+    <thead><tr><th scope="col">Committee</th><th scope="col">Head</th><th scope="col" class="num">People</th><th scope="col">Status</th>{% if can_edit %}<th scope="col"><span class="sr-only">Actions</span></th>{% endif %}</tr></thead>
+    <tbody>
+      {% for c in committees %}
+      <tr{% if not c.active %} class="is-inactive"{% endif %}>
+        <td class="ledger__lead" data-label="Committee"><span class="ledger__primary">{{ c.name }}</span></td>
+        <td data-label="Head">{% if c.head %}{{ c.head.get_full_name|default:c.head.username }}{% else %}<span class="t-muted">No head yet</span>{% endif %}</td>
+        <td class="num" data-label="People">{{ c.size }}</td>
+        <td data-label="Status">{% if c.active %}<span class="chip chip--outline">Active</span>{% else %}<span class="chip chip--neutral">Inactive</span>{% endif %}</td>
+        {% if can_edit %}
+        <td class="ledger__act">
+          <button type="button" class="link-btn" data-action="committee:rename" data-url="{% url 'committee_rename' organization.pk c.id %}" data-name="{{ c.name }}" aria-label="Rename {{ c.name }}">Rename</button>
+          {% if c.active %}
+          <button type="button" class="link-btn link-btn--danger" data-action="committee:deactivate" data-url="{% url 'committee_toggle' organization.pk c.id %}" data-name="{{ c.name }}" aria-label="Deactivate {{ c.name }}">Deactivate</button>
+          {% else %}
+          <form method="post" action="{% url 'committee_toggle' organization.pk c.id %}" class="inline-form">{% csrf_token %}<button type="submit" class="link-btn" aria-label="Reactivate {{ c.name }}">Reactivate</button></form>
+          {% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <h2 class="empty__title">No committees yet.</h2>
+  <p class="empty__text">Committees split the organization into divisions, like Logistics or Creatives. Each can have one Committee Head per A.Y. who brings members in with join codes.</p>
+</div>
+{% endif %}
+
+{% if can_edit %}
+{# 1. Add a committee #}
+<dialog class="overlay modal modal--form" id="committee-add-modal" aria-labelledby="committee-add-title"{% if open_dialog == 'committee-add-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">New</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="committee-add-title">Add a committee</h2></div>
+    <p class="t-muted">Committees stay in the record. You can rename one later or make it inactive, but never lose what was logged under it.</p>
+    <form method="post" action="{% url 'committee_create' organization.pk %}" id="committee-add-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      {% include "shared/ui/_field.html" with field=add_form.name %}
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="committee-add-form" class="btn btn--primary">Add committee</button>
+    </div>
+  </div>
+</dialog>
+
+{# 2. Rename. The form action and the current name are filled in by committees.js, or by the server after a mistake. #}
+<dialog class="overlay modal modal--form" id="committee-rename-modal" aria-labelledby="committee-rename-title"{% if open_dialog == 'committee-rename-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Rename</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="committee-rename-title">Rename <span data-committee="name">{{ rename_target.name|default:"this committee" }}</span></h2></div>
+    <form method="post" action="{% if rename_target %}{% url 'committee_rename' organization.pk rename_target.pk %}{% endif %}" id="committee-rename-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      {% include "shared/ui/_field.html" with field=rename_form.name %}
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="committee-rename-form" class="btn btn--primary">Save name</button>
+    </div>
+  </div>
+</dialog>
+
+{# 3. Deactivate #}
+<dialog class="overlay modal" id="committee-deactivate-modal" aria-labelledby="committee-deactivate-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="committee-deactivate-title">Make <span data-committee="name">this committee</span> inactive?</h2>
+    <div class="modal__body"><p>It stops taking new people and its join codes are cancelled. Its members, notes and history stay in the record, and you can bring it back any time.</p></div>
+    <form method="post" id="committee-deactivate-form" action="">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep it active</button>
+      <button type="submit" form="committee-deactivate-form" class="btn btn--danger">Make inactive</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}
