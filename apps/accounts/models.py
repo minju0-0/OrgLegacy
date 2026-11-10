@@ -76,6 +76,28 @@ class Term(models.Model):
         return f"{self.organization} - {self.label}"
 
 
+# TermPlan: the next A.Y. an organization has set up while the current one is still live.
+# A Term row can only be ACTIVE, PENDING_SIGNOFF or CLOSED, and only one may be live, so the next A.Y.'s name and
+# dates wait here until the sign-off (Phase 6) closes the current term and turns this plan into the new ACTIVE Term.
+class TermPlan(models.Model):
+    term = models.OneToOneField(Term, on_delete=models.CASCADE, related_name="plan")
+    label = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="term_plans"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(end_date__gt=models.F("start_date")), name="term_plan_end_after_start"),
+        ]
+
+    def __str__(self):
+        return f"{self.label} (after {self.term})"
+
+
 # Membership  (junction: User - Organization / Committee / Term)
 class Membership(models.Model):
     class Role(models.TextChoices):
@@ -176,15 +198,41 @@ class Event(models.Model):
     term = models.ForeignKey(
         Term, on_delete=models.CASCADE, related_name="events"
     )
+    committee = models.ForeignKey(
+        Committee, null=True, blank=True, on_delete=models.SET_NULL, related_name="events"
+    )  # optional tag: which committee the event belongs to; empty means organization-wide
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="events_created"
+    )
     title = models.CharField(max_length=200)
     date = models.DateField()
     budget = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    description = models.TextField()
-    volunteers = models.TextField(blank=True)
-    challenges_lessons = models.TextField(blank=True)
+    description = models.TextField()  # what the event is for, written when it is planned
+    # Picked from the organization's members, never typed. Only they can write logs on the event.
+    volunteers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="volunteered_events"
+    )
 
     def __str__(self):
         return self.title
+
+
+# EventLog: a volunteer's own account of an event, written once the event's day has come
+class EventLog(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="logs")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="event_logs"
+    )
+    what_happened = models.TextField()
+    challenges_lessons = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"{self.event} log by {self.author}"
 
 
 # Supplier
