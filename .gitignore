@@ -1,8 +1,47 @@
+# Environment & Secrets (Supabase keys, Django SECRET_KEY, passwords)
 .env
-*.pyc
-__pycache__/
-db.sqlite3
+.env.*
+!.env.example
+
+# Virtual Environments
 venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Project-specific / scratch folders visible in explorer
+__MACOSX/
+ignore/
+inspo/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Django runtime, database & static collection
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# OS-generated metadata (cross-platform Mac & Windows)
 .DS_Store
-docs
-inspo
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
