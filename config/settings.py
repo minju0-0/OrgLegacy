@@ -58,6 +58,31 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.profile',
     'apps.settings',
+
+    # Organization and membership slices (Phase 1). One responsibility each:
+    #   organizations  charter an organization, its page and A.Y. shelf
+    #   committees     create, rename and deactivate committees
+    #   members        the roster, leaving, removing a member
+    #   joincodes      issue and revoke join codes
+    #   join           redeem a join code (preview, then confirm)
+    #   notifications  the bell: read, mark as read
+    'apps.organizations',
+    'apps.committees',
+    'apps.members',
+    'apps.joincodes',
+    'apps.join',
+    'apps.notifications',
+
+    # Phase 3: log what the organization did, scoped to its ACTIVE A.Y.
+    'apps.events',
+    'apps.eventlogs',   # volunteers write what happened, and what they learned, inside an event
+
+    # Phase 4: the vendor directory (suppliers) and rating one (ratings)
+    'apps.suppliers',
+    'apps.ratings',
+
+    # Phase 2: set up the next A.Y. while the current one is live
+    'apps.terms',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +107,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.notifications.context.bell',
             ],
         },
     },
@@ -97,7 +123,8 @@ DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
         conn_max_age=600,
-        ssl_require=True
+        # Supabase/Postgres needs SSL; a local sqlite file (used for quick test runs) does not.
+        ssl_require=not (os.getenv('DATABASE_URL') or '').startswith('sqlite'),
     )
 }
 
