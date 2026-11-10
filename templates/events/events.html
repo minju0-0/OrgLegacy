@@ -1,0 +1,72 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Events | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/events/events.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Events</strong>{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/events/events.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% comment %}
+  EVENTS. Context: rows [{event (with volunteer_count, log_count, committee), upcoming}], upcoming first, then past; can_plan (Executive or
+  Head, ACTIVE A.Y.); form (EventForm, only when can_plan); open_dialog (set when the server sends the dialog back with a mistake).
+  Opening an event goes to its page, where it is corrected and where volunteers write logs. This page does not edit.
+{% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Events</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. Plan what the organization does, pick who volunteers, and let them log what happened. It stays for whoever comes next.</p>
+  </div>
+  {% if can_plan %}
+  <div class="page-head__actions">
+    <button type="button" class="btn btn--primary" data-dialog-open="event-add-modal">{% include "shared/ui/_icon.html" with name="plus" class="icon--sm" %}Add an event</button>
+  </div>
+  {% endif %}
+</header>
+
+{% if not access.is_open %}
+<div class="alert alert--info" role="status">{% include "shared/ui/_icon.html" with name="lock" %}<p>This A.Y. cannot be changed, so the event log is read-only.</p></div>
+{% endif %}
+
+{% if rows %}
+<div class="ledger-wrap">
+  <table class="ledger ledger--stack events">
+    <thead><tr><th scope="col">Date</th><th scope="col">Event</th><th scope="col" class="num">Volunteers</th><th scope="col" class="num">Logs</th><th scope="col" class="num">Budget</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr{% if not r.upcoming %} class="is-past"{% endif %}>
+        <td class="ref" data-label="Date">{{ r.event.date|date:"j M Y" }}{% if r.upcoming %}<span class="events__when"><span class="chip chip--outline">Upcoming</span></span>{% endif %}</td>
+        <td class="ledger__lead" data-label="Event"><a class="ledger__primary events__link" href="{% url 'event_detail' organization.pk r.event.pk %}">{{ r.event.title }}</a><span class="ledger__secondary">{% if r.event.committee %}{{ r.event.committee.name }}{% else %}Whole organization{% endif %}</span></td>
+        <td class="num" data-label="Volunteers">{{ r.event.volunteer_count }}</td>
+        <td class="num" data-label="Logs">{{ r.event.log_count }}</td>
+        <td class="num" data-label="Budget">{% if r.event.budget %}&#8369;{{ r.event.budget|floatformat:"2g" }}{% else %}<span class="t-muted">Not set</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  <h2 class="empty__title">No events yet.</h2>
+  <p class="empty__text">Add an event when you plan it and pick its volunteers. After the day, they write what happened and what they would do differently. Next year's officers will start from this.</p>
+</div>
+{% endif %}
+
+{% if can_plan %}
+<dialog class="overlay modal modal--form event-modal" id="event-add-modal" aria-labelledby="event-add-title"{% if open_dialog == 'event-add-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">New</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="event-add-title">Add an event</h2></div>
+    <p class="t-muted">Saved to {{ ay }}. Pick the volunteers now or later. Only they can write logs, once the day comes.</p>
+    <form method="post" action="{% url 'event_create' organization.pk %}" id="event-add-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      {% include "events/_event_fields.html" %}
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="event-add-form" class="btn btn--primary">Add event</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

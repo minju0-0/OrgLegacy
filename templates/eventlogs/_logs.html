@@ -1,0 +1,30 @@
+{% comment %}
+  The logs on an event. Included by events/event_detail.html. Context: logs [{log, can_edit, can_delete}], can_log, wait_to_log, event.
+  Hooks: eventlog:edit, eventlog:delete (static/js/eventlogs/eventlogs.js). Adding is the dialog in _log_dialogs.html.
+{% endcomment %}
+<section class="card logs" aria-labelledby="logs-title">
+  <div class="logs__head">
+    <h2 class="card__title" id="logs-title">Logs</h2>
+    {% if can_log %}<button type="button" class="btn btn--primary btn--sm" data-dialog-open="eventlog-add-modal">Add your log</button>{% endif %}
+  </div>
+  {% if wait_to_log %}<p class="t-muted logs__note">You are a volunteer. Logs open on {{ event.date|date:"j M Y" }}, the day of the event.</p>{% endif %}
+  {% if logs %}
+  <ul class="logs__list" role="list">
+    {% for item in logs %}
+    <li class="logs__item">
+      <div class="logs__meta"><span class="logs__who">{{ item.log.author.get_full_name|default:item.log.author.username|default:"Former member" }}{% if item.log.author_id == user.pk %} <span class="t-muted">(you)</span>{% endif %}</span><span class="t-mono t-muted">{{ item.log.created_at|date:"j M Y" }}</span></div>
+      <h3 class="logs__label">What happened</h3><p class="prose">{{ item.log.what_happened }}</p>
+      {% if item.log.challenges_lessons %}<h3 class="logs__label">Challenges and lessons</h3><p class="prose">{{ item.log.challenges_lessons }}</p>{% endif %}
+      {% if item.can_edit or item.can_delete %}
+      <div class="logs__act">
+        {% if item.can_edit %}<button type="button" class="link-btn" data-action="eventlog:edit" data-url="{% url 'eventlog_edit' organization.pk event.pk item.log.pk %}" data-what="{{ item.log.what_happened }}" data-lessons="{{ item.log.challenges_lessons }}">Edit</button>{% endif %}
+        {% if item.can_delete %}<button type="button" class="link-btn link-btn--danger" data-action="eventlog:delete" data-url="{% url 'eventlog_delete' organization.pk event.pk item.log.pk %}">Delete</button>{% endif %}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="t-muted">{% if not event.volunteers.exists %}Pick volunteers for this event and they can write logs here once the day comes.{% elif logging_open %}No logs yet. The volunteers can write what happened and what they learned.{% else %}No logs yet. They open on the day of the event.{% endif %}</p>
+  {% endif %}
+</section>

@@ -1,0 +1,19 @@
+{% comment %} The event's fields, shared by the Add dialog and the Edit page. Pass form=.
+  Committee and budget appear only for Executives. Volunteers are ticked from the organization's members. {% endcomment %}
+{% if form.non_field_errors %}<div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}<ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+{% include "shared/ui/_field.html" with field=form.title %}
+<div class="field-row">{% include "shared/ui/_field.html" with field=form.date %}{% if form.budget %}{% include "shared/ui/_field.html" with field=form.budget %}{% endif %}</div>
+{% if form.committee %}{% include "shared/ui/_field.html" with field=form.committee %}{% endif %}
+{% include "shared/ui/_field.html" with field=form.description %}
+<fieldset class="field vol{% if form.volunteers.errors %} field--invalid{% endif %}">
+  <legend class="field__label">Volunteers</legend>
+  {% if form.volunteers.field.queryset.exists %}
+  <div class="vol__list">
+    {% for opt in form.volunteers %}
+    <label class="vol__item" for="{{ opt.id_for_label }}">{{ opt.tag }}<span>{{ opt.choice_label }}</span></label>
+    {% endfor %}
+  </div>
+  {% else %}<p class="t-muted">Nobody has joined this A.Y. yet.</p>{% endif %}
+  <div class="field__help">{{ form.volunteers.help_text }}</div>
+  {% for error in form.volunteers.errors %}<p class="field__error" data-field-error>{% include "shared/ui/_icon.html" with name="warning-circle" class="icon--sm" %}<span>{{ error }}</span></p>{% endfor %}
+</fieldset>

@@ -1,0 +1,44 @@
+/* Events: the log ledger, one event's record, and the form. */
+.events .events__link { color: var(--text-strong); text-decoration: none; }
+.events tr.is-past .ledger__primary { color: var(--text-body); }
+.events td .ledger__secondary { margin-top: 2px; max-width: 52ch; }
+@media (hover: hover) and (pointer: fine) { .events .events__link:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.events .events__link:focus-visible { outline: 2px solid var(--charcoal-800); outline-offset: 2px; border-radius: 2px; }
+.page-head + .alert { margin-bottom: var(--space-6); align-items: center; }
+.page-head + .alert p { margin: 0; }
+
+.event-body { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .event-body { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; } }
+.event-side, .event-main { display: grid; gap: var(--space-5); align-content: start; min-width: 0; }
+.prose { margin: var(--space-2) 0 0; white-space: pre-line; max-width: 68ch; line-height: var(--leading-body, 1.6); color: var(--text-body); }
+.btn--danger-quiet { color: var(--danger-fg); }
+
+.event-form { max-width: 44rem; }
+.event-form__foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-3); padding-top: var(--space-2); }
+
+/* The Log dialog holds a longer form, so it scrolls inside the viewport instead of running off it */
+.event-modal .modal__panel { max-height: calc(100dvh - var(--space-6)); overflow-y: auto; overscroll-behavior: contain; }
+.event-modal { width: min(100% - var(--space-6), 40rem); }
+
+.events__when { display: block; margin-top: var(--space-1); }
+
+/* Volunteers: a ticked list that scrolls instead of making the dialog endless */
+.vol { border: 0; margin: 0; padding: 0; min-width: 0; }
+.vol__list { display: grid; gap: 0; max-height: 14rem; overflow-y: auto; border: 1px solid var(--border-hairline); border-radius: var(--radius-md); background: var(--surface-card); }
+.vol__item { display: flex; align-items: center; gap: var(--space-3); min-height: var(--tap, 2.75rem); padding: var(--space-2) var(--space-4); cursor: pointer; }
+.vol__item + .vol__item { border-top: var(--ledger-dotted); }
+.vol__item input { flex: none; width: 1.125rem; height: 1.125rem; }
+@media (hover: hover) and (pointer: fine) { .vol__item:hover { background: var(--kraft-50); } }
+.vol-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+
+/* Logs */
+.logs__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.logs__note { margin: var(--space-2) 0 0; font-size: var(--text-sm); }
+.logs__list { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.logs__item { padding: var(--space-5) 0; }
+.logs__item + .logs__item { border-top: var(--ledger-dotted); }
+.logs__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) var(--space-4); }
+.logs__who { font-weight: var(--weight-semi); color: var(--text-strong); }
+.logs__label { margin: var(--space-3) 0 0; font: var(--weight-semi) var(--text-xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); }
+.logs__act { display: flex; gap: var(--space-5); margin-top: var(--space-3); }
+.link-btn--danger { color: var(--danger-fg); }

@@ -1,0 +1,24 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Edit event | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/events/events.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><a href="{% url 'event_list' organization.pk %}">Events</a><span aria-hidden="true">/</span><strong>Edit event</strong>{% endblock %}
+
+{% block content %}
+{% comment %} EVENT EDIT PAGE. Context: form (EventForm), event. Adding an event is the dialog on the Events page. Committee and budget appear only for Executives. {% endcomment %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Edit event</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. Changes are saved to this A.Y.</p>
+  </div>
+</header>
+
+<form method="post" class="card event-form form-stack" novalidate>
+  {% csrf_token %}
+  {% include "events/_event_fields.html" %}
+  <div class="event-form__foot">
+    <a class="btn btn--outline" href="{% url 'event_detail' organization.pk event.pk %}">Cancel</a>
+    <button type="submit" class="btn btn--primary">Save changes</button>
+  </div>
+</form>
+{% endblock %}
