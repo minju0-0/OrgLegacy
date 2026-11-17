@@ -1,13 +1,48 @@
 /* Profile screen.
    Works as is:   saving the details form without a page reload; the photo dialog up to Save
                   (choose or drop a file, it is checked and previewed).
-   Needs logic:   register with OL.register (see docs/PROFILE_SETTINGS.md)
+   Hooks:
      profile:avatar-save    (el, {file})   upload the File; resolve to close, reject(Error('message')) to show it
      profile:avatar-remove  (el)           remove the photo
      org:open               (el, {org})    open an organization from the shelf or the ledger */
 (function () {
   'use strict';
   var $ = function (s, r) { return (r || document).querySelector(s); };
+  var OL = window.OL;
+
+  if (OL) {
+    OL.register('profile:avatar-save', function (el, d) {
+      var fd = new FormData();
+      fd.append('avatar', d.file);
+      return fetch('/profile/avatar/', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'X-CSRFToken': OL.csrf() },
+        body: fd
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) throw new Error(j.error || 'Could not save your photo.');
+          var headAvatar = document.querySelector('.profile-head .avatar');
+          if (headAvatar && j.avatar_url) {
+            headAvatar.innerHTML = '<img class="avatar__img" src="' + j.avatar_url + '" alt="">';
+          }
+          if (window.olToast) window.olToast('Your photo was updated.', 'success');
+          return j;
+        });
+      });
+    });
+
+    OL.register('profile:avatar-remove', function () {
+      return OL.post('/profile/avatar/remove/', {}).then(function (j) {
+        var preview = document.querySelector('[data-avatar-preview]');
+        var initials = preview ? (preview.getAttribute('data-initials') || '') : '';
+        var headAvatar = document.querySelector('.profile-head .avatar');
+        if (headAvatar) headAvatar.textContent = initials;
+        if (window.olToast) window.olToast('Your photo was removed.', 'success');
+        return j;
+      });
+    });
+  }
 
   /* ---------------- Save the details form over fetch ---------------- */
   var form = document.getElementById('profile-form');
@@ -32,7 +67,6 @@
       } else {
         note.textContent = 'Saved.'; note.className = 'form-feedback is-ok';
         if (window.olToast) window.olToast('Your profile has been updated.', 'success');
-        // keep the header and the topbar in step with what was saved
         var d = doc.querySelector('.profile-head'), h = document.querySelector('.profile-head');
         if (d && h) h.innerHTML = d.innerHTML;
         var tb = doc.querySelector('.topbar__user'), cur = document.querySelector('.topbar__user');
@@ -74,8 +108,11 @@
   save.addEventListener('click', function () {
     if (!file) return;
     save.disabled = true;
-    var kept = OL.run('profile:avatar-save', save, { file: file }, function () { window.olDialog.close(dlg); }, function (m) { say(m, 'error'); save.disabled = false; });
-    if (!kept) save.disabled = false;     // not connected: toast shown, the chosen photo stays
+    var kept = OL.run('profile:avatar-save', save, { file: file }, function (res) {
+      if (res && res.avatar_url) original = '<img class="avatar__img" src="' + res.avatar_url + '" alt="">';
+      window.olDialog.close(dlg);
+    }, function (m) { say(m, 'error'); save.disabled = false; });
+    if (!kept) save.disabled = false;
   });
   var rm = $('[data-avatar-remove]', root);
   if (rm) rm.addEventListener('click', function () {
