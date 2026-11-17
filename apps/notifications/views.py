@@ -1,12 +1,14 @@
-"""Notifications: mark them read, and follow one to where it points. Writing them is apps/shared/notify.py."""
+"""Notifications: mark them read, list all, and follow one to where it points. Writing them is apps/shared/notify.py."""
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from apps.accounts.models import Notification
 from apps.shared.http import json_login_required
+
+from .context import format_notification
 
 
 @require_POST
@@ -15,6 +17,14 @@ def read_all_view(request):
     """Bell hook notifications:mark-all-read."""
     changed = Notification.objects.filter(recipient=request.user, read=False).update(read=True)
     return JsonResponse({"marked": changed})
+
+
+@require_GET
+@json_login_required
+def all_view(request):
+    """Bell hook notifications:view-all. Returns up to 50 recent notifications."""
+    rows = Notification.objects.filter(recipient=request.user).order_by("-created_at", "-pk")[:50]
+    return JsonResponse({"notifications": [format_notification(n) for n in rows]})
 
 
 @login_required
