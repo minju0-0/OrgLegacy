@@ -1,0 +1,144 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Archive | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/archive/archive.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Archive</strong>{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Archive</h1>
+    <p class="page-head__sub">{{ organization.name }}. Search past events, lessons learned, supplier ratings, and handover notes across every academic year.</p>
+  </div>
+</header>
+
+<section class="card archive-search-card" aria-label="Archive search">
+  <form method="get" action="{% url 'archive_search' organization.pk %}" class="archive-form">
+    <div class="search-input-wrap">
+      {% include "shared/ui/_icon.html" with name="magnifying-glass" class="search-icon" %}
+      <label for="archive-q" class="sr-only">Search archive</label>
+      <input type="search" id="archive-q" name="q" value="{{ q }}" placeholder="Search events, suppliers, challenges, handover notes..." class="form-input search-input" autofocus>
+      <button type="submit" class="btn btn--primary">Search</button>
+    </div>
+
+    <div class="archive-filters">
+      <div class="seg" role="radiogroup" aria-label="Filter by type">
+        <label class="seg__btn"{% if kind == 'all' %} aria-pressed="true"{% endif %}>
+          <input type="radio" name="kind" value="all" class="sr-only"{% if kind == 'all' %} checked{% endif %} onchange="this.form.submit()">All
+        </label>
+        <label class="seg__btn"{% if kind == 'events' %} aria-pressed="true"{% endif %}>
+          <input type="radio" name="kind" value="events" class="sr-only"{% if kind == 'events' %} checked{% endif %} onchange="this.form.submit()">Events
+        </label>
+        <label class="seg__btn"{% if kind == 'notes' %} aria-pressed="true"{% endif %}>
+          <input type="radio" name="kind" value="notes" class="sr-only"{% if kind == 'notes' %} checked{% endif %} onchange="this.form.submit()">Handover notes
+        </label>
+        <label class="seg__btn"{% if kind == 'suppliers' %} aria-pressed="true"{% endif %}>
+          <input type="radio" name="kind" value="suppliers" class="sr-only"{% if kind == 'suppliers' %} checked{% endif %} onchange="this.form.submit()">Suppliers
+        </label>
+      </div>
+
+      <div class="term-switcher">
+        <label for="term-filter" class="term-switcher__label">A.Y.</label>
+        <select name="term" id="term-filter" onchange="this.form.submit()">
+          {% for opt in term_options %}
+          <option value="{{ opt.id }}"{% if selected_term == opt.id %} selected{% endif %}>{{ opt.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </form>
+</section>
+
+{% if q %}
+<section class="archive-results" aria-labelledby="results-title">
+  <div class="section-title">
+    <h2 id="results-title">
+      {% if total_results == 0 %}
+      No records matching &ldquo;{{ q }}&rdquo;
+      {% else %}
+      {{ total_results }} record{{ total_results|pluralize }} matching &ldquo;{{ q }}&rdquo;
+      {% endif %}
+    </h2>
+    {% if selected_term %}
+    <span class="chip chip--outline">Filtered by A.Y.</span>
+    {% endif %}
+  </div>
+
+  {% if results %}
+  <div class="ledger-wrap">
+    <table class="ledger ledger--stack archive-table">
+      <thead>
+        <tr>
+          <th scope="col">Record</th>
+          <th scope="col">Type</th>
+          <th scope="col">A.Y. &amp; Scope</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td class="ledger__lead" data-label="Record">
+            <a class="ledger__primary archive__link" href="{{ r.url }}">{{ r.title }}</a>
+            {% if r.snippet %}
+            <span class="ledger__secondary">{{ r.snippet|truncatewords:20 }}</span>
+            {% endif %}
+          </td>
+          <td data-label="Type">
+            {% if r.kind == 'event' %}
+            <span class="chip chip--blush">Event</span>
+            {% elif r.kind == 'note' %}
+            <span class="chip chip--head">Handover note</span>
+            {% else %}
+            <span class="chip chip--neutral">Supplier</span>
+            {% endif %}
+          </td>
+          <td data-label="A.Y. &amp; Scope">
+            <span class="t-mono">{{ r.ay }}</span>
+            <span class="ledger__secondary">{{ r.meta }}</span>
+          </td>
+          <td class="ref" data-label="Date">
+            {% if r.date %}{{ r.date|date:"j M Y" }}{% else %}&mdash;{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <h3 class="empty__title">No archive matches found.</h3>
+    <p class="empty__text">Check your spelling or switch the filter back to All across every A.Y.</p>
+  </div>
+  {% endif %}
+</section>
+{% else %}
+<section class="card archive-overview" aria-labelledby="overview-title">
+  <div class="card__head">
+    <div>
+      <h2 class="card__title" id="overview-title">Institutional Memory Ledger</h2>
+      <p class="card__sub">Everything recorded by {{ organization.name }} stays searchable here so lessons, contacts, and operational know-how carry over from one set of officers to the next.</p>
+    </div>
+  </div>
+
+  <div class="archive-stats">
+    <div class="kpi kpi--blush">
+      <div class="kpi__top"><span>Events logged</span>{% include "shared/ui/_icon.html" with name="calendar" class="icon--sm" %}</div>
+      <p class="kpi__value">{{ counts.events }}</p>
+    </div>
+    <div class="kpi kpi--charcoal">
+      <div class="kpi__top"><span>Suppliers</span>{% include "shared/ui/_icon.html" with name="package" class="icon--sm" %}</div>
+      <p class="kpi__value">{{ counts.suppliers }}</p>
+    </div>
+    <div class="kpi kpi--kraft">
+      <div class="kpi__top"><span>Handover notes</span>{% include "shared/ui/_icon.html" with name="note" class="icon--sm" %}</div>
+      <p class="kpi__value">{{ counts.notes }}</p>
+    </div>
+    <div class="kpi kpi--paper">
+      <div class="kpi__top"><span>Academic years</span>{% include "shared/ui/_icon.html" with name="books" class="icon--sm" %}</div>
+      <p class="kpi__value">{{ counts.terms }}</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

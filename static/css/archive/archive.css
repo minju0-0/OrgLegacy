@@ -1,0 +1,16 @@
+/* Archive search & institutional memory overview. Tokens from shared.css only. */
+.archive-form { display: grid; gap: var(--space-4); }
+
+.search-input-wrap { position: relative; display: flex; align-items: center; gap: var(--space-3); }
+.search-icon { position: absolute; left: var(--space-4); color: var(--text-muted); pointer-events: none; }
+.search-input { padding-left: 2.75rem; }
+
+.archive-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.seg label.seg__btn { display: inline-flex; align-items: center; }
+
+.archive__link { color: var(--text-strong); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  .archive__link:hover { color: var(--text-link); text-decoration: underline; }
+}
+
+.archive-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: var(--space-4); }
