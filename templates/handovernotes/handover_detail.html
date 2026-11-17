@@ -1,0 +1,122 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Handover Note | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/handovernotes/handovernotes.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><a href="{% url 'handover_list' organization.pk %}">Handover notes</a><span aria-hidden="true">/</span><strong>Note</strong>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/handovernotes/handovernotes.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">
+      {% if note.scope == 'ORGANIZATION' %}
+      Organization Handover Note
+      {% else %}
+      {{ note.committee.name }} Handover Note
+      {% endif %}
+    </h1>
+    <p class="page-head__sub">
+      {% if note.scope == 'ORGANIZATION' %}Whole organization{% else %}{{ note.committee.name }}{% endif %},
+      <span class="t-mono">{{ ay }}</span>. Written by {{ note.author.get_full_name|default:note.author.username }}.
+    </p>
+  </div>
+  {% if can_edit or can_delete %}
+  <div class="page-head__actions">
+    {% if can_edit %}
+    <button type="button" class="btn btn--outline" data-dialog-open="handover-edit-modal">{% include "shared/ui/_icon.html" with name="pencil" class="icon--sm" %}Edit note</button>
+    {% endif %}
+    {% if can_delete %}
+    <button type="button" class="btn btn--outline btn--danger-quiet" data-dialog-open="handover-delete-modal">{% include "shared/ui/_icon.html" with name="trash" class="icon--sm" %}Delete</button>
+    {% endif %}
+  </div>
+  {% endif %}
+</header>
+
+{% if term.status != 'ACTIVE' %}
+<div class="alert alert--info" role="status">
+  {% include "shared/ui/_icon.html" with name="lock" %}
+  <p>{% if term.status == 'PENDING_SIGNOFF' %}This A.Y. is awaiting approval, so this note is read-only.{% else %}This A.Y. is closed, so this note is read-only.{% endif %}</p>
+</div>
+{% endif %}
+
+<div class="note-body">
+  <section class="catalogue" aria-labelledby="record-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head">
+      <h2 class="catalogue__title" id="record-title">The record</h2>
+      <p class="catalogue__sub t-mono">{{ ay }}</p>
+    </div>
+    <div class="catalogue__body">
+      <dl class="dl">
+        <div>
+          <dt>Scope</dt>
+          <dd>
+            {% if note.scope == 'ORGANIZATION' %}
+            <span class="chip chip--exec">Whole organization</span>
+            {% else %}
+            <span class="chip chip--head">{{ note.committee.name }}</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt>Written by</dt>
+          <dd>{{ note.author.get_full_name|default:note.author.username }}</dd>
+        </div>
+        <div>
+          <dt>Filed on</dt>
+          <dd class="t-mono">{{ note.created_at|date:"j F Y" }}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="note-content-title">
+    <h2 class="card__title" id="note-content-title">What the next officers need to know</h2>
+    <p class="prose">{{ note.content }}</p>
+  </section>
+</div>
+
+{% if can_edit and edit_form %}
+<dialog class="overlay modal modal--form" id="handover-edit-modal" aria-labelledby="handover-edit-title"{% if open_dialog == 'handover-edit-modal' %} data-open-on-load{% endif %}>
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Edit</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="handover-edit-title">Edit handover note</h2></div>
+    <form method="post" action="{% url 'handover_edit' organization.pk note.pk %}" id="handover-edit-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      {% if edit_form.non_field_errors %}
+      <div class="alert alert--danger" role="alert">{% include "shared/ui/_icon.html" with name="warning-circle" %}<ul>{% for e in edit_form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+      {% endif %}
+
+      {% if access.is_executive %}
+      {% include "shared/ui/_field.html" with field=edit_form.scope %}
+      <div id="handover-committee-wrap-edit">
+        {% include "shared/ui/_field.html" with field=edit_form.committee %}
+      </div>
+      {% endif %}
+
+      {% include "shared/ui/_field.html" with field=edit_form.content %}
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="handover-edit-form" class="btn btn--primary">Save changes</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+
+{% if can_delete %}
+<dialog class="overlay modal" id="handover-delete-modal" aria-labelledby="handover-delete-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="handover-delete-title">Delete this handover note?</h2>
+    <div class="modal__body">
+      <p>This permanently removes this handover note from <span class="t-mono">{{ ay }}</span>. This cannot be undone.</p>
+    </div>
+    <form method="post" id="handover-delete-form" action="{% url 'handover_delete' organization.pk note.pk %}">{% csrf_token %}</form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Keep note</button>
+      <button type="submit" form="handover-delete-form" class="btn btn--danger">Delete note</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}

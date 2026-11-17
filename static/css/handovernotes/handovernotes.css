@@ -1,0 +1,14 @@
+/* Handover notes — list & detail. Tokens from shared.css only. */
+.handovers__link { color: var(--text-strong); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  .handovers__link:hover { color: var(--text-link); text-decoration: underline; }
+}
+
+.btn--danger-quiet { color: var(--danger-fg); }
+
+.note-body { display: grid; gap: var(--space-8); align-items: start; }
+@media (min-width: 1100px) {
+  .note-body { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+}
+
+.prose { margin-top: var(--space-4); white-space: pre-line; color: var(--text-body); max-width: 65ch; line-height: var(--leading-body); }
