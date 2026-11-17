@@ -24,6 +24,13 @@
   {% endif %}
 </header>
 
+{% if term.status != 'ACTIVE' %}
+<div class="alert alert--info" role="status">
+  {% include "shared/ui/_icon.html" with name="lock" %}
+  <p>{% if term.status == 'PENDING_SIGNOFF' %}This A.Y. is awaiting approval, so this event is read-only.{% else %}This A.Y. is closed, so this event is read-only.{% endif %}</p>
+</div>
+{% endif %}
+
 <div class="event-body">
   <div class="event-side">
     <section class="catalogue event-facts" aria-labelledby="facts-title">

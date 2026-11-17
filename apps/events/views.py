@@ -13,16 +13,16 @@ Dates may be future or past. Logging is what waits for the day (see eventlogs).
 """
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
-from apps.accounts.models import Event
+from apps.accounts.models import Event, Membership, Term
 from apps.shared.notify import notify
-from apps.shared.permissions import EXECUTIVE, HEAD, OrgRoleRequiredMixin, org_nav
+from apps.shared.permissions import EXECUTIVE, HEAD, LIVE, OrgRoleRequiredMixin, org_nav
 from apps.shared.selectors import ay_label
 
 from .forms import EventForm
@@ -31,7 +31,16 @@ PLANNERS = (EXECUTIVE, HEAD)
 
 
 def term_events(access):
-    return Event.objects.filter(organization=access.organization, term=access.term).select_related("committee", "created_by")
+    return Event.objects.filter(organization=access.organization, term=access.term).select_related("committee", "created_by", "term")
+
+
+def readable_events(access, user):
+    """Events this member can open: current A.Y. plus closed archive A.Y.s for live members, or served A.Y.s for alumni."""
+    qs = Event.objects.filter(organization=access.organization).select_related("committee", "created_by", "term")
+    if access.term.status in LIVE:
+        return qs.filter(Q(term=access.term) | Q(term__status=Term.Status.CLOSED))
+    served = Membership.objects.filter(user=user, organization=access.organization).values("term_id")
+    return qs.filter(term_id__in=served)
 
 
 def can_correct(access, event):
@@ -81,21 +90,23 @@ class EventList(OrgRoleRequiredMixin, TemplateView):
 class EventDetail(OrgRoleRequiredMixin, View):
     def get(self, request, org_id, pk):
         access = self.access
-        event = get_object_or_404(term_events(access), pk=pk)
+        event = get_object_or_404(readable_events(access, request.user), pk=pk)
+        is_open_event_term = (event.term_id == access.term.pk and access.is_open)
         today = timezone.localdate()
         volunteers = list(event.volunteers.order_by("first_name", "last_name", "username"))
         is_volunteer = any(v.pk == request.user.pk for v in volunteers)
         logs = [{"log": log,
-                 "can_edit": access.is_open and log.author_id == request.user.pk,
-                 "can_delete": access.is_open and (log.author_id == request.user.pk or access.is_executive)}
+                 "can_edit": is_open_event_term and log.author_id == request.user.pk,
+                 "can_delete": is_open_event_term and (log.author_id == request.user.pk or access.is_executive)}
                 for log in event.logs.select_related("author")]
         context = base_context(
-            access, event=event, volunteers=volunteers, logs=logs, today=today,
-            can_edit=can_correct(access, event), can_delete=access.is_open and access.is_executive,
+            access, event=event, term=event.term, volunteers=volunteers, logs=logs, today=today,
+            can_edit=is_open_event_term and can_correct(access, event),
+            can_delete=is_open_event_term and access.is_executive,
             is_volunteer=is_volunteer, logging_open=event.date <= today,
-            can_log=access.is_open and is_volunteer and event.date <= today,
-            wait_to_log=access.is_open and is_volunteer and event.date > today,
-            ay=ay_label(access.term.label))
+            can_log=is_open_event_term and is_volunteer and event.date <= today,
+            wait_to_log=is_open_event_term and is_volunteer and event.date > today,
+            ay=ay_label(event.term.label))
         return render(request, "events/event_detail.html", context)
 
 
