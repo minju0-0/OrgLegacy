@@ -1,0 +1,173 @@
+{% extends "shared/layout_app.html" %}
+{% load static %}
+{% block title %}Handover &amp; Approval | {{ organization.name }}{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/signoffs/signoffs.css' %}">{% endblock %}
+{% block crumbs %}<a href="{% url 'home' %}">Home</a><span aria-hidden="true">/</span><a href="{% url 'organization_detail' organization.pk %}">{{ organization.acronym|default:organization.name }}</a><span aria-hidden="true">/</span><strong>Handover &amp; approval</strong>{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Handover &amp; Approval</h1>
+    <p class="page-head__sub">{{ organization.name }}, <span class="t-mono">{{ ay }}</span>. Every active Executive approves before this academic year closes and the next one begins.</p>
+  </div>
+  {% if term.status == 'PENDING_SIGNOFF' and access.is_executive %}
+  <div class="page-head__actions">
+    <form method="post" action="{% url 'signoff_cancel' organization.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn--outline btn--danger-quiet">Return to active</button>
+    </form>
+  </div>
+  {% endif %}
+</header>
+
+{% if term.status == 'PENDING_SIGNOFF' %}
+<div class="alert alert--info" role="status">
+  {% include "shared/ui/_icon.html" with name="lock" %}
+  <p><strong>Awaiting approval.</strong> Edits are paused while active Executives review the records and approve the handover.</p>
+</div>
+{% elif term.status == 'CLOSED' %}
+<div class="alert alert--info" role="status">
+  {% include "shared/ui/_icon.html" with name="check-circle" %}
+  <p><strong>This A.Y. is closed.</strong> All records are preserved in the archive for incoming officers.</p>
+</div>
+{% endif %}
+
+<div class="signoff-body">
+  <section class="catalogue" aria-labelledby="readiness-title">
+    <span class="catalogue__punch" aria-hidden="true"></span>
+    <div class="catalogue__head">
+      <div>
+        <h2 class="catalogue__title" id="readiness-title">Handover record</h2>
+        <p class="catalogue__sub t-mono">{{ ay }}</p>
+      </div>
+      {% include "shared/ui/_stamp.html" with status=term.status class="stamp--lg stamp--tilt" %}
+    </div>
+    <div class="catalogue__body">
+      <dl class="dl">
+        <div>
+          <dt>Current A.Y.</dt>
+          <dd class="t-mono">{{ ay }}, ends {{ term.end_date|date:"j M Y" }}</dd>
+        </div>
+        <div>
+          <dt>Next A.Y.</dt>
+          <dd class="signoff-row">
+            {% if plan %}
+            <span class="t-mono">{{ plan.label }} ({{ plan.start_date|date:"j M Y" }} to {{ plan.end_date|date:"j M Y" }})</span>
+            {% if access.is_executive and access.is_open %}
+            <a href="{% url 'term_plan' organization.pk %}" class="link-btn">Change</a>
+            {% endif %}
+            {% else %}
+            <span class="t-muted">Not set up yet</span>
+            {% if access.is_executive and access.is_open %}
+            <a href="{% url 'term_plan' organization.pk %}" class="link-btn">Set up next A.Y.</a>
+            {% endif %}
+            {% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt>Handover notes</dt>
+          <dd class="signoff-row">
+            <span><strong class="t-mono">{{ notes_count }}</strong> note{{ notes_count|pluralize }} ({{ notes_org }} organization, {{ notes_comm }} committee)</span>
+            <a href="{% url 'handover_list' organization.pk %}" class="link-btn">Read notes</a>
+          </dd>
+        </div>
+        <div>
+          <dt>Approvals</dt>
+          <dd class="t-mono">{{ approved_count }} of {{ total_execs }} Executive{{ total_execs|pluralize }} approved</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="signoff-col">
+    <section class="card" aria-labelledby="board-title">
+      <div class="card__head">
+        <div>
+          <h2 class="card__title" id="board-title">Executives</h2>
+          <p class="card__sub">Every active Executive must approve to complete the handover.</p>
+        </div>
+        <span class="chip chip--neutral t-mono">{{ approved_count }} / {{ total_execs }}</span>
+      </div>
+
+      <ul class="board-list">
+        {% for exec in exec_status_list %}
+        <li class="board-item{% if exec.is_me %} board-item--me{% endif %}">
+          <div class="board-item__user">
+            <span class="board-item__name">{{ exec.user.get_full_name|default:exec.user.username }}</span>
+            {% if exec.is_me %}<span class="chip chip--outline">You</span>{% endif %}
+          </div>
+          <div class="board-item__vote">
+            {% if exec.decision == 'APPROVED' %}
+            <span class="chip chip--exec">Approved</span>
+            {% elif exec.decision == 'CHANGES_REQUESTED' %}
+            <span class="chip chip--head">Changes requested</span>
+            {% else %}
+            <span class="chip chip--outline">Awaiting approval</span>
+            {% endif %}
+          </div>
+          {% if exec.feedback %}
+          <p class="board-item__feedback">&ldquo;{{ exec.feedback }}&rdquo;</p>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% if can_initiate %}
+    <section class="card action-card" aria-labelledby="initiate-title">
+      <h2 class="card__title" id="initiate-title">Ready to hand over?</h2>
+      <p class="card__sub">Opening approval pauses edits across the organization so every Executive can review the handover notes and approve.</p>
+      <form method="post" action="{% url 'signoff_initiate' organization.pk %}" class="action-card__foot">
+        {% csrf_token %}
+        <button type="submit" class="btn btn--primary">Open for approval</button>
+      </form>
+    </section>
+    {% elif can_vote %}
+    <section class="card action-card" aria-labelledby="vote-title">
+      <h2 class="card__title" id="vote-title">Your approval</h2>
+      <p class="card__sub">Once every active Executive approves, <span class="t-mono">{{ ay }}</span> closes and <span class="t-mono">{{ plan.label }}</span> becomes the active A.Y.</p>
+      <div class="action-card__foot">
+        <button type="button" class="btn btn--outline" data-dialog-open="request-changes-modal">Request changes</button>
+        <form method="post" action="{% url 'signoff_vote' organization.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="decision" value="APPROVED">
+          <button type="submit" class="btn btn--primary">Approve handover</button>
+        </form>
+      </div>
+    </section>
+    {% elif term.status == 'ACTIVE' and not plan and access.is_executive %}
+    <section class="card action-card" aria-labelledby="next-step-title">
+      <h2 class="card__title" id="next-step-title">Before you hand over</h2>
+      <p class="card__sub">Set up the name and dates for the next academic year first.</p>
+      <div class="action-card__foot">
+        <a href="{% url 'term_plan' organization.pk %}" class="btn btn--primary">Set up next A.Y.</a>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+
+{% if can_vote %}
+<dialog class="overlay modal modal--form" id="request-changes-modal" aria-labelledby="changes-title">
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Handover</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="changes-title">Request changes</h2></div>
+    <form method="post" action="{% url 'signoff_vote' organization.pk %}" id="changes-form" class="modal__form form-stack" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="decision" value="CHANGES_REQUESTED">
+      <div class="field">
+        <label class="field__label" for="changes-feedback">What needs to be updated?</label>
+        <div class="field__control">
+          <textarea name="feedback" id="changes-feedback" class="form-input" rows="4" placeholder="Note what is missing or needs fixing before this A.Y. can close..." required></textarea>
+        </div>
+        <p class="field__help">This returns the A.Y. to Active so officers can update their records.</p>
+      </div>
+    </form>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--outline" data-dialog-close>Cancel</button>
+      <button type="submit" form="changes-form" class="btn btn--danger">Request changes</button>
+    </div>
+  </div>
+</dialog>
+{% endif %}
+{% endblock %}
