@@ -173,6 +173,16 @@ document.addEventListener('DOMContentLoaded', () => {
 (function () {
     'use strict';
     var $ = function (s, r) { return (r || document).querySelector(s); };
+    var OL = window.OL;
+
+    if (OL) {
+        OL.register('settings:save-notifications', function (el, d) {
+            return OL.post('/settings/notifications/', { prefs: d.prefs });
+        });
+        OL.register('account:export', function () {
+            return OL.post('/settings/export/', {});
+        });
+    }
 
     /* ---- Notification preferences ---- */
     var form = document.getElementById('notif-form');
