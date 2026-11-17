@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from apps.accounts.models import Committee, Event, Membership, Organization, Supplier, Term, TermPlan
+from apps.accounts.models import Committee, Event, HandoverNote, Membership, Organization, Supplier, Term, TermPlan
 from apps.shared.http import fail, json_login_required, read_json
 from apps.shared.permissions import OrgRoleRequiredMixin
 from apps.shared.selectors import ay_label
@@ -84,6 +84,7 @@ class OrganizationPage(OrgRoleRequiredMixin, TemplateView):
                 "committees": Committee.objects.filter(organization=org, is_active=True).count(),
                 "events": events.count(),
                 "suppliers": Supplier.objects.filter(organization=org).count(),
+                "notes": HandoverNote.objects.filter(organization=org, term=term).count(),
             },
             years=[{"label": ay_label(t.label), "status": t.status, "is_this": t.pk == term.pk,
                     "dates": f"{t.start_date:%-d %b %Y} to {t.end_date:%-d %b %Y}"} for t in years],

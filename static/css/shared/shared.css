@@ -586,11 +586,13 @@ input[type="checkbox"], input[type="radio"] { width: 1.25rem; height: 1.25rem; m
 .empty__art { width: min(14rem, 60%); height: auto; color: var(--ink); margin-bottom: var(--space-2); }
 .empty__title { font: var(--weight-semi) var(--text-xl)/1.2 var(--font-serif); }
 .empty__text { max-width: 44ch; color: var(--text-muted); font-size: var(--text-sm); }
+.empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); margin-top: var(--space-2); }
 
 /* Page header used by every app page */
 .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-8); }
 .page-head__title { font: var(--weight-semi) var(--text-4xl)/1.05 var(--font-serif); letter-spacing: var(--tracking-display); text-wrap: balance; }
 .page-head__sub { margin-top: var(--space-2); color: var(--text-muted); max-width: 56ch; }
+.page-head__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 
 .section-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
 .section-title h2 { font-size: var(--text-xl); letter-spacing: var(--tracking-tight); line-height: 1.2; }
@@ -712,14 +714,20 @@ dialog.overlay[data-state="open"]::backdrop { opacity: 1; transition-duration: v
 
 /* Modal */
 dialog.modal { margin: auto; width: min(32rem, calc(100vw - 2rem)); }
+dialog.modal--form { width: min(36rem, calc(100vw - 2rem)); }
 .modal__panel { background: var(--surface-card); border-radius: var(--radius-xl); box-shadow: var(--shadow-3); padding: var(--space-8) var(--space-8) var(--space-6); opacity: 0; transform: translateY(var(--enter-y)); transition: opacity var(--dur-small) ease, transform var(--dur-small) var(--ease-out); }
+.modal--form .modal__panel { position: relative; padding-top: var(--space-10); }
+.modal__tab { position: absolute; top: 0; left: var(--space-8); padding: 0.25rem var(--space-3); background: var(--kraft-300); color: var(--ink); border-radius: 0 0 var(--radius-sm) var(--radius-sm); font: var(--weight-semi) var(--text-xs)/1 var(--font-mono); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.modal__titlerow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
+.modal__titlerow .modal__title { margin-bottom: 0; }
+.modal__form { margin-top: var(--space-5); }
 dialog.modal[data-state="open"] .modal__panel { opacity: 1; transform: none; transition-duration: var(--dur-medium); }
 .modal__title { font: var(--weight-semi) var(--text-2xl)/1.15 var(--font-serif); margin-bottom: var(--space-3); }
 .modal__body { color: var(--text-body); }
 .modal__body strong { color: var(--text-strong); }
 .modal__facts { margin: var(--space-5) 0 0; padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-well); }
 .modal__foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-6); }
-@media (max-width: 480px) { .modal__panel { padding: var(--space-6) var(--space-5) var(--space-5); } .modal__foot .btn { flex: 1; } }
+@media (max-width: 480px) { .modal__panel { padding: var(--space-6) var(--space-5) var(--space-5); } .modal--form .modal__panel { padding-top: var(--space-9); } .modal__tab { left: var(--space-5); } .modal__foot .btn { flex: 1; } }
 
 /* Drawer (ChronoTask): from the right on desktop, from the bottom on phones */
 dialog.drawer { margin: 0 0 0 auto; height: 100dvh; width: min(30rem, 100vw); }

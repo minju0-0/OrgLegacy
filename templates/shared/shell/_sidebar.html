@@ -26,6 +26,12 @@
     <a class="nav-item" href="{% url 'supplier_list' org_nav.id %}"{% if current == 'supplier_list' %} aria-current="page"{% endif %}>
       <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="package" %}</span><span>Suppliers</span>
     </a>
+    <a class="nav-item" href="{% url 'handover_list' org_nav.id %}"{% if current == 'handover_list' or current == 'handover_detail' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="note" %}</span><span>Handover notes</span>
+    </a>
+    <a class="nav-item" href="{% url 'archive_search' org_nav.id %}"{% if current == 'archive_search' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="magnifying-glass" %}</span><span>Archive</span>
+    </a>
     <a class="nav-item" href="{% url 'member_list' org_nav.id %}"{% if current == 'member_list' %} aria-current="page"{% endif %}>
       <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="users" %}</span><span>Members</span>
     </a>
@@ -35,6 +41,9 @@
     {% if org_nav.is_executive %}
     <a class="nav-item" href="{% url 'term_plan' org_nav.id %}"{% if current == 'term_plan' %} aria-current="page"{% endif %}>
       <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="refresh" %}</span><span>Next A.Y.</span>
+    </a>
+    <a class="nav-item" href="{% url 'signoff_page' org_nav.id %}"{% if current == 'signoff_page' %} aria-current="page"{% endif %}>
+      <span class="nav-item__chip">{% include "shared/ui/_icon.html" with name="check-circle" %}</span><span>Handover &amp; approval</span>
     </a>
     {% endif %}
     {% if org_nav.can_issue_codes %}

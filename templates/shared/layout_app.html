@@ -51,7 +51,9 @@
     </li>
     {% endfor %}
   </ul>
+  {% if notifications_has_more %}
   <footer class="popover__foot"><button type="button" class="link-arrow" data-action="notifications:view-all">View all notifications {% include "shared/ui/_icon.html" with name="arrow-right" class="icon--sm" %}</button></footer>
+  {% endif %}
   {% else %}
   <div class="popover__empty">
     <p><strong>You're all caught up.</strong></p>

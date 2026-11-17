@@ -7,8 +7,11 @@ The urlpatterns list routes URLs to views. For more information please see:
 from django.contrib import admin
 from django.urls import path, include
 
+from apps.archive.views import GlobalSearchView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("search/", GlobalSearchView.as_view(), name="global_search"),
     path("", include("apps.landing.urls")),
     path("login/", include("apps.login.urls")),
     path("register/", include("apps.register.urls")),
@@ -27,6 +30,9 @@ urlpatterns = [
     path("organizations/", include("apps.suppliers.urls")),
     path("organizations/", include("apps.ratings.urls")),
     path("organizations/", include("apps.terms.urls")),
+    path("organizations/", include("apps.handovernotes.urls")),
+    path("organizations/", include("apps.signoffs.urls")),
+    path("organizations/", include("apps.archive.urls")),
     path("join/", include("apps.join.urls")),
     path("notifications/", include("apps.notifications.urls")),
 ]

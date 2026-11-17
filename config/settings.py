@@ -83,6 +83,15 @@ INSTALLED_APPS = [
 
     # Phase 2: set up the next A.Y. while the current one is live
     'apps.terms',
+
+    # Phase 5: Handover notes written by outgoing officers
+    'apps.handovernotes',
+
+    # Phase 6: Collective executive review and sign-off
+    'apps.signoffs',
+
+    # Phase 7: Searchable institutional memory archive
+    'apps.archive',
 ]
 
 MIDDLEWARE = [
@@ -119,13 +128,31 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL'),
+#         conn_max_age=600,
+#         # Supabase/Postgres needs SSL; a local sqlite file (used for quick test runs) does not.
+#         ssl_require=not (os.getenv('DATABASE_URL') or '').startswith('sqlite'),
+#     )
+# }
+
+# Database
+# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        # Supabase/Postgres needs SSL; a local sqlite file (used for quick test runs) does not.
-        ssl_require=not (os.getenv('DATABASE_URL') or '').startswith('sqlite'),
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
