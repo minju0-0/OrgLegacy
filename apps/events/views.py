@@ -131,7 +131,7 @@ class EventCreate(OrgRoleRequiredMixin, View):
         event.save()
         form.save_m2m()
         tell_new_volunteers(event, access, request.user, before=set())
-        messages.success(request, f"{event.title} is planned for {event.date:%-d %b %Y}.")
+        messages.success(request, f"{event.title} is planned for {event.date.day} {event.date:%b %Y}.")
         return redirect(reverse("event_detail", args=[access.organization.pk, event.pk]))
 
 

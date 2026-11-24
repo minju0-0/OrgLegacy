@@ -36,7 +36,7 @@ def code_rows(access, user):
         rows.append({
             "id": c.pk, "raw": c.code, "pretty": codes.pretty(c.code), "role": c.get_role_display(), "role_code": c.role,
             "committee": c.committee.name if c.committee else "", "uses": c.uses_count, "max": c.max_uses,
-            "expires": timezone.localtime(c.expires_at).strftime("%-d %b, %-I:%M %p"),
+            "expires": (lambda dt: f"{dt.day} {dt:%b}, {dt.hour % 12 or 12}:{dt:%M %p}")(timezone.localtime(c.expires_at)),
             "state": s, "state_label": codes.STATE_LABEL[s], "live": s == "active",
             "by": c.created_by.get_full_name() or c.created_by.username, "mine": c.created_by_id == user.pk,
             "can_revoke": s == "active" and (access.is_executive or c.created_by_id == user.pk) and access.is_open,

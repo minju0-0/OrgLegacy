@@ -46,7 +46,7 @@ class LogAdd(LogBase):
             messages.error(request, "Only the volunteers picked for this event can write logs on it.")
             return self.back(event)
         if event.date > timezone.localdate():
-            messages.info(request, f"Logs open on {event.date:%-d %b %Y}, the day of the event.")
+            messages.info(request, f"Logs open on {event.date.day} {event.date:%b %Y}, the day of the event.")
             return self.back(event)
         text = self.text(request, event)
         if text:

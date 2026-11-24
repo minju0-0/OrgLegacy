@@ -65,7 +65,7 @@ class EventForm(forms.ModelForm):
         date, term = self.cleaned_data["date"], self.access.term
         if not term.start_date <= date <= term.end_date:
             raise forms.ValidationError(
-                f"This A.Y. runs {term.start_date:%-d %b %Y} to {term.end_date:%-d %b %Y}. Pick a date inside it.")
+                f"This A.Y. runs {term.start_date.day} {term.start_date:%b %Y} to {term.end_date.day} {term.end_date:%b %Y}. Pick a date inside it.")
         if self.instance.pk and date > timezone.localdate() and self.instance.logs.exists():
             raise forms.ValidationError("Volunteers have already written logs, so this event cannot move to a later date.")
         return date

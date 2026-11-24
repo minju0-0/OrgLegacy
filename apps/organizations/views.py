@@ -87,7 +87,7 @@ class OrganizationPage(OrgRoleRequiredMixin, TemplateView):
                 "notes": HandoverNote.objects.filter(organization=org, term=term).count(),
             },
             years=[{"label": ay_label(t.label), "status": t.status, "is_this": t.pk == term.pk,
-                    "dates": f"{t.start_date:%-d %b %Y} to {t.end_date:%-d %b %Y}"} for t in years],
+                    "dates": f"{t.start_date.day} {t.start_date:%b %Y} to {t.end_date.day} {t.end_date:%b %Y}"} for t in years],
             active_page="organization_detail",
         )
         return context

@@ -47,7 +47,7 @@ class PlanForm(forms.Form):
         data = super().clean()
         start, end = data.get("start_date"), data.get("end_date")
         if start and start <= self.term.end_date:
-            self.add_error("start_date", f"It must start after the current A.Y. ends on {self.term.end_date:%-d %b %Y}.")
+            self.add_error("start_date", f"It must start after the current A.Y. ends on {self.term.end_date.day} {self.term.end_date:%b %Y}.")
         if start and end:
             if end <= start:
                 self.add_error("end_date", "It must end after it starts.")

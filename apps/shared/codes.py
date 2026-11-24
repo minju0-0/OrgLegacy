@@ -45,7 +45,8 @@ def pretty(value):
 
 
 def expires_text(code):
-    return "Expires " + timezone.localtime(code.expires_at).strftime("%-d %b, %-I:%M %p")
+    dt = timezone.localtime(code.expires_at)
+    return f"Expires {dt.day} {dt:%b}, {dt.hour % 12 or 12}:{dt:%M %p}"
 
 
 def is_valid_now(code, now=None):
