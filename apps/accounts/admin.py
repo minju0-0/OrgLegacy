@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import (
-    User, Organization, Committee, Term, Membership, JoinCode, Event,
+    User, Organization, Committee, Term, Membership, JoinCode, Event, EventLog, TermPlan,
     Supplier, SupplierRating, HandoverNote, TermSignOff, Notification,
 )
 
@@ -13,6 +13,6 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register([
-    Organization, Committee, Term, Membership, JoinCode, Event,
+    Organization, Committee, Term, Membership, JoinCode, Event, EventLog, TermPlan,
     Supplier, SupplierRating, HandoverNote, TermSignOff, Notification,
 ])
