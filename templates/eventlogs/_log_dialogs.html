@@ -1,0 +1,38 @@
+{% comment %} The three dialogs for logs. Included by events/event_detail.html. Edit and delete are filled in by eventlogs.js. {% endcomment %}
+{% if can_log %}
+<dialog class="overlay modal modal--form" id="eventlog-add-modal" aria-labelledby="eventlog-add-title">
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Log</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="eventlog-add-title">Add your log</h2></div>
+    <p class="t-muted">Your name shows beside it. You can add more than one and edit yours later.</p>
+    <form method="post" action="{% url 'eventlog_add' organization.pk event.pk %}" id="eventlog-add-form" class="modal__form form-stack">
+      {% csrf_token %}
+      <div class="field"><label class="field__label" for="eventlog-add-what">What happened</label><div class="field__control"><textarea class="form-input" id="eventlog-add-what" name="what_happened" rows="5" maxlength="5000" required></textarea></div></div>
+      <div class="field"><label class="field__label" for="eventlog-add-lessons">Challenges and lessons (optional)</label><div class="field__control"><textarea class="form-input" id="eventlog-add-lessons" name="challenges_lessons" rows="4" maxlength="5000"></textarea></div><div class="field__help">What went wrong, what you would change. Next year's officers read this first.</div></div>
+    </form>
+    <div class="modal__foot"><button type="button" class="btn btn--outline" data-dialog-close>Cancel</button><button type="submit" form="eventlog-add-form" class="btn btn--primary">Add log</button></div>
+  </div>
+</dialog>
+{% endif %}
+
+<dialog class="overlay modal modal--form" id="eventlog-edit-modal" aria-labelledby="eventlog-edit-title">
+  <div class="modal__panel">
+    <span class="modal__tab" aria-hidden="true">Edit</span>
+    <div class="modal__titlerow"><h2 class="modal__title" id="eventlog-edit-title">Edit your log</h2></div>
+    <form method="post" action="" id="eventlog-edit-form" class="modal__form form-stack">
+      {% csrf_token %}
+      <div class="field"><label class="field__label" for="eventlog-edit-what">What happened</label><div class="field__control"><textarea class="form-input" id="eventlog-edit-what" name="what_happened" rows="5" maxlength="5000" required></textarea></div></div>
+      <div class="field"><label class="field__label" for="eventlog-edit-lessons">Challenges and lessons (optional)</label><div class="field__control"><textarea class="form-input" id="eventlog-edit-lessons" name="challenges_lessons" rows="4" maxlength="5000"></textarea></div></div>
+    </form>
+    <div class="modal__foot"><button type="button" class="btn btn--outline" data-dialog-close>Cancel</button><button type="submit" form="eventlog-edit-form" class="btn btn--primary">Save log</button></div>
+  </div>
+</dialog>
+
+<dialog class="overlay modal" id="eventlog-delete-modal" aria-labelledby="eventlog-delete-title">
+  <div class="modal__panel">
+    <h2 class="modal__title" id="eventlog-delete-title">Delete this log?</h2>
+    <div class="modal__body"><p>It is removed from the event for good. This cannot be undone.</p></div>
+    <form method="post" id="eventlog-delete-form" action="">{% csrf_token %}</form>
+    <div class="modal__foot"><button type="button" class="btn btn--outline" data-dialog-close>Keep it</button><button type="submit" form="eventlog-delete-form" class="btn btn--danger">Delete log</button></div>
+  </div>
+</dialog>
